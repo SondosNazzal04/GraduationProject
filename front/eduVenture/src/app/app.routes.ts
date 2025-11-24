@@ -1,3 +1,17 @@
-import { Routes } from '@angular/router';
+import { Routes } from "@angular/router";
 
-export const routes: Routes = [];
+
+import { ParentAttendance } from './parents/parent-attendance/parent-attendance';
+import { ParentGrades } from './parents/parent-grades/parent-grades';
+import { ParentClasses } from './parents/parent-classes/parent-classes';
+import { ParentDashboard } from './parents/parent-dashboard/parent-dashboard';
+
+export const routes: Routes = [
+  { path: 'parent-dashboard', component: ParentDashboard },
+  { path: 'parent-attendance', component: ParentAttendance },
+  { path: 'parent-grades', component: ParentGrades },
+  { path: 'parent-classes', component: ParentClasses },
+];
+
+
+
