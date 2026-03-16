@@ -7,7 +7,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, ChatTestComponent],
+  imports: [RouterOutlet,
+            // RouterLink,
+            // ChatTestComponent
+          ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

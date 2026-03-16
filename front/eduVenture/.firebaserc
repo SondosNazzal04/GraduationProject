@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "eduventure-project"
+  },
+  "targets": {
+    "eduventure-project": {
+      "hosting": {
+        "eduventure-project": [
+          "eduventure-project"
+        ]
+      }
+    }
+  }
+}

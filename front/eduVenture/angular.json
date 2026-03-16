@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "eduVenture": {
+    "eduventure-project": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -55,10 +55,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "eduVenture:build:production"
+              "buildTarget": "eduventure-project:build:production"
             },
             "development": {
-              "buildTarget": "eduVenture:build:development"
+              "buildTarget": "eduventure-project:build:development"
             }
           },
           "defaultConfiguration": "development"

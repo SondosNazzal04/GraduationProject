@@ -1,4 +1,5 @@
 import { Routes } from "@angular/router";
+import { Login } from "./features/auth/login/login";
 
 
 import { ParentAttendance } from './parents/parent-attendance/parent-attendance';
@@ -8,7 +9,8 @@ import { ParentDashboard } from './parents/parent-dashboard/parent-dashboard';
 import { ParentChildren } from "./parents/parent-children/parent-children";
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/parent-dashboard', pathMatch: 'full' },
+  { path: 'login', component: Login},
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'parent-dashboard', component: ParentDashboard },
   { path: 'parent-attendance', component: ParentAttendance },
   { path: 'parent-grades', component: ParentGrades },
