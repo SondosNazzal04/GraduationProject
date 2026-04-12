@@ -1,0 +1,92 @@
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-0">Activities</h3>
+      <small class="text-muted">View assignments, quizzes and projects assigned by your teacher</small>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- List column -->
+    <div class="col-lg-8">
+      <div class="list-group">
+        <div *ngFor="let a of activities" class="list-group-item mb-2 rounded-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-start">
+            <div class="avatar bg-primary bg-opacity-10 me-3 d-flex align-items-center justify-content-center">
+              <span class="text-primary">◎</span>
+            </div>
+            <div>
+              <div class="fw-semibold">{{ a.title }}</div>
+              <div class="text-muted small">
+                {{ a.subject }} &middot; {{ a.type }}
+              </div>
+              <div class="text-muted small mt-1">
+                Due: {{ formatDate(a.dueDate) }}
+              </div>
+              <div *ngIf="isSubmitted(a.id)" class="badge bg-success mt-1">Submitted</div>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <div class="text-primary fw-bold">{{ a.points }} pts</div>
+            <button class="btn btn-sm btn-outline-primary mt-2" (click)="openDetail(a)">
+              View & Submit
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="activities.length === 0" class="py-4 text-center text-muted">
+          No activities available.
+        </div>
+      </div>
+    </div>
+
+    <!-- Info column: optional quick info or help -->
+    <div class="col-lg-4">
+      <div class="card p-3">
+        <h6 class="mb-2">How to submit</h6>
+        <p class="small text-muted mb-0">
+          Click "View & Submit" to see the full instructions. You can type your answer or notes and press Submit. Your submission will be recorded locally (for now).
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal (simple Bootstrap-styled controlled by Angular) -->
+<div class="modal-backdrop fade show" *ngIf="showDetailModal" style="z-index:1040;"></div>
+<div class="modal d-block" tabindex="-1" *ngIf="showDetailModal" style="z-index:1050;">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ selected?.title }}</h5>
+        <button type="button" class="btn-close" (click)="closeDetail()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-2 text-muted small">
+          {{ selected?.subject }} &middot; {{ selected?.type }} &middot; Due: {{ formatDate(selected?.dueDate) }}
+        </div>
+
+        <p class="mb-3" *ngIf="selected?.description">{{ selected?.description }}</p>
+
+        <div class="mb-3">
+          <label class="form-label">Your answer / notes (optional)</label>
+          <textarea class="form-control" rows="6" [(ngModel)]="answerText"
+                    placeholder="Type your answer or notes here..."></textarea>
+        </div>
+
+        <div *ngIf="isSubmitted(selected?.id || -1)" class="alert alert-success">
+          You already submitted this activity.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetail()">Close</button>
+        <button class="btn btn-primary" [disabled]="isSubmitted(selected?.id || -1)" (click)="submitActivity()">
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+.dashboard-bg {
+  min-height: 100vh;
+  background: #f6fbff;
+}
+.sidebar {
+  width: 230px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+.sidebar-header { margin-bottom: 2rem; }
+.nav-link {
+  color: #222;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 9px 13px;
+  transition: background 0.15s;
+}
+.nav-link.active, .nav-link:hover {
+  background: #3a86ff !important;
+  color: #fff !important;
+}
+.signout { margin-top: auto; }
+.signout a:hover {
+  color: #f01c1c;
+  background: #ffdede;
+  border-radius: 8px;
+}
+.students-main { width: 0; flex-grow: 1; }
+.dashboard-search input {
+  border-radius: 8px;
+  min-width: 180px;
+  background: #f4f7fb;
+  border: 1px solid #e5e7eb;
+}
+.students-list { min-height: 60vh; }
+.student-card {
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  min-height: 180px;
+  transition: box-shadow 0.12s;
+}
+.student-card:hover {
+  box-shadow: 0 4px 20px #3a86ff19;
+}
+.student-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 1.13rem;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #0070f3;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background-color: #195ea3 !important;
+}
+.btn-light {
+  border-radius: 12px;
+  font-weight: 500;
+}

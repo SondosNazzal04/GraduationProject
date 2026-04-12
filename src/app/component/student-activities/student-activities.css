@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+  color: #1f2937;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-group-item {
+  background-color: #eef5ff;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.35);
+}
+
+/* modal container */
+.modal {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+}
+
+/* small responsive tweaks */
+@media (max-width: 768px) {
+  .avatar { width: 48px; height: 48px; }
+}

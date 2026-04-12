@@ -1,0 +1,296 @@
+ <!-- <div class="container my-3">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h3 class="mb-1">Activities &amp; Assignment</h3>
+            <div class="text-muted small">Manage Activities — Create and manage
+                assignments, quizzes, and projects</div>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" (click)="openCreate()">
+                <span class="me-1">＋</span> Create Activity
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Current Activities</h5>
+
+            <div class="list-group mt-3">
+                <div
+                    class="list-group-item list-group-item-action d-flex align-items-center rounded-3 mb-2"
+                    *ngFor="let a of activities; trackBy: trackById">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div
+                            class="avatar bg-primary bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center me-3">
+                            <span class="text-primary fs-4">◎</span>
+                        </div>
+
+                        <div>
+                            <div class="fw-semibold">{{ a.title }}</div>
+
+                            <div class="text-muted small mt-1">
+                                <span class="me-2">{{ a.subject }}</span>
+                                <span class="mx-1">•</span>
+                                <span>{{ a.type }}</span>
+                            </div>
+
+                            <div class="small mt-1">
+                                {{ a.description }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="text-end">
+                        <div class="small text-muted">
+                            <span class="me-1">📅</span>
+                            <span>DUE: {{ a.dueDate }}</span>
+                        </div>
+                        <div class="text-primary fw-bold small mt-1">{{ a.points
+                            }} Pts</div>
+
+                        <div class="mt-2 d-flex justify-content-end gap-2">
+                            <button class="btn btn-sm btn-outline-secondary"
+                                (click)="openEdit(a)">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                (click)="deleteActivity(a)">🗑</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="activities.length === 0"
+                    class="text-center text-muted py-4">
+                    No activities yet. Click Create Activity to add one.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="showModal"
+    style="z-index:1040;"></div>
+
+<div class="modal d-block" tabindex="-1" role="dialog" *ngIf="showModal"
+    style="z-index:1050;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form (ngSubmit)="save()" #actForm="ngForm" class="needs-validation"
+                novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ isEditing ? 'Edit Activity' :
+                        'Create Activity' }}</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                        (click)="closeModal()"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input name="title" class="form-control" required
+                            [(ngModel)]="current.title" #title="ngModel">
+                        <div class="text-danger small"
+                            *ngIf="title.invalid && title.touched">Title is
+                            required</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Subject</label>
+                            <input name="subject" class="form-control" required
+                                [(ngModel)]="current.subject">
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Type</label>
+                            <select name="type" class="form-select" required
+                                [(ngModel)]="current.type">
+                                <option value="Home work">Home work</option>
+                                <option value="Quiz">Quiz</option>
+                                <option value="Project">Project</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Due Date</label>
+                            <input name="dueDate" type="date"
+                                class="form-control" required
+                                [(ngModel)]="current.dueDate">
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Points</label>
+                            <input name="points" type="number"
+                                class="form-control" required
+                                [(ngModel)]="current.points" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Activity description..."
+                            [(ngModel)]="current.description">
+                           </textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        (click)="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary"
+                        [disabled]="actForm.invalid">
+                        {{ isEditing ? 'Save changes' : 'Create' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 
+<button routerLink="/add-questions">Go to Add Questions</button>  -->
+
+<div class="activities-container">
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>Activities & Assignment</h1>
+    <button class="btn-create" (click)="openCreateForm()">
+      + Create Activity
+    </button>
+  </div>
+
+  <!-- Create Activity Form Modal -->
+  <div *ngIf="showCreateForm" class="modal-overlay" (click)="closeCreateForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Create New Activity</h2>
+        <button class="btn-close" (click)="closeCreateForm()">✕</button>
+      </div>
+
+      <form [formGroup]="activityForm" class="create-form">
+        <!-- معلومات النشاط -->
+        <div class="form-section">
+          <h3>Activity Information</h3>
+          
+          <div class="form-group">
+            <label>Activity Title</label>
+            <input type="text" formControlName="title" placeholder="e.g., Quiz #3">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Subject</label>
+              <select formControlName="subject">
+                <option value="">Select Subject</option>
+                <option value="Math">Math</option>
+                <option value="Arabic">Arabic</option>
+                <option value="Science">Science</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Type</label>
+              <select formControlName="type">
+                <option value="quiz">Quiz</option>
+                <option value="homework">Home work</option>
+                <option value="project">Project</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Due Date</label>
+              <input type="date" formControlName="dueDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- الأسئلة -->
+        <div class="form-section">
+          <h3>Questions</h3>
+
+          <div class="add-question">
+            <div class="form-group">
+              <label>Question</label>
+              <textarea formControlName="questionText" rows="3" placeholder="Enter question..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Type</label>
+                <select formControlName="questionType">
+                  <option value="multiple-choice">Multiple Choice</option>
+                  <option value="true-false">True/False</option>
+                  <option value="short-answer">Short Answer</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Points</label>
+                <input type="number" formControlName="points" min="1">
+              </div>
+            </div>
+
+            <div class="form-group" *ngIf="activityForm.get('questionType')?.value === 'multiple-choice'">
+              <label>Options (comma separated)</label>
+              <input type="text" formControlName="options" placeholder="Option 1, Option 2, Option 3">
+            </div>
+
+            <div class="form-group">
+              <label>Correct Answer</label>
+              <input type="text" formControlName="correctAnswer" placeholder="Answer">
+            </div>
+
+            <button type="button" class="btn-add-question" (click)="addQuestion()">
+              ✓ Add Question
+            </button>
+          </div>
+
+          <!-- Questions List -->
+          <div class="questions-preview">
+            <div *ngIf="questions.length === 0" class="empty-message">
+              No questions added yet
+            </div>
+
+            <div *ngFor="let q of questions; let i = index" class="question-item">
+              <span class="q-number">Q{{ i + 1 }}</span>
+              <span class="q-text">{{ q.text }}</span>
+              <span class="q-points">{{ q.points }} pts</span>
+              <button type="button" class="btn-remove" (click)="removeQuestion(i)">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="modal-actions">
+          <button type="button" class="btn-submit" (click)="submitActivity()">
+            ✓ Create Activity
+          </button>
+          <button type="button" class="btn-cancel" (click)="closeCreateForm()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Current Activities List -->
+  <div class="activities-list">
+    <h2>Current Activities</h2>
+    <div *ngFor="let activity of activities" class="activity-card">
+      <div class="activity-icon">📋</div>
+      <div class="activity-info">
+        <h3>{{ activity.title }}</h3>
+        <p>{{ activity.subject }} • {{ activity.type }}</p>
+      </div>
+      <div class="activity-actions">
+        <button class="btn-edit">Edit</button>
+        <button class="btn-delete">🗑️</button>
+      </div>
+    </div>
+  </div>
+
+</div>

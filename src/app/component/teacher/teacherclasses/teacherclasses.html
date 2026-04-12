@@ -1,0 +1,81 @@
+<div class="dashboard-bg d-flex">
+  <nav class="sidebar py-4 px-3">
+    <div class="sidebar-header mb-4">
+      <div class="fw-bold fs-4 d-flex align-items-center">
+        <span class="me-2">
+          <svg width="26" height="26" fill="none" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="8" fill="#3a86ff"/>
+            <text x="8" y="12" text-anchor="middle" font-size="10" fill="#fff">EV</text>
+          </svg>
+        </span>
+        EduVenture
+      </div>
+      <div class="text-success small ms-1">Teacher Portal</div>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Dashboard</a></li>
+      <li class="nav-item mb-1"><a class="nav-link active" href="#">My Classes</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Students</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Attendance</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Gradebook</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
+    </ul>
+    <div class="signout mt-auto">
+      <a href="#" class="text-muted small d-block py-3 px-2">Sign Out</a>
+    </div>
+  </nav> 
+  <div class="classes-main flex-grow-1">
+    <div class="d-flex justify-content-between align-items-center p-4 mb-3">
+      <h3 class="fw-bold m-0">My Classes</h3>
+      <div class="d-flex align-items-center gap-3">
+        <div class="input-group dashboard-search">
+          <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search classes...">
+        </div>
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile" width="38" height="38" class="rounded-circle border ms-3">
+        <span class="ms-2">Mr. Smith</span>
+      </div>
+    </div>
+    <div class="classes-list px-4 pb-4">
+      <div class="row g-4">
+        @for (cls of classes; track cls) {
+          <div class="col-md-6 col-lg-6">
+            <div class="card class-card shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="class-icon rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3">
+                    <!-- أيقونة كتاب -->
+                    <svg width="32" height="32" fill="none" viewBox="0 0 16 16">
+                      <rect x="3" y="4" width="10" height="8" rx="2" fill="#6fd597"/>
+                      <path d="M5 6h6M5 9h6" stroke="#222" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fs-5 fw-bold">{{cls.name}}</div>
+                    <div class="d-flex text-muted small mt-1 align-items-center">
+                      <span class="me-3"><i class="bi bi-people"></i> {{cls.students}} students</span>
+                      <span><i class="bi bi-clock"></i> {{cls.time}}</span>
+                    </div>
+                  </div>
+                  <div class="ms-3">
+                    <span class="badge bg-light text-muted">{{cls.grade}}</span>
+                  </div>
+                </div>
+                <div class="mt-auto d-flex">
+                  <button class="btn btn-light flex-fill me-2">Attendance</button>
+                  <button class="btn btn-primary flex-fill">Gradebook <i class="bi bi-chevron-right ms-1"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      <!-- إذا لم يوجد كلاسات، تظهر رسالة -->
+      @if (classes.length === 0) {
+        <div class="text-center text-muted py-5 fs-4">
+          No classes available.
+        </div>
+      }
+    </div>
+  </div>
+</div>

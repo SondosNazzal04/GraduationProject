@@ -1,0 +1,61 @@
+.login-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #e5eafc 0%, #f7effb 100%);
+}
+
+.login-card {
+  border-radius: 30px;
+  max-width: 480px;
+  width: 100%;
+}
+
+.login-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #417af5;
+}
+
+.login-desc {
+  font-size: 1.18rem;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  border-radius: 16px;
+  font-size: 1.1rem;
+  padding: 14px;
+}
+
+.btn-primary {
+  background-color: #317af5;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.19rem;
+  padding: 10px;
+}
+
+.btn-primary:hover {
+  background-color: #225bb7;
+}
+
+.forgot-password, .register-link {
+  color: #317af5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password:hover,
+.register-link:hover {
+  text-decoration: underline;
+}
+
+.back-home {
+  color: #232323;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.back-home:hover {
+  text-decoration: underline;
+}
