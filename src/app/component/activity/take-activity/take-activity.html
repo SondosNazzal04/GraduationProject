@@ -1,0 +1,138 @@
+<div class="container-fluid px-4 py-4" *ngIf="activity && form; else notFound">
+
+  <!-- Result screen -->
+  <div *ngIf="submitted && result; else formView">
+    <div class="result-card text-center p-5">
+
+      <div class="check-circle mx-auto mb-3">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+             stroke="white" stroke-width="3" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+
+      <h4 class="fw-bold mb-1">Submitted!</h4>
+      <p class="text-muted mb-3">{{ result.studentName }}</p>
+
+      <!-- Grade box (quiz only) -->
+      <div *ngIf="activity.type === 'quiz'" class="grade-box mx-auto mb-4">
+        <div class="grade-number">{{ result.grade }}%</div>
+        <div class="grade-label">{{ result.totalCorrect }} / {{ result.totalQuestions }} correct</div>
+      </div>
+      <div *ngIf="activity.type === 'assignment'" class="assignment-success mb-4">
+        <span>✓ Assignment submitted successfully</span>
+      </div>
+
+      <!-- Answer review -->
+      <div class="answers-review text-start mt-4">
+        <h6 class="fw-semibold mb-3">Your answers</h6>
+        <div *ngFor="let ans of result.answers; let i = index"
+             class="answer-row d-flex align-items-center justify-content-between px-3 py-2 mb-2 rounded"
+             [class.answer-correct]="ans.isCorrect === true"
+             [class.answer-incorrect]="ans.isCorrect === false"
+             [class.answer-neutral]="ans.isCorrect === undefined">
+          <span class="q-num me-2">Q{{ i + 1 }}</span>
+          <span class="flex-grow-1 text-muted small">{{ getQuestionText(ans.questionId) }}</span>
+          <span class="ans-text fw-semibold small ms-3">{{ ans.answer }}</span>
+          <span *ngIf="activity.type === 'quiz'" class="ms-3 status-icon">
+            {{ ans.isCorrect ? '✓' : '✗' }}
+          </span>
+        </div>
+      </div>
+
+      <a routerLink="/studentactivities" class="btn btn-primary mt-4 px-4">
+        ← Back to activities
+      </a>
+    </div>
+  </div>
+
+  <!-- Activity form -->
+  <ng-template #formView>
+    <div class="activities-card p-4">
+
+      <!-- Activity header -->
+      <div class="activity-header mb-4 pb-3">
+        <span class="type-badge text-capitalize mb-2 d-inline-block"
+              [class.badge-quiz]="activity.type === 'quiz'"
+              [class.badge-assignment]="activity.type === 'assignment'">
+          {{ activity.type }}
+        </span>
+        <h5 class="fw-bold mb-1">{{ activity.title }}</h5>
+        <p class="text-muted small mb-0">{{ activity.description }}</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+
+        <!-- Student name -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Your name</label>
+          <input class="form-control" formControlName="studentName"
+                 placeholder="Enter your full name" />
+          <div class="text-danger small mt-1"
+               *ngIf="form.get('studentName')?.invalid && form.get('studentName')?.touched">
+            Name is required
+          </div>
+        </div>
+
+        <!-- Questions -->
+        <div *ngFor="let q of activity.questions; let qi = index"
+             class="question-card p-3 mb-3 rounded">
+
+          <p class="question-text fw-semibold mb-3">
+            <span class="q-badge me-2">{{ qi + 1 }}</span>{{ q.text }}
+          </p>
+
+          <!-- MCQ -->
+          <ng-container *ngIf="q.type === 'mcq'">
+            <label *ngFor="let opt of q.options"
+                   class="option-label d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded">
+              <input type="radio" [formControlName]="q.id" [value]="opt.id" />
+              <span>{{ opt.text }}</span>
+            </label>
+          </ng-container>
+
+          <!-- True / False -->
+          <ng-container *ngIf="q.type === 'true-false'">
+            <label class="option-label d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded">
+              <input type="radio" [formControlName]="q.id" value="True" />
+              <span>True</span>
+            </label>
+            <label class="option-label d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded">
+              <input type="radio" [formControlName]="q.id" value="False" />
+              <span>False</span>
+            </label>
+          </ng-container>
+
+          <!-- Fill in the blank -->
+          <ng-container *ngIf="q.type === 'fill-blank'">
+            <input class="form-control" [formControlName]="q.id"
+                   placeholder="Type your answer here…" />
+          </ng-container>
+
+          <div class="text-danger small mt-2"
+               *ngIf="form.get(q.id)?.invalid && form.get(q.id)?.touched">
+            Please answer this question
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-primary px-4"
+                  [disabled]="form.invalid">
+            Submit activity
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </ng-template>
+
+</div>
+
+<ng-template #notFound>
+  <div class="container-fluid px-4 py-5 text-center">
+    <p class="text-muted">Activity not found.</p>
+    <a routerLink="/studentactivities" class="btn btn-outline-primary btn-sm">
+      ← Back to activities
+    </a>
+  </div>
+</ng-template>

@@ -1,38 +1,39 @@
-:host {
-  display: block;
-  font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
-  color: #1f2937;
+.activity-row {
+  background: #f0f4ff;
+  border: 1px solid #e2e8ff;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
-.avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.activity-row:hover {
+  background: #e4eaff;
+  box-shadow: 0 2px 8px rgba(59, 107, 220, 0.1);
 }
 
-.list-group-item {
-  background-color: #eef5ff;
-  border: 1px solid rgba(0,0,0,0.03);
+.activity-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  background: #dce6ff;
+  color: #3b6bdc;
 }
 
-/* modal backdrop */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0,0,0,0.35);
+.type-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
-/* modal container */
-.modal {
-  position: fixed;
-  inset: 0;
-  overflow: auto;
+.badge-quiz {
+  background: #e0f0ff;
+  color: #1a6bbf;
 }
 
-/* small responsive tweaks */
-@media (max-width: 768px) {
-  .avatar { width: 48px; height: 48px; }
+.badge-assignment {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
 }

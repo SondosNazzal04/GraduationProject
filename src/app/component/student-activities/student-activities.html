@@ -1,92 +1,59 @@
-<div class="container my-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h3 class="mb-0">Activities</h3>
-      <small class="text-muted">View assignments, quizzes and projects assigned by your teacher</small>
-    </div>
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="mb-4">
+    <h5 class="fw-semibold mb-1">Available Activities</h5>
+    <p class="text-muted small mb-0">Select an activity to start</p>
   </div>
 
-  <div class="row">
-    <!-- List column -->
-    <div class="col-lg-8">
-      <div class="list-group">
-        <div *ngFor="let a of activities" class="list-group-item mb-2 rounded-3 d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-start">
-            <div class="avatar bg-primary bg-opacity-10 me-3 d-flex align-items-center justify-content-center">
-              <span class="text-primary">◎</span>
-            </div>
-            <div>
-              <div class="fw-semibold">{{ a.title }}</div>
-              <div class="text-muted small">
-                {{ a.subject }} &middot; {{ a.type }}
-              </div>
-              <div class="text-muted small mt-1">
-                Due: {{ formatDate(a.dueDate) }}
-              </div>
-              <div *ngIf="isSubmitted(a.id)" class="badge bg-success mt-1">Submitted</div>
+  <!-- Empty state -->
+  <div *ngIf="service.activities$().length === 0" class="empty-card text-center py-5">
+    <div class="empty-icon mb-3">📋</div>
+    <p class="text-muted">No activities available yet.</p>
+  </div>
+
+  <!-- Activity cards -->
+  <div class="row g-3">
+    <div class="col-12" *ngFor="let activity of service.activities$()">
+      <div class="activity-row d-flex align-items-center justify-content-between px-4 py-3 rounded">
+
+        <!-- Left: icon + info -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="activity-icon d-flex align-items-center justify-content-center rounded-circle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div>
+            <div class="fw-semibold">{{ activity.title }}</div>
+            <div class="text-muted" style="font-size:0.78rem">
+              {{ activity.questions.length }} question{{ activity.questions.length !== 1 ? 's' : '' }}
+              <span class="mx-1">•</span>
+              <span class="text-capitalize">{{ activity.type }}</span>
             </div>
           </div>
-
-          <div class="text-end">
-            <div class="text-primary fw-bold">{{ a.points }} pts</div>
-            <button class="btn btn-sm btn-outline-primary mt-2" (click)="openDetail(a)">
-              View & Submit
-            </button>
-          </div>
         </div>
 
-        <div *ngIf="activities.length === 0" class="py-4 text-center text-muted">
-          No activities available.
+        <!-- Right: badge + button -->
+        <div class="d-flex align-items-center gap-3">
+          <span class="type-badge text-capitalize"
+                [class.badge-quiz]="activity.type === 'quiz'"
+                [class.badge-assignment]="activity.type === 'assignment'">
+            {{ activity.type }}
+          </span>
+          <a [routerLink]="['/activities', activity.id, 'take']"
+             class="btn btn-primary btn-sm px-3">
+            Start →
+          </a>
         </div>
-      </div>
-    </div>
 
-    <!-- Info column: optional quick info or help -->
-    <div class="col-lg-4">
-      <div class="card p-3">
-        <h6 class="mb-2">How to submit</h6>
-        <p class="small text-muted mb-0">
-          Click "View & Submit" to see the full instructions. You can type your answer or notes and press Submit. Your submission will be recorded locally (for now).
-        </p>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Detail modal (simple Bootstrap-styled controlled by Angular) -->
-<div class="modal-backdrop fade show" *ngIf="showDetailModal" style="z-index:1040;"></div>
-<div class="modal d-block" tabindex="-1" *ngIf="showDetailModal" style="z-index:1050;">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ selected?.title }}</h5>
-        <button type="button" class="btn-close" (click)="closeDetail()"></button>
-      </div>
-
-      <div class="modal-body">
-        <div class="mb-2 text-muted small">
-          {{ selected?.subject }} &middot; {{ selected?.type }} &middot; Due: {{ formatDate(selected?.dueDate) }}
-        </div>
-
-        <p class="mb-3" *ngIf="selected?.description">{{ selected?.description }}</p>
-
-        <div class="mb-3">
-          <label class="form-label">Your answer / notes (optional)</label>
-          <textarea class="form-control" rows="6" [(ngModel)]="answerText"
-                    placeholder="Type your answer or notes here..."></textarea>
-        </div>
-
-        <div *ngIf="isSubmitted(selected?.id || -1)" class="alert alert-success">
-          You already submitted this activity.
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeDetail()">Close</button>
-        <button class="btn btn-primary" [disabled]="isSubmitted(selected?.id || -1)" (click)="submitActivity()">
-          Submit
-        </button>
-      </div>
-    </div>
-  </div>
 </div>

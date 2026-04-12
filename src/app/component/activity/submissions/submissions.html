@@ -1,0 +1,68 @@
+<div class="page-container" *ngIf="activity; else notFound">
+  <div class="page-header">
+    <a routerLink="/activities" class="btn-back">← Back</a>
+    <h2>Submissions — {{ activity.title }}</h2>
+    <span class="badge" [class.quiz]="activity.type === 'quiz'"
+                        [class.assignment]="activity.type === 'assignment'">
+      {{ activity.type }}
+    </span>
+  </div>
+
+  <!-- Summary bar -->
+  <div class="summary-bar" *ngIf="submissions.length > 0">
+    <div class="stat">
+      <span class="stat-number">{{ submissions.length }}</span>
+      <span class="stat-label">Submissions</span>
+    </div>
+    <div class="stat" *ngIf="activity.type === 'quiz'">
+      <span class="stat-number">{{ averageGrade() }}%</span>
+      <span class="stat-label">Average grade</span>
+    </div>
+  </div>
+
+  <div *ngIf="submissions.length === 0" class="empty-state">
+    <p>No submissions yet.</p>
+  </div>
+
+  <div *ngFor="let sub of submissions" class="submission-card">
+    <div class="submission-header" (click)="toggle(sub.id)">
+      <div class="student-info">
+        <span class="student-name">{{ sub.studentName }}</span>
+        <span class="submitted-at">{{ sub.submittedAt | date:'medium' }}</span>
+      </div>
+      <div class="submission-right">
+        <span *ngIf="activity.type === 'quiz'" class="grade-pill"
+              [class.high]="(sub.grade ?? 0) >= 70"
+              [class.mid]="(sub.grade ?? 0) >= 40 && (sub.grade ?? 0) < 70"
+              [class.low]="(sub.grade ?? 0) < 40">
+          {{ sub.grade }}% &nbsp;({{ sub.totalCorrect }}/{{ sub.totalQuestions }})
+        </span>
+        <span *ngIf="activity.type === 'assignment'" class="grade-pill high">
+          Submitted
+        </span>
+        <span class="expand-icon">{{ expandedId === sub.id ? '▲' : '▼' }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="expandedId === sub.id" class="answers-detail">
+      <div *ngFor="let ans of sub.answers; let i = index" class="answer-row"
+           [class.correct]="ans.isCorrect === true"
+           [class.incorrect]="ans.isCorrect === false"
+           [class.neutral]="ans.isCorrect === undefined">
+        <span class="q-num">Q{{ i + 1 }}</span>
+        <span class="q-text">{{ getQuestionText(ans.questionId) }}</span>
+        <span class="q-answer">{{ ans.answer }}</span>
+        <span *ngIf="activity.type === 'quiz'" class="q-status">
+          {{ ans.isCorrect ? '✓' : '✗' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #notFound>
+  <div class="empty-state">
+    <p>Activity not found.</p>
+    <a routerLink="/activities">← Back</a>
+  </div>
+</ng-template>

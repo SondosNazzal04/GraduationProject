@@ -1,0 +1,134 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header changes based on mode -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h5 class="fw-semibold mb-1">
+        {{ isEditMode ? 'Edit Activity' : 'Create Activity' }}
+      </h5>
+      <p class="text-muted small mb-0">
+        {{ isEditMode ? 'Update the activity details below' : 'Fill in the details to create a new activity' }}
+      </p>
+    </div>
+    <a routerLink="/activities" class="btn btn-outline-secondary btn-sm">
+      ← Back
+    </a>
+  </div>
+
+  <div class="activities-card p-4">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- Title -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Title</label>
+        <input class="form-control" formControlName="title" placeholder="Activity title" />
+        <div class="text-danger small mt-1"
+             *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
+          Title is required
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Description</label>
+        <textarea class="form-control" formControlName="description" rows="3"></textarea>
+      </div>
+
+      <!-- Type -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Activity type</label>
+        <select class="form-select" formControlName="type">
+          <option value="quiz">Quiz</option>
+          <option value="assignment">Assignment</option>
+        </select>
+      </div>
+
+      <!-- Questions -->
+      <div formArrayName="questions">
+        <div *ngFor="let q of questions.controls; let qi = index"
+             [formGroupName]="qi" class="question-card p-3 mb-3 rounded">
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-semibold small">Question {{ qi + 1 }}</span>
+            <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                    (click)="removeQuestion(qi)">Remove</button>
+          </div>
+
+          <div class="mb-2">
+            <input class="form-control form-control-sm"
+                   formControlName="text" placeholder="Enter question…" />
+          </div>
+
+          <div class="mb-3">
+            <select class="form-select form-select-sm"
+                    formControlName="type" (change)="onTypeChange(qi)">
+              <option value="mcq">Multiple choice</option>
+              <option value="true-false">True / False</option>
+              <option value="fill-blank">Fill in the blank</option>
+            </select>
+          </div>
+
+          <!-- MCQ options -->
+          <ng-container *ngIf="q.get('type')?.value === 'mcq'">
+            <div formArrayName="options">
+              <div *ngFor="let opt of optionsFor(qi).controls; let oi = index"
+                   [formGroupName]="oi"
+                   class="d-flex align-items-center gap-2 mb-2">
+                <input class="form-control form-control-sm"
+                       formControlName="text"
+                       placeholder="Option {{ oi + 1 }}" />
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        (click)="removeOption(qi, oi)"
+                        [disabled]="optionsFor(qi).length <= 2">✕</button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+                    (click)="addOption(qi)">+ Add option</button>
+
+            <div>
+              <label class="form-label small fw-semibold">Correct answer</label>
+              <select class="form-select form-select-sm" formControlName="correctAnswer">
+                <option *ngFor="let opt of optionsFor(qi).controls"
+                        [value]="opt.get('id')?.value">
+                  {{ opt.get('text')?.value || '(empty)' }}
+                </option>
+              </select>
+            </div>
+          </ng-container>
+
+          <!-- True / False -->
+          <ng-container *ngIf="q.get('type')?.value === 'true-false'">
+            <label class="form-label small fw-semibold">Correct answer</label>
+            <select class="form-select form-select-sm" formControlName="correctAnswer">
+              <option value="True">True</option>
+              <option value="False">False</option>
+            </select>
+          </ng-container>
+
+          <!-- Fill in the blank -->
+          <ng-container *ngIf="q.get('type')?.value === 'fill-blank'">
+            <label class="form-label small fw-semibold">Correct answer</label>
+            <input class="form-control form-control-sm"
+                   formControlName="correctAnswer"
+                   placeholder="Expected answer…" />
+          </ng-container>
+
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm mb-4"
+              (click)="addQuestion()">
+        + Add question
+      </button>
+
+      <div class="d-flex justify-content-end">
+        <!-- Button label changes based on mode -->
+        <button type="submit" class="btn btn-primary px-4"
+                [disabled]="form.invalid">
+          {{ isEditMode ? 'Update Activity' : 'Save Activity' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

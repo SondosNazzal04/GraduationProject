@@ -1,181 +1,90 @@
-// import { Component } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { FormsModule } from '@angular/forms';
-// import { InterfacesActivity } from '../../interfaces/interfaces-activity';
 
-// @Component({
-//   selector: 'app-activities',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule],
-  //  templateUrl: './teacher-activities.html',
-  // styleUrls: ['./teacher-activities.css'],
-// })
-// export class TeacherActivities {
-//   activities: InterfacesActivity[] = [
-//     {
-//       id: 1,
-//       title: 'Chapter 5 Homework',
-//       subject: 'Math',
-//       type: 'Home work',
-//       dueDate: '2025-12-29',
-//       points: 50,
-//       description: undefined,
-//     },
-//     {
-//       id: 2,
-//       title: 'Chapter 4 Homework',
-//       subject: 'Arabic',
-//       type: 'Home work',
-//       dueDate: '2025-12-29',
-//       points: 50,
-//       description: undefined,
-//     },
-//     {
-//       id: 3,
-//       title: 'Quiz #3',
-//       subject: 'Math',
-//       type: 'Quiz',
-//       dueDate: '2025-12-29',
-//       points: 50,
-//       description: undefined,
-//     },
-//     {
-//       id: 4,
-//       title: 'Group Project',
-//       subject: 'Science',
-//       type: 'Project',
-//       dueDate: '2025-12-29',
-//       points: 50,
-//       description: undefined,
-//     },
-//   ];
 
-//   showModal = false;
-//   isEditing = false;
-//   current: InterfacesActivity = this.emptyActivity();
 
-//   private nextId(): number {
-//     return this.activities.length ? Math.max(...this.activities.map((a) => a.id)) + 1 : 1;
-//   }
-
-//   emptyActivity(): InterfacesActivity {
-//     return {
-//       id: 0,
-//       title: '',
-//       subject: '',
-//       type: 'Home work',
-//       dueDate: this.todayISO(),
-//       points: 0,
-//       description: undefined,
-//     };
-//   }
-
-//   todayISO(): string {
-//     const d = new Date();
-//     const mm = String(d.getMonth() + 1).padStart(2, '0');
-//     const dd = String(d.getDate()).padStart(2, '0');
-//     return `${d.getFullYear()}-${mm}-${dd}`;
-//   }
-
-//   openCreate(): void {
-//     this.isEditing = false;
-//     this.current = this.emptyActivity();
-//     this.showModal = true;
-//   }
-
-//   openEdit(a: InterfacesActivity): void {
-//     this.isEditing = true;
-//     this.current = { ...a };
-//     this.showModal = true;
-//   }
-
-//   closeModal(): void {
-//     this.showModal = false;
-//   }
-
-//   save(): void {
-//     if (!this.current.title || !this.current.title.trim()) return;
-
-//     if (this.isEditing) {
-//       this.activities = this.activities.map((x) =>
-//         x.id === this.current.id ? { ...this.current } : x,
-//       );
-//     } else {
-//       const newItem = { ...this.current, id: this.nextId() };
-//       this.activities = [newItem, ...this.activities];
-//     }
-
-//     this.closeModal();
-//   }
-
-//   deleteActivity(a: InterfacesActivity): void {
-//     const ok = confirm(`Are you sure you want to delete "${a.title}"?`);
-//     if (!ok) return;
-//     this.activities = this.activities.filter((x) => x.id !== a.id);
-//   }
-
-//   trackById(index: number, item: InterfacesActivity): number {
-//     return item.id;
-//   }
-// }
-import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup,
+         FormArray, Validators, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ActivityService } from '../../activity/services/activity';
 
 @Component({
-  selector: 'app-teacher-activity',
+  selector: 'app-create-activity',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule], // ✅ أضفهم هنا
-     templateUrl: './teacher-activities.html',
-  styleUrls: ['./teacher-activities.css'],
+  imports: [ReactiveFormsModule, CommonModule],
+  templateUrl: './teacher-activities.html',
 })
-export class TeacherActivityComponent {
+export class CreateActivityComponent {
+  private fb     = inject(FormBuilder);
+  private service = inject(ActivityService);
+  private router  = inject(Router);
 
-removeQuestion(_t63: any) {
-throw new Error('Method not implemented.');
-}
-  showCreateForm = false; // للتحكم في ظهور/إخفاء الفورم
-  activities: any[] = [];
-  questions: any[] = [];
-  activityForm!: FormGroup;
+  form: FormGroup = this.fb.group({
+    title:       ['', Validators.required],
+    description: [''],
+    type:        ['quiz', Validators.required],
+    questions:   this.fb.array([], Validators.required),
+  });
 
-  constructor(private fb: FormBuilder) {
-    this.initializeForm();
+  // Typed getter — avoids repetition in template
+  get questions(): FormArray { return this.form.get('questions') as FormArray; }
+
+  optionsFor(qIndex: number): FormArray {
+    return this.questions.at(qIndex).get('options') as FormArray;
   }
 
-  initializeForm() {
-    this.activityForm = this.fb.group({
-      title: ['', Validators.required],
-      subject: ['', Validators.required],
-      type: ['quiz', Validators.required],
-      dueDate: ['', Validators.required],
-      questionText: [''],
-      questionType: ['multiple-choice'],
-      points: [1, Validators.required],
-      options: [''],
-      correctAnswer: ['']
-    });
+  // ── Question management ──────────────────────────────────────────────────
+
+  addQuestion(): void {
+    this.questions.push(this.fb.group({
+      text:          ['', Validators.required],
+      type:          ['mcq'],
+      options:       this.fb.array([this.newOption(), this.newOption()]),
+      correctAnswer: ['', Validators.required],
+    }));
   }
 
-  // فتح نموذج الإضافة
-  openCreateForm() {
-    this.showCreateForm = true;
+  removeQuestion(index: number): void {
+    this.questions.removeAt(index);
   }
 
-  // إغلاق النموذج
-  closeCreateForm() {
-    this.showCreateForm = false;
-    this.questions = [];
-    this.activityForm.reset();
+  onTypeChange(qIndex: number): void {
+    const q = this.questions.at(qIndex);
+    const type = q.get('type')?.value;
+    const optionsArray = this.optionsFor(qIndex);
+
+    optionsArray.clear();
+    q.get('correctAnswer')?.setValue('');
+
+    if (type === 'mcq') {
+      optionsArray.push(this.newOption());
+      optionsArray.push(this.newOption());
+    } else if (type === 'true-false') {
+      optionsArray.push(this.newOption('True'));
+      optionsArray.push(this.newOption('False'));
+    }
+    // fill-blank needs no options array
   }
 
-  // إضافة سؤال
-  addQuestion() {
-    // ... نفس الكود السابق
+  // ── Option management (MCQ only) ─────────────────────────────────────────
+
+  private newOption(text = ''): FormGroup {
+    return this.fb.group({ id: [crypto.randomUUID()], text: [text, Validators.required] });
   }
 
-  // إنشاء النشاط
-  submitActivity() {
-    // ... نفس الكود السابق
+  addOption(qIndex: number): void {
+    this.optionsFor(qIndex).push(this.newOption());
+  }
+
+  removeOption(qIndex: number, oIndex: number): void {
+    this.optionsFor(qIndex).removeAt(oIndex);
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+
+  submit(): void {
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    this.service.createActivity(this.form.value);
+    this.router.navigate(['/activities']);
   }
 }
