@@ -68,6 +68,31 @@
             </select>
           </div>
 
+          <!-- Grade + Points row -->
+<div class="row g-2 mt-1">
+  <div class="col-6">
+    <label class="form-label small fw-semibold">
+      Grade points
+      <span class="text-muted fw-normal">(academic score)</span>
+    </label>
+    <div class="input-group input-group-sm">
+      <input type="number" class="form-control"
+             formControlName="grade" min="0" placeholder="10" />
+      <span class="input-group-text">pts</span>
+    </div>
+  </div>
+  <div class="col-6">
+    <label class="form-label small fw-semibold">
+      Reward points
+      <span class="text-muted fw-normal">(gamification ⚡)</span>
+    </label>
+    <div class="input-group input-group-sm">
+      <input type="number" class="form-control"
+             formControlName="points" min="0" placeholder="50" />
+      <span class="input-group-text">⚡</span>
+    </div>
+  </div>
+</div>
           <!-- MCQ options -->
           <ng-container *ngIf="q.get('type')?.value === 'mcq'">
             <div formArrayName="options">

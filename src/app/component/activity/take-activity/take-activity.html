@@ -1,6 +1,6 @@
 <div class="container-fluid px-4 py-4" *ngIf="activity && form; else notFound">
 
-  <!-- Result screen -->
+  <!-- ── RESULT SCREEN (shows after submit) ── -->
   <div *ngIf="submitted && result; else formView">
     <div class="result-card text-center p-5">
 
@@ -14,13 +14,26 @@
       <h4 class="fw-bold mb-1">Submitted!</h4>
       <p class="text-muted mb-3">{{ result.studentName }}</p>
 
-      <!-- Grade box (quiz only) -->
-      <div *ngIf="activity.type === 'quiz'" class="grade-box mx-auto mb-4">
-        <div class="grade-number">{{ result.grade }}%</div>
-        <div class="grade-label">{{ result.totalCorrect }} / {{ result.totalQuestions }} correct</div>
-      </div>
-      <div *ngIf="activity.type === 'assignment'" class="assignment-success mb-4">
-        <span>✓ Assignment submitted successfully</span>
+      <!-- ★ SCORES GRID (grade + points) ★ -->
+      <div class="scores-grid mx-auto mb-4">
+
+        <div *ngIf="activity.type === 'quiz'" class="score-box grade-box-result">
+          <div class="score-number">{{ result.gradePercentage }}%</div>
+          <div class="score-label">Academic grade</div>
+          <div class="score-sub">{{ result.gradeScore }} / {{ activity.totalGrade }} pts</div>
+        </div>
+
+        <div *ngIf="activity.type === 'assignment'" class="score-box grade-box-result">
+          <div class="score-number">✓</div>
+          <div class="score-label">Submitted</div>
+        </div>
+
+        <div class="score-box points-box-result">
+          <div class="score-number text-warning">⚡ {{ result.earnedPoints }}</div>
+          <div class="score-label">Points earned</div>
+          <div class="score-sub">out of {{ result.totalPoints }} possible</div>
+        </div>
+
       </div>
 
       <!-- Answer review -->
@@ -34,7 +47,10 @@
           <span class="q-num me-2">Q{{ i + 1 }}</span>
           <span class="flex-grow-1 text-muted small">{{ getQuestionText(ans.questionId) }}</span>
           <span class="ans-text fw-semibold small ms-3">{{ ans.answer }}</span>
-          <span *ngIf="activity.type === 'quiz'" class="ms-3 status-icon">
+          <span *ngIf="activity.type === 'quiz'" class="ms-2 points-pill reward-pill">
+            ⚡ {{ ans.earnedPoints }}
+          </span>
+          <span *ngIf="activity.type === 'quiz'" class="ms-2 status-icon">
             {{ ans.isCorrect ? '✓' : '✗' }}
           </span>
         </div>
@@ -43,10 +59,11 @@
       <a routerLink="/studentactivities" class="btn btn-primary mt-4 px-4">
         ← Back to activities
       </a>
+
     </div>
   </div>
 
-  <!-- Activity form -->
+  <!-- ── ACTIVITY FORM ── -->
   <ng-template #formView>
     <div class="activities-card p-4">
 
@@ -74,13 +91,20 @@
           </div>
         </div>
 
-        <!-- Questions -->
+        <!-- ★ QUESTIONS LOOP ★ -->
         <div *ngFor="let q of activity.questions; let qi = index"
              class="question-card p-3 mb-3 rounded">
 
-          <p class="question-text fw-semibold mb-3">
-            <span class="q-badge me-2">{{ qi + 1 }}</span>{{ q.text }}
-          </p>
+          <!-- ★ Question header with points badges ★ -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <p class="question-text fw-semibold mb-0">
+              <span class="q-badge me-2">{{ qi + 1 }}</span>{{ q.text }}
+            </p>
+            <div class="d-flex gap-2 ms-3 flex-shrink-0">
+              <span class="points-pill grade-pill">📝 {{ q.grade }} pts</span>
+              <span class="points-pill reward-pill">⚡ {{ q.points }} pts</span>
+            </div>
+          </div>
 
           <!-- MCQ -->
           <ng-container *ngIf="q.type === 'mcq'">
@@ -113,11 +137,21 @@
                *ngIf="form.get(q.id)?.invalid && form.get(q.id)?.touched">
             Please answer this question
           </div>
+
         </div>
 
-        <div class="d-flex justify-content-end mt-4">
-          <button type="submit" class="btn btn-primary px-4"
-                  [disabled]="form.invalid">
+        <!-- ★ TOTALS BAR ★ -->
+        <div class="totals-bar d-flex gap-4 px-4 py-3 rounded mb-4">
+          <span class="small text-muted">
+            Total grade: <strong>{{ activity.totalGrade }} pts</strong>
+          </span>
+          <span class="small text-muted">
+            Total reward: <strong class="text-warning">⚡ {{ activity.totalPoints }} pts</strong>
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid">
             Submit activity
           </button>
         </div>
@@ -128,6 +162,7 @@
 
 </div>
 
+<!-- Not found fallback -->
 <ng-template #notFound>
   <div class="container-fluid px-4 py-5 text-center">
     <p class="text-muted">Activity not found.</p>

@@ -103,3 +103,39 @@
 }
 .badge-quiz       { background: #e0f0ff; color: #1a6bbf; }
 .badge-assignment { background: #e8f5e9; color: #2e7d32; }
+.points-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.grade-pill  { background: #e8f4ff; color: #1a6bbf; }
+.reward-pill { background: #fff8e1; color: #f59e0b; }
+
+.totals-bar {
+  background: #f8f9ff;
+  border: 1px solid #e8ecff;
+}
+
+.scores-grid {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.score-box {
+  border-radius: 12px;
+  padding: 20px 32px;
+  text-align: center;
+  min-width: 150px;
+}
+
+.grade-box-result  { background: #f0f4ff; }
+.points-box-result { background: #fffbeb; border: 2px solid #fde68a; }
+
+.score-number { font-size: 2rem; font-weight: 700; line-height: 1; }
+.score-label  { font-size: 0.8rem; color: #666; margin-top: 4px; }
+.score-sub    { font-size: 0.72rem; color: #999; margin-top: 2px; }

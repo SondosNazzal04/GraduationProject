@@ -84,14 +84,16 @@ export class CreateActivityComponent implements OnInit {
 
   // ── Question management ──────────────────────────────────────────────────
 
-  addQuestion(): void {
-    this.questions.push(this.fb.group({
-      text:          ['', Validators.required],
-      type:          ['mcq'],
-      options:       this.fb.array([this.newOption(), this.newOption()]),
-      correctAnswer: ['', Validators.required],
-    }));
-  }
+ addQuestion(): void {
+  this.questions.push(this.fb.group({
+    text:          ['', Validators.required],
+    type:          ['mcq'],
+    options:       this.fb.array([this.newOption(), this.newOption()]),
+    correctAnswer: ['', Validators.required],
+    grade:         [10, [Validators.required, Validators.min(0)]],  // ← add
+    points:        [50, [Validators.required, Validators.min(0)]],  // ← add
+  }));
+}
 
   removeQuestion(index: number): void {
     this.questions.removeAt(index);
