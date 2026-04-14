@@ -15,10 +15,20 @@ declare global {
   }
 }
 
+const fallbackFirebaseConfig: FirebaseWebConfig = {
+  apiKey: 'demo-api-key',
+  authDomain: 'demo.firebaseapp.com',
+  projectId: 'demo-project',
+  appId: 'demo-app-id'
+};
+
 export function getFirebaseConfig(): FirebaseWebConfig {
   const cfg = window.__env?.firebase;
+
   if (!cfg) {
-    throw new Error('Missing Firebase runtime config. Create src/assets/env.js');
+    console.warn('Missing Firebase runtime config. Using a local fallback so the app can render. Add a real src/assets/env.js or public/env.js for Firebase login to work.');
+    return fallbackFirebaseConfig;
   }
+
   return cfg;
 }

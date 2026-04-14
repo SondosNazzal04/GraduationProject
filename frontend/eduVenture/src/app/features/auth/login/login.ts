@@ -1,5 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
@@ -16,6 +17,8 @@ export class Login {
   submitted = false;
 
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
+
   async onSubmit() {
     this.errorMessage = '';
     try {
@@ -23,11 +26,13 @@ export class Login {
       const userCredential = await this.authService.login(this.email, this.password);
       this.submitted = true;
       console.log("Logged in successfully!", userCredential.user);
+      this.cdr.detectChanges();
       // For now, we just log it. Later we will check if they need a password reset!
     } catch (error: any) {
       this.errorMessage = error.message;
       this.submitted = false;
       console.error("Login failed:", error);
+      this.cdr.detectChanges();
     }
   }
 }
