@@ -1,0 +1,161 @@
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <span class="logo-letter">E</span>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Admin portal</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <hr class="sidebar-divider" />
+      <button class="sign-out-btn">
+        <span class="material-icons">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h1 class="page-title">VentureShop</h1>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Notifications">
+          <span class="material-icons">notifications</span>
+        </button>
+        <div class="user-info">
+          <div class="user-avatar">
+            <span class="material-icons">account_circle</span>
+          </div>
+          <span class="user-name">admin user</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <button class="add-btn" (click)="openAddModal()">
+        Add to Shop
+        <span class="material-icons">dashboard</span>
+      </button>
+    </div>
+
+    <div class="shop-grid">
+      @for (item of shopItems; track item.id) {
+        <div class="shop-card">
+          <div class="card-image-wrapper">
+            @if (item.image) {
+              <img [src]="item.image" [alt]="item.name" class="card-image" />
+            } @else {
+              <div class="card-image-placeholder">
+                <span class="avatar-label">AVATAR</span>
+              </div>
+            }
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">{{ item.emoji }} {{ item.name }}</h3>
+            <p class="card-description">{{ item.description }}</p>
+            <div class="card-price">
+              <span class="material-icons coin-small">monetization_on</span>
+              <span class="price-text">{{ item.price | number }} pts</span>
+            </div>
+            <div class="card-actions">
+              <button class="edit-btn" (click)="openEditModal(item)">
+                Edit
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="remove-btn" (click)="openRemoveConfirm(item)">
+                Remove
+                <span class="material-icons">cancel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Add New Item</h2>
+
+      <label class="form-label">Name</label>
+      <input class="form-input" [(ngModel)]="newItem.name" placeholder="Item name" />
+
+      <label class="form-label">Description</label>
+      <input class="form-input" [(ngModel)]="newItem.description" placeholder="Short description" />
+
+      <label class="form-label">Price (pts)</label>
+      <input class="form-input" type="number" [(ngModel)]="newItem.price" placeholder="1000" />
+
+      <label class="form-label">Emoji</label>
+      <input class="form-input" [(ngModel)]="newItem.emoji" placeholder="🎁" />
+
+      <label class="form-label">Image URL (optional)</label>
+      <input class="form-input" [(ngModel)]="newItem.image" placeholder="https://..." />
+
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="closeAddModal()">Cancel</button>
+        <button class="modal-confirm-btn" (click)="confirmAdd()">Add Item</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showEditModal) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Edit Item</h2>
+
+      <label class="form-label">Name</label>
+      <input class="form-input" [(ngModel)]="editItem.name" placeholder="Item name" />
+
+      <label class="form-label">Description</label>
+      <input class="form-input" [(ngModel)]="editItem.description" placeholder="Short description" />
+
+      <label class="form-label">Price (pts)</label>
+      <input class="form-input" type="number" [(ngModel)]="editItem.price" placeholder="1000" />
+
+      <label class="form-label">Emoji</label>
+      <input class="form-input" [(ngModel)]="editItem.emoji" placeholder="🎁" />
+
+      <label class="form-label">Image URL (optional)</label>
+      <input class="form-input" [(ngModel)]="editItem.image" placeholder="https://..." />
+
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="closeEditModal()">Cancel</button>
+        <button class="modal-confirm-btn" (click)="confirmEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showRemoveConfirm) {
+  <div class="modal-overlay" (click)="closeRemoveConfirm()">
+    <div class="modal modal--small" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Remove Item</h2>
+      <p class="modal-text">
+        Are you sure you want to remove
+        <strong>{{ itemToRemove?.emoji }} {{ itemToRemove?.name }}</strong>?
+        This action cannot be undone.
+      </p>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="closeRemoveConfirm()">Cancel</button>
+        <button class="modal-remove-btn" (click)="confirmRemove()">Remove</button>
+      </div>
+    </div>
+  </div>
+}

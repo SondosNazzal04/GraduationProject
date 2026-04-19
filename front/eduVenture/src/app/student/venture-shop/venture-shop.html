@@ -1,0 +1,97 @@
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <span class="logo-letter">E</span>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Student portal</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+        >
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <hr class="sidebar-divider" />
+      <button class="sign-out-btn">
+        <span class="material-icons">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h1 class="page-title">Venture Shop</h1>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Notifications">
+          <span class="material-icons">notifications</span>
+        </button>
+        <div class="user-info">
+          <div class="user-avatar">
+            <span class="material-icons">account_circle</span>
+          </div>
+          <span class="user-name">{{ studentName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="points-banner">
+      <span class="material-icons coin-icon">monetization_on</span>
+      <span class="points-label">Your Points:</span>
+      <span class="points-value">{{ studentPoints | number }} pts</span>
+    </div>
+
+    @if (toast) {
+      <div class="toast" [class.toast--success]="toast.type === 'success'" [class.toast--error]="toast.type === 'error'">
+        <span class="material-icons toast-icon">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+        <span class="toast-message">{{ toast.message }}</span>
+        <button class="toast-close" (click)="dismissToast()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    }
+
+    <div class="shop-grid">
+      @for (item of shopItems; track item.id) {
+        <div class="shop-card">
+          <div class="card-image-wrapper">
+            @if (item.image) {
+              <img [src]="item.image" [alt]="item.name" class="card-image" />
+            } @else {
+              <div class="card-image-placeholder">
+                <span class="avatar-label">AVATAR</span>
+              </div>
+            }
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">{{ item.emoji }} {{ item.name }}</h3>
+            <p class="card-description">{{ item.description }}</p>
+            <div class="card-footer">
+              <div class="card-price">
+                <span class="material-icons coin-small">monetization_on</span>
+                <span class="price-text">{{ item.price | number }} pts</span>
+              </div>
+              <button class="purchase-btn" (click)="purchase(item)">
+                <span class="material-icons">shopping_cart</span>
+                Purchase
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

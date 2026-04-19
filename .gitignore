@@ -7,3 +7,7 @@ dist/
 .env
 .env.local
 backend/serviceAccountKey.json
+.vs/
+*.user
+*.suo
+*.vsidx
