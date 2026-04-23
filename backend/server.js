@@ -14,19 +14,6 @@ admin.initializeApp({credential: admin.credential.cert(serviceAccount)});
 // 2. Initialize the app
 const app = express();
 
-//
-// let transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: 'youremail@gmail.com',
-//     pass: 'yourpassword'
-//   }
-// });
-
-
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-
 // 3. Set up middleware (plugins)
 app.use(cors()); // Allow frontend to talk to this backend
 app.use(express.json()); // Allow the backend to understand JSON data sent in requests
