@@ -7,6 +7,7 @@ import { ParentGrades } from './parents/parent-grades/parent-grades';
 import { ParentClasses } from './parents/parent-classes/parent-classes';
 import { ParentDashboard } from './parents/parent-dashboard/parent-dashboard';
 import { ParentChildren } from "./parents/parent-children/parent-children";
+import { ChangePassword } from "./features/auth/login/change-password/change-password";
 
 export const routes: Routes = [
   { path: 'login', component: Login},
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'parent-grades', component: ParentGrades },
   { path: 'parent-classes', component: ParentClasses },
   { path: 'parent-children', component: ParentChildren},
+  { path: 'change-password', component: ChangePassword}
 ];
 
 
