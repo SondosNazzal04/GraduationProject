@@ -28,6 +28,48 @@ app.use((err, req, res, next) => {
 	next(err);
 });
 
+// Helper function to create user in Firebase
+async function createUser(email, role) {
+	const tempPassword = Math.random().toString(36).slice(-8);
+	const userRecord = await admin.auth().createUser({
+		email: email,
+		password: tempPassword,
+	});
+	await admin.firestore().collection('users').doc(userRecord.uid).set({
+		email: email,
+		role: role,
+		requirePasswordChange: true,
+		createdAt: new Date()
+	});
+	return { userRecord, tempPassword };
+}
+
+// Helper function to send email
+async function sendEmail(email, tempPassword) {
+	const transporter = nodemailer.createTransport({
+		service: 'gmail',
+		auth: {
+			user: process.env.EMAIL_USER,
+			pass: process.env.EMAIL_PASSWORD
+		}
+	});
+	const mailOptions = {
+		from: 'sender mail',
+		to: email,
+		subject: 'EduVenture Temporary Password',
+		text: `Welcome to EduVenture, here is your temporary password "${tempPassword}", please change it when you sign in`,
+	};
+
+	try {
+		const info = await transporter.sendMail(mailOptions);
+		console.log('Email sent:', info.response);
+		return 'sent';
+	} catch (mailError) {
+		console.error('Error occurred while sending email:', mailError);
+		return 'failed';
+	}
+}
+
 // 4. Create your first "Route" (an endpoint)
 app.get('/api/admin', (req, res) => {
 	// req = The request from the user
@@ -41,40 +83,9 @@ app.post('/api/admin/create-user', async (req, res) => {
 		if (!email || !role) {
 			return res.status(400).json({ error: 'email and role are required.' });
 		}
-		const tempPassword = Math.random().toString(36).slice(-8);
-		const userRecord = await admin.auth().createUser({
-			email: email,
-			password: tempPassword,
-		});
-		await admin.firestore().collection('users').doc(userRecord.uid).set({
-			email: email,
-			role: role,
-			requirePasswordChange: true,
-			createdAt: new Date()
-		});
 
-		const transporter = nodemailer.createTransport({
-			service: 'gmail',
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_PASSWORD
-			}
-		});
-		const mailOptions = {
-			from: 'sender mail',
-			to: userRecord.email,
-			subject: 'EduVenture Temporary Password',
-			text: `Welcome to EduVenture, here is your temporary password "${tempPassword}", please change it when you sign in`,
-		};
-
-		let emailStatus = 'sent';
-		try {
-			const info = await transporter.sendMail(mailOptions);
-			console.log('Email sent:', info.response);
-		} catch (mailError) {
-			emailStatus = 'failed';
-			console.error('Error occurred while sending email:', mailError);
-		}
+		const { userRecord, tempPassword } = await createUser(email, role);
+		const emailStatus = await sendEmail(userRecord.email, tempPassword);
 
 		return res.status(201).json({
 			message: 'User created successfully!',
