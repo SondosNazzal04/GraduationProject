@@ -28,6 +28,45 @@ app.use((err, req, res, next) => {
 	next(err);
 });
 
+// authenticate middleware
+async function authenticate(req, res, next) {
+	const header = req.headers.authorization || '';
+	const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+	if (!token) return res.status(401).json({ error: 'Missing auth token' });
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.user = decoded; // contains uid and custom claims
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// authorizeAdmin middleware (uses custom claim)
+async function authorizeAdmin(req, res, next) {
+	try {
+		if (req.user?.role === 'admin' || req.user?.admin === true) {
+			return next();
+		}
+
+		const uid = req.user?.uid;
+		if (!uid) {
+			return res.status(401).json({ error: 'Unauthenticated request' });
+		}
+
+		const snap = await admin.firestore().collection('users').doc(uid).get();
+		const role = snap.exists ? snap.data()?.role : null;
+
+		if (role === 'admin') {
+			return next();
+		}
+
+		return res.status(403).json({ error: 'Forbidden' });
+	} catch (error) {
+		return res.status(500).json({ error: 'Authorization failed' });
+	}
+}
+
 // Helper function to create user in Firebase
 async function createUser(email, role) {
 	const tempPassword = Math.random().toString(36).slice(-8);
@@ -71,13 +110,13 @@ async function sendEmail(email, tempPassword) {
 }
 
 // 4. Create your first "Route" (an endpoint)
-app.get('/api/admin', (req, res) => {
+app.get('/api/admin', authenticate, authorizeAdmin, (req, res) => {
 	// req = The request from the user
 	// res = The response we send back
 	res.json({ message: "The backend is alive!" });
 });
 
-app.post('/api/admin/create-user', async (req, res) => {
+app.post('/api/admin/create-user', authenticate, authorizeAdmin, async (req, res) => {
 	try {
 		const {email, role} = req.body;
 		if (!email || !role) {
@@ -85,6 +124,9 @@ app.post('/api/admin/create-user', async (req, res) => {
 		}
 
 		const { userRecord, tempPassword } = await createUser(email, role);
+
+		await admin.auth().setCustomUserClaims(userRecord.uid, { role });
+
 		const emailStatus = await sendEmail(userRecord.email, tempPassword);
 
 		return res.status(201).json({

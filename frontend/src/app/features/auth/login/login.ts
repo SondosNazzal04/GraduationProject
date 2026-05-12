@@ -31,6 +31,9 @@ export class Login {
 
       console.log("Logged in successfully!", userCredential.user);
 
+      // Keep login focused on authentication. Create-user API calls should be done
+      // from an admin screen using AuthService.createUserAsAdmin(email, role).
+
       if (mustChange) {
         await this.router.navigate(['/change-password']);
         return;
