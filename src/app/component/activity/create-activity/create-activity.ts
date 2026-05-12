@@ -18,53 +18,49 @@ export class CreateActivityComponent implements OnInit {
   private router  = inject(Router);
   private route   = inject(ActivatedRoute);
 
-  // ── Edit mode detection ──────────────────────────────────────────────────
   isEditMode   = false;
   editActivity: Activity | undefined;
-
-  form: FormGroup = this.fb.group({
-    title:       ['', Validators.required],
-    description: [''],
-    type:        ['quiz', Validators.required],
-    questions:   this.fb.array([], Validators.required),
-  });
+  form!: FormGroup;
 
   get questions(): FormArray { return this.form.get('questions') as FormArray; }
+
   optionsFor(qi: number): FormArray {
     return this.questions.at(qi).get('options') as FormArray;
   }
 
-  // ── Lifecycle ────────────────────────────────────────────────────────────
-
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    // ★ ابني الفورم أول شي ★
+    this.form = this.fb.group({
+      title:       ['', Validators.required],
+      description: [''],
+      type:        ['quiz', Validators.required],
+      dueDate:     [''],
+      timeLimit:   [null],
+      questions:   this.fb.array([], Validators.required),
+    });
 
+    // تحقق من edit mode
+    const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      // Edit mode — load existing activity
       this.isEditMode   = true;
       this.editActivity = this.service.getActivity(id);
-
       if (!this.editActivity) {
         this.router.navigate(['/activities']);
         return;
       }
-
       this.patchForm(this.editActivity);
     }
-    // else: Create mode — form stays empty
   }
 
-  // ── Patch form with existing data ────────────────────────────────────────
-
   private patchForm(activity: Activity): void {
-    // 1. Patch simple fields
     this.form.patchValue({
       title:       activity.title,
       description: activity.description,
       type:        activity.type,
+      dueDate:     activity.dueDate   ?? '',
+      timeLimit:   activity.timeLimit ?? null,
     });
 
-    // 2. Rebuild questions FormArray
     this.questions.clear();
     activity.questions.forEach(q => {
       const optionsArray = this.fb.array(
@@ -78,22 +74,22 @@ export class CreateActivityComponent implements OnInit {
         type:          [q.type],
         options:       optionsArray,
         correctAnswer: [q.correctAnswer, Validators.required],
+        grade:         [q.grade  ?? 10, [Validators.required, Validators.min(0)]],
+        points:        [q.points ?? 50, [Validators.required, Validators.min(0)]],
       }));
     });
   }
 
-  // ── Question management ──────────────────────────────────────────────────
-
- addQuestion(): void {
-  this.questions.push(this.fb.group({
-    text:          ['', Validators.required],
-    type:          ['mcq'],
-    options:       this.fb.array([this.newOption(), this.newOption()]),
-    correctAnswer: ['', Validators.required],
-    grade:         [10, [Validators.required, Validators.min(0)]],  // ← add
-    points:        [50, [Validators.required, Validators.min(0)]],  // ← add
-  }));
-}
+  addQuestion(): void {
+    this.questions.push(this.fb.group({
+      text:          ['', Validators.required],
+      type:          ['mcq'],
+      options:       this.fb.array([this.newOption(), this.newOption()]),
+      correctAnswer: ['', Validators.required],
+      grade:         [10, [Validators.required, Validators.min(0)]],
+      points:        [50, [Validators.required, Validators.min(0)]],
+    }));
+  }
 
   removeQuestion(index: number): void {
     this.questions.removeAt(index);
@@ -116,8 +112,6 @@ export class CreateActivityComponent implements OnInit {
     }
   }
 
-  // ── Option management ────────────────────────────────────────────────────
-
   private newOption(text = ''): FormGroup {
     return this.fb.group({ id: [crypto.randomUUID()], text: [text, Validators.required] });
   }
@@ -126,20 +120,16 @@ export class CreateActivityComponent implements OnInit {
 
   removeOption(qi: number, oi: number): void { this.optionsFor(qi).removeAt(oi); }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-
   submit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     if (this.isEditMode && this.editActivity) {
-      // UPDATE existing activity — keep original id and createdAt
       const updated: Activity = {
         ...this.editActivity,
         ...this.form.value,
       };
       this.service.updateActivity(updated);
     } else {
-      // CREATE new activity
       this.service.createActivity(this.form.value);
     }
 

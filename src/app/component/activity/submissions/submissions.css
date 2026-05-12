@@ -1,0 +1,105 @@
+.activities-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+
+/* Stats */
+.stat-card {
+  background: #f8f9ff;
+  border: 1px solid #e8ecff;
+}
+.stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* Submission card */
+.submission-card {
+  border: 1px solid #eee;
+}
+.submission-header {
+  background: #f8f9ff;
+  transition: background 0.15s;
+}
+.submission-header:hover {
+  background: #eef2ff;
+}
+
+/* Avatar */
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: #3b6bdc;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Grade pills */
+.grade-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.grade-high { background: #e8f5e9; color: #2e7d32; }
+.grade-mid  { background: #fff8e1; color: #f59e0b; }
+.grade-low  { background: #ffebee; color: #c62828; }
+
+/* Points pill */
+.points-pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #fff8e1;
+  color: #f59e0b;
+}
+.points-pill-sm {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #fff8e1;
+  color: #f59e0b;
+}
+
+/* Answer rows */
+.answers-section {
+  background: #fafafa;
+  border-top: 1px solid #eee;
+}
+.answer-row { font-size: 0.85rem; }
+.answer-correct  { background: #e8f5e9; border: 1px solid #c8e6c9; }
+.answer-incorrect { background: #ffebee; border: 1px solid #ffcdd2; }
+.answer-neutral  { background: #f5f5f5; border: 1px solid #e0e0e0; }
+
+.q-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  background: #3b6bdc;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Empty state */
+.empty-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}

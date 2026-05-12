@@ -1,6 +1,5 @@
 <div class="container-fluid px-4 py-4">
 
-  <!-- Header changes based on mode -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h5 class="fw-semibold mb-1">
@@ -10,12 +9,10 @@
         {{ isEditMode ? 'Update the activity details below' : 'Fill in the details to create a new activity' }}
       </p>
     </div>
-    <a routerLink="/activities" class="btn btn-outline-secondary btn-sm">
-      ← Back
-    </a>
+    <a routerLink="/activities" class="btn btn-outline-secondary btn-sm">← Back</a>
   </div>
 
-  <div class="activities-card p-4">
+  <div class="activities-card p-4" *ngIf="form">
     <form [formGroup]="form" (ngSubmit)="submit()">
 
       <!-- Title -->
@@ -35,12 +32,36 @@
       </div>
 
       <!-- Type -->
-      <div class="mb-4">
+      <div class="mb-3">
         <label class="form-label fw-semibold">Activity type</label>
         <select class="form-select" formControlName="type">
           <option value="quiz">Quiz</option>
           <option value="assignment">Assignment</option>
         </select>
+      </div>
+
+      <!-- ★ Due Date + Time Limit ★ -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">
+            Due date
+            <span class="text-muted fw-normal small">(optional)</span>
+          </label>
+          <input type="date" class="form-control" formControlName="dueDate" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">
+            Time limit
+            <span class="text-muted fw-normal small">(optional)</span>
+          </label>
+          <div class="input-group">
+            <input type="number" class="form-control"
+                   formControlName="timeLimit"
+                   min="1" placeholder="e.g. 30" />
+            <span class="input-group-text">minutes</span>
+          </div>
+          <div class="form-text">Leave empty for no time limit</div>
+        </div>
       </div>
 
       <!-- Questions -->
@@ -68,40 +89,40 @@
             </select>
           </div>
 
-          <!-- Grade + Points row -->
-<div class="row g-2 mt-1">
-  <div class="col-6">
-    <label class="form-label small fw-semibold">
-      Grade points
-      <span class="text-muted fw-normal">(academic score)</span>
-    </label>
-    <div class="input-group input-group-sm">
-      <input type="number" class="form-control"
-             formControlName="grade" min="0" placeholder="10" />
-      <span class="input-group-text">pts</span>
-    </div>
-  </div>
-  <div class="col-6">
-    <label class="form-label small fw-semibold">
-      Reward points
-      <span class="text-muted fw-normal">(gamification ⚡)</span>
-    </label>
-    <div class="input-group input-group-sm">
-      <input type="number" class="form-control"
-             formControlName="points" min="0" placeholder="50" />
-      <span class="input-group-text">⚡</span>
-    </div>
-  </div>
-</div>
-          <!-- MCQ options -->
+          <!-- Grade + Points -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">
+                 Grade points
+                <span class="text-muted fw-normal">(academic)</span>
+              </label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control"
+                       formControlName="grade" min="0" placeholder="10" />
+                <span class="input-group-text">pts</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold">
+                  points
+                <span class="text-muted fw-normal">(gamification)</span>
+              </label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control"
+                       formControlName="points" min="0" placeholder="50" />
+                <span class="input-group-text"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCQ -->
           <ng-container *ngIf="q.get('type')?.value === 'mcq'">
             <div formArrayName="options">
               <div *ngFor="let opt of optionsFor(qi).controls; let oi = index"
                    [formGroupName]="oi"
                    class="d-flex align-items-center gap-2 mb-2">
                 <input class="form-control form-control-sm"
-                       formControlName="text"
-                       placeholder="Option {{ oi + 1 }}" />
+                       formControlName="text" placeholder="Option {{ oi + 1 }}" />
                 <button type="button" class="btn btn-sm btn-outline-danger"
                         (click)="removeOption(qi, oi)"
                         [disabled]="optionsFor(qi).length <= 2">✕</button>
@@ -109,7 +130,6 @@
             </div>
             <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
                     (click)="addOption(qi)">+ Add option</button>
-
             <div>
               <label class="form-label small fw-semibold">Correct answer</label>
               <select class="form-select form-select-sm" formControlName="correctAnswer">
@@ -134,8 +154,7 @@
           <ng-container *ngIf="q.get('type')?.value === 'fill-blank'">
             <label class="form-label small fw-semibold">Correct answer</label>
             <input class="form-control form-control-sm"
-                   formControlName="correctAnswer"
-                   placeholder="Expected answer…" />
+                   formControlName="correctAnswer" placeholder="Expected answer…" />
           </ng-container>
 
         </div>
@@ -147,9 +166,7 @@
       </button>
 
       <div class="d-flex justify-content-end">
-        <!-- Button label changes based on mode -->
-        <button type="submit" class="btn btn-primary px-4"
-                [disabled]="form.invalid">
+        <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid">
           {{ isEditMode ? 'Update Activity' : 'Save Activity' }}
         </button>
       </div>

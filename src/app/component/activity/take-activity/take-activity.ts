@@ -1,17 +1,18 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivityService } from  '../../../activity/services/activity';
-import { Activity, Submission } from  '../../../models/activity';
+import { ActivityService } from '../../../activity/services/activity';
+import { Activity, Submission } from '../../../models/activity';
 
 @Component({
   selector: 'app-take-activity',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './take-activity.html',
+  styleUrls: ['./take-activity.css'],
 })
-export class TakeActivityComponent implements OnInit {
+export class TakeActivityComponent implements OnInit, OnDestroy {
   private route   = inject(ActivatedRoute);
   private router  = inject(Router);
   private fb      = inject(FormBuilder);
@@ -19,8 +20,19 @@ export class TakeActivityComponent implements OnInit {
 
   activity: Activity | undefined;
   form!: FormGroup;
-  result: Submission | undefined;   // shown after submit
-  submitted = false;
+  result: Submission | undefined;
+  submitted  = false;
+  isPastDue  = false;
+
+  hasTimer        = false;
+  timeRemaining   = 0;
+  timerExpired    = false;
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
+
+  get timerMinutes(): number { return Math.floor(this.timeRemaining / 60); }
+  get timerSeconds(): number { return this.timeRemaining % 60; }
+  get timerWarning(): boolean { return this.timeRemaining <= 60 && this.timeRemaining > 0; }
+  get timerDanger():  boolean { return this.timeRemaining <= 30 && this.timeRemaining > 0; }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -29,6 +41,24 @@ export class TakeActivityComponent implements OnInit {
     this.activity = this.service.getActivity(id);
     if (!this.activity) { this.router.navigate(['/studentactivities']); return; }
 
+    // ★ تحقق إذا انتهت المدة ★
+    if (this.activity.dueDate) {
+      const due = new Date(this.activity.dueDate);
+      due.setHours(23, 59, 59);
+      this.isPastDue = new Date() > due;
+      if (this.isPastDue) return;
+    }
+
+    // ★ تحقق إذا الطالب حل هاد الكويز من قبل — يرجع فوراً ★
+    const submittedList: string[] = JSON.parse(
+      localStorage.getItem('submittedActivities') || '[]'
+    );
+    if (submittedList.includes(id)) {
+      this.router.navigate(['/studentactivities']);
+      return;
+    }
+
+    // بناء الفورم
     const controls: Record<string, any> = {
       studentName: ['', Validators.required],
     };
@@ -36,6 +66,46 @@ export class TakeActivityComponent implements OnInit {
       controls[q.id] = ['', Validators.required];
     });
     this.form = this.fb.group(controls);
+
+    // تشغيل التايمر
+    if (this.activity.timeLimit && this.activity.timeLimit > 0) {
+      this.hasTimer      = true;
+      this.timeRemaining = this.activity.timeLimit * 60;
+      this.startTimer();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopTimer();
+  }
+
+  private startTimer(): void {
+    this.timerInterval = setInterval(() => {
+      if (this.timeRemaining > 0) {
+        this.timeRemaining--;
+      } else {
+        this.stopTimer();
+        this.timerExpired = true;
+        this.autoSubmit();
+      }
+    }, 1000);
+  }
+
+  private stopTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  private autoSubmit(): void {
+    if (this.submitted || !this.activity) return;
+    this.activity.questions.forEach(q => {
+      if (!this.form.value[q.id]) {
+        this.form.get(q.id)?.setValue('');
+      }
+    });
+    this.doSubmit();
   }
 
   submit(): void {
@@ -43,21 +113,39 @@ export class TakeActivityComponent implements OnInit {
       this.form?.markAllAsTouched();
       return;
     }
+    this.doSubmit();
+  }
+
+  private doSubmit(): void {
+    if (!this.activity) return;
+    this.stopTimer();
 
     const answers = this.activity.questions.map(q => ({
       questionId: q.id,
-      answer: this.form.value[q.id],
+      answer: this.form.value[q.id] ?? '',
     }));
 
+    // ★ احفظ الـ activityId في localStorage فوراً ★
+    const submittedList: string[] = JSON.parse(
+      localStorage.getItem('submittedActivities') || '[]'
+    );
+    if (!submittedList.includes(this.activity.id)) {
+      submittedList.push(this.activity.id);
+      localStorage.setItem('submittedActivities', JSON.stringify(submittedList));
+    }
+
+    localStorage.setItem('lastStudentName', this.form.value.studentName || '');
+
     this.result = this.service.submitActivity({
-      activityId: this.activity.id,
-      studentName: this.form.value.studentName,
+      activityId:  this.activity.id,
+      studentName: this.form.value.studentName || 'Unknown',
       answers,
     });
 
     this.submitted = true;
   }
+
   getQuestionText(questionId: string): string {
-  return this.activity?.questions.find(q => q.id === questionId)?.text ?? questionId;
-}
+    return this.activity?.questions.find(q => q.id === questionId)?.text ?? questionId;
+  }
 }

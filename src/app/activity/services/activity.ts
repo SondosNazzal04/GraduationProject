@@ -9,6 +9,12 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
+  hasSubmitted(activityId: string, studentName: string): boolean {
+    throw new Error('Method not implemented.');
+  }
+  hasStudentSubmitted(id: string, studentName: string) {
+    throw new Error('Method not implemented.');
+  }
   private activities = signal<Activity[]>(this.load('activities'));
   private submissions = signal<Submission[]>(this.load('submissions'));
   private wallets = signal<StudentWallet[]>(this.load('wallets'));

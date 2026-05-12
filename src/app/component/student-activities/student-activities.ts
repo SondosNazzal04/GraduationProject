@@ -8,7 +8,16 @@ import { ActivityService } from '../../activity/services/activity';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './student-activities.html',
+  styleUrls: ['./student-activities.css'],
 })
 export class StudentActivitiesComponent {
   service = inject(ActivityService);
+
+  // ★ بيقرأ من localStorage مباشرة ★
+  hasSubmitted(activityId: string): boolean {
+    const submittedList: string[] = JSON.parse(
+      localStorage.getItem('submittedActivities') || '[]'
+    );
+    return submittedList.includes(activityId);
+  }
 }

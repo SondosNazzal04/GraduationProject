@@ -17,14 +17,15 @@ export interface Question {
 }
 
 export interface Activity {
-subject: any;
   id: string;
   title: string;
   description: string;
   type: ActivityType;
   questions: Question[];
-  totalGrade: number;   // sum of all question grades
-  totalPoints: number;  // sum of all question points
+  totalGrade: number;
+  totalPoints: number;
+  dueDate?: string;        // e.g. '2026-04-30'
+  timeLimit?: number;      // in minutes, e.g. 30 (null = no limit)
   createdAt: Date;
 }
 

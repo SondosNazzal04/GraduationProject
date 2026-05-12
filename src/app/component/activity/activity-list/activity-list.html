@@ -36,15 +36,17 @@
         <div>
           <div class="fw-semibold small">{{ activity.title }}</div>
           <div class="text-muted" style="font-size: 0.78rem;">
-            {{ activity.subject || 'General' }}
-            <span class="mx-1">•</span>
             <span class="text-capitalize">{{ activity.type }}</span>
+            <span class="mx-1">•</span>
+            {{ activity.questions.length }} questions
           </div>
         </div>
       </div>
 
       <!-- Right: due date + points + actions -->
-      <div class="d-flex align-items-center gap-4">
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- Due date -->
         <div class="text-muted d-flex align-items-center gap-1" style="font-size: 0.78rem;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2">
@@ -53,22 +55,45 @@
             <line x1="8" y1="2" x2="8" y2="6"/>
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          DUE: {{ activity.createdAt | date:'yyyy-MM-dd' }}
+          DUE: {{ activity.dueDate || (activity.createdAt | date:'yyyy-MM-dd') }}
         </div>
 
+        <!-- Time limit -->
+        <div *ngIf="activity.timeLimit" class="text-muted d-flex align-items-center gap-1"
+             style="font-size: 0.78rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {{ activity.timeLimit }} min
+        </div>
+
+        <!-- Points -->
         <div class="points-badge d-flex align-items-center gap-1">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2">
             <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          50 Pts
+          {{ activity.totalPoints }} Pts
         </div>
 
+        <!-- Actions -->
         <div class="d-flex align-items-center gap-2">
-         <button class="btn btn-sm btn-outline-secondary px-3"
-        [routerLink]="['/activities', activity.id, 'edit']">
-         Edit
-        </button>
+
+          <!-- Submissions button -->
+          <button class="btn btn-sm btn-outline-primary px-3"
+                  [routerLink]="['/activities', activity.id, 'submissions']">
+             {{ submissionCount(activity.id) }}
+          </button>
+
+          <!-- Edit button -->
+          <button class="btn btn-sm btn-outline-secondary px-3"
+                  [routerLink]="['/activities', activity.id, 'edit']">
+            Edit
+          </button>
+
+          <!-- Delete button -->
           <button class="btn btn-sm btn-link text-danger p-0 ms-1"
                   (click)="deleteActivity(activity.id)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -79,6 +104,7 @@
               <path d="M9 6V4h6v2"/>
             </svg>
           </button>
+
         </div>
       </div>
     </div>
