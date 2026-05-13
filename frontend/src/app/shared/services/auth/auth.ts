@@ -45,6 +45,20 @@ export class AuthService{
     return await user.getIdToken(forceRefresh);
   }
 
+  async getCurrentUserRole(): Promise<string | null> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      return null;
+    }
+
+    const snap = await getDoc(doc(this.firestore, `users/${user.uid}`));
+    if (!snap.exists()) {
+      return null;
+    }
+
+    return (snap.data()[`role`] ?? null) as string | null;
+  }
+
   async createUserAsAdmin(email: string, role: string) {
     const token = await this.getIdToken();
 
@@ -61,6 +75,54 @@ export class AuthService{
 
     if (!response.ok) {
       throw new Error(data?.error ?? 'Failed to create user.');
+    }
+
+    return data;
+  }
+
+  async getAdminProfile() {
+    const token = await this.getIdToken();
+    const response = await fetch(`${this.apiBaseUrl}/api/admin/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error ?? 'Failed to load admin profile.');
+    }
+
+    return data;
+  }
+
+  async listStudents() {
+    const token = await this.getIdToken();
+    const response = await fetch(`${this.apiBaseUrl}/api/admin/students`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error ?? 'Failed to load students.');
+    }
+
+    return data.items ?? [];
+  }
+
+  async getStudentProfile() {
+    const token = await this.getIdToken();
+    const response = await fetch(`${this.apiBaseUrl}/api/student/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error ?? 'Failed to load student profile.');
     }
 
     return data;
