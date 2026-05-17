@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -16,13 +16,16 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
   private route   = inject(ActivatedRoute);
   private router  = inject(Router);
   private fb      = inject(FormBuilder);
+  private ngZone  = inject(NgZone);
   service         = inject(ActivityService);
 
   activity: Activity | undefined;
   form!: FormGroup;
   result: Submission | undefined;
-  submitted  = false;
-  isPastDue  = false;
+
+  submitted    = false;
+  isPastDue    = false;
+  started      = false;
 
   hasTimer        = false;
   timeRemaining   = 0;
@@ -41,7 +44,7 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
     this.activity = this.service.getActivity(id);
     if (!this.activity) { this.router.navigate(['/studentactivities']); return; }
 
-    // ★ تحقق إذا انتهت المدة ★
+    // تحقق إذا انتهت المدة
     if (this.activity.dueDate) {
       const due = new Date(this.activity.dueDate);
       due.setHours(23, 59, 59);
@@ -49,7 +52,7 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
       if (this.isPastDue) return;
     }
 
-    // ★ تحقق إذا الطالب حل هاد الكويز من قبل — يرجع فوراً ★
+    // تحقق إذا الطالب حل هاد الكويز من قبل
     const submittedList: string[] = JSON.parse(
       localStorage.getItem('submittedActivities') || '[]'
     );
@@ -66,29 +69,38 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
       controls[q.id] = ['', Validators.required];
     });
     this.form = this.fb.group(controls);
-
-    // تشغيل التايمر
-    if (this.activity.timeLimit && this.activity.timeLimit > 0) {
-      this.hasTimer      = true;
-      this.timeRemaining = this.activity.timeLimit * 60;
-      this.startTimer();
-    }
   }
 
   ngOnDestroy(): void {
     this.stopTimer();
   }
 
+  // ★ يبدأ الوقت فور ما يضغط Start ★
+  startQuiz(): void {
+    this.started = true;
+
+    if (this.activity?.timeLimit && this.activity.timeLimit > 0) {
+      this.hasTimer      = true;
+      this.timeRemaining = this.activity.timeLimit * 60;
+      this.startTimer();
+    }
+  }
+
   private startTimer(): void {
-    this.timerInterval = setInterval(() => {
-      if (this.timeRemaining > 0) {
-        this.timeRemaining--;
-      } else {
-        this.stopTimer();
-        this.timerExpired = true;
-        this.autoSubmit();
-      }
-    }, 1000);
+    this.ngZone.runOutsideAngular(() => {
+      this.timerInterval = setInterval(() => {
+        if (this.timeRemaining > 0) {
+          this.timeRemaining--;
+          this.ngZone.run(() => {}); // ★ يحدّث الشاشة كل ثانية تلقائياً
+        } else {
+          this.stopTimer();
+          this.ngZone.run(() => {
+            this.timerExpired = true;
+            this.autoSubmit();
+          });
+        }
+      }, 1000);
+    });
   }
 
   private stopTimer(): void {
@@ -125,7 +137,7 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
       answer: this.form.value[q.id] ?? '',
     }));
 
-    // ★ احفظ الـ activityId في localStorage فوراً ★
+    // احفظ الـ activityId عشان ما يقدر يرجع
     const submittedList: string[] = JSON.parse(
       localStorage.getItem('submittedActivities') || '[]'
     );
