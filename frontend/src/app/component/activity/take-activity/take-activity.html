@@ -1,0 +1,208 @@
+<!-- Past Due -->
+<div *ngIf="isPastDue" class="lock-screen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <h5>This quiz is no longer available</h5>
+    <p class="text-muted">The due date has passed.</p>
+    <a routerLink="/studentactivities" class="btn btn-outline-secondary btn-sm">← Back</a>
+  </div>
+</div>
+
+<!-- Main -->
+<div *ngIf="!isPastDue && activity && form; else notFound">
+
+  <!-- Result Screen -->
+  <div *ngIf="submitted && result; else quizView" class="result-page">
+    <div class="result-box">
+      <div class="result-title">{{ activity.title }}</div>
+      <div class="result-subtitle">Your attempt has been submitted.</div>
+
+      <table class="result-table" *ngIf="activity.type === 'quiz'">
+        <tr>
+          <td>Grade</td>
+          <td><strong>{{ result.gradeScore }} / {{ activity.totalGrade }}</strong></td>
+        </tr>
+        <tr>
+          <td>Percentage</td>
+          <td><strong>{{ result.gradePercentage }}%</strong></td>
+        </tr>
+        <tr>
+          <td>Correct answers</td>
+          <td><strong>{{ result.totalCorrect }} / {{ result.totalQuestions }}</strong></td>
+        </tr>
+        <tr>
+          <td>Points earned</td>
+          <td><strong>⚡ {{ result.earnedPoints }}</strong></td>
+        </tr>
+        <tr>
+          <td>Submitted</td>
+          <td>{{ result.submittedAt | date:'EEEE, d MMMM y, h:mm a' }}</td>
+        </tr>
+      </table>
+
+      <div *ngIf="activity.type === 'assignment'" class="assignment-done">
+        ✓ Your assignment has been submitted successfully.
+      </div>
+
+      <a routerLink="/studentactivities" class="btn-finish">← Return to activities</a>
+    </div>
+  </div>
+
+  <!-- Quiz View -->
+  <ng-template #quizView>
+    <div class="quiz-page">
+
+      <!-- ★ شاشة البداية — قبل Start ★ -->
+      <div *ngIf="!started" class="result-page">
+        <div class="result-box text-center">
+          <h4 class="fw-bold mb-2">{{ activity.title }}</h4>
+          <p class="text-muted mb-4">{{ activity.description }}</p>
+
+          <table class="result-table mb-4">
+            <tr>
+              <td>Questions</td>
+              <td><strong>{{ activity.questions.length }}</strong></td>
+            </tr>
+            <tr *ngIf="activity.timeLimit">
+              <td>Time limit</td>
+              <td><strong>⏱ {{ activity.timeLimit }} minutes</strong></td>
+            </tr>
+            <tr *ngIf="activity.dueDate">
+              <td>Due date</td>
+              <td><strong>📅 {{ activity.dueDate }}</strong></td>
+            </tr>
+            <tr>
+              <td>Total grade</td>
+              <td><strong>{{ activity.totalGrade }} pts</strong></td>
+            </tr>
+            <tr>
+              <td>Reward points</td>
+              <td><strong>⚡ {{ activity.totalPoints }} pts</strong></td>
+            </tr>
+          </table>
+
+          <div class="alert-warning-box mb-4" *ngIf="activity.timeLimit">
+            ⚠️ Once you press <strong>Start attempt</strong>, the timer will begin immediately and cannot be paused.
+          </div>
+
+          <button class="btn-submit-quiz" (click)="startQuiz()">
+            Start attempt →
+          </button>
+        </div>
+      </div>
+
+      <!-- ★ الكويز الفعلي — بعد Start ★ -->
+      <div *ngIf="started">
+
+        <!-- Top bar -->
+        <div class="quiz-topbar">
+          <span class="quiz-title">{{ activity.title }}</span>
+          <div *ngIf="hasTimer" class="timer-box"
+               [class.timer-warn]="timerWarning && !timerDanger"
+               [class.timer-danger]="timerDanger">
+            Time left {{ timerMinutes | number:'2.0' }}:{{ timerSeconds | number:'2.0-0' | slice:0:2 }}
+          </div>
+        </div>
+
+        <!-- Expired bar -->
+        <div *ngIf="timerExpired" class="expired-bar">
+          ⏰ Time is up! Your answers are being submitted…
+        </div>
+
+        <div class="quiz-body">
+          <form [formGroup]="form" (ngSubmit)="submit()">
+
+            <!-- Student name -->
+            <div class="name-row">
+              <label>Your name</label>
+              <input class="name-input" formControlName="studentName"
+                     placeholder="Enter your full name"
+                     [attr.disabled]="timerExpired ? true : null" />
+              <div class="field-error"
+                   *ngIf="form.get('studentName')?.invalid && form.get('studentName')?.touched">
+                Name is required
+              </div>
+            </div>
+
+            <!-- Questions -->
+            <div *ngFor="let q of activity.questions; let qi = index" class="question-block">
+
+              <div class="question-number">Question {{ qi + 1 }}</div>
+              <div class="question-status">
+                {{ form.get(q.id)?.value ? 'Answered' : 'Not yet answered' }}
+              </div>
+              <div class="question-text">{{ q.text }}</div>
+              <div class="question-points">
+                <span>📝 {{ q.grade }} pts</span>
+                <span>⚡ {{ q.points }} pts</span>
+              </div>
+
+              <!-- MCQ -->
+              <div *ngIf="q.type === 'mcq'" class="options-list">
+                <label *ngFor="let opt of q.options; let oi = index"
+                       class="option-item"
+                       [class.option-selected]="form.get(q.id)?.value === opt.id">
+                  <input type="radio" [formControlName]="q.id" [value]="opt.id"
+                         [attr.disabled]="timerExpired ? true : null" />
+                  <span class="option-letter">{{ ['a','b','c','d'][oi] }}.</span>
+                  <span>{{ opt.text }}</span>
+                </label>
+              </div>
+
+              <!-- True / False -->
+              <div *ngIf="q.type === 'true-false'" class="options-list">
+                <label class="option-item"
+                       [class.option-selected]="form.get(q.id)?.value === 'True'">
+                  <input type="radio" [formControlName]="q.id" value="True"
+                         [attr.disabled]="timerExpired ? true : null" />
+                  <span class="option-letter">a.</span><span>True</span>
+                </label>
+                <label class="option-item"
+                       [class.option-selected]="form.get(q.id)?.value === 'False'">
+                  <input type="radio" [formControlName]="q.id" value="False"
+                         [attr.disabled]="timerExpired ? true : null" />
+                  <span class="option-letter">b.</span><span>False</span>
+                </label>
+              </div>
+
+              <!-- Fill blank -->
+              <div *ngIf="q.type === 'fill-blank'" class="fill-row">
+                <input class="fill-input" [formControlName]="q.id"
+                       placeholder="Type your answer here…"
+                       [attr.disabled]="timerExpired ? true : null" />
+              </div>
+
+              <div class="field-error"
+                   *ngIf="form.get(q.id)?.invalid && form.get(q.id)?.touched">
+                Please answer this question
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="submit-row">
+              <div *ngIf="activity.dueDate" class="due-note">
+                This attempt must be submitted by {{ activity.dueDate }}.
+              </div>
+              <button type="submit" class="btn-submit-quiz"
+                      [disabled]="form.invalid || timerExpired">
+                Finish attempt
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </ng-template>
+</div>
+
+<!-- Not found -->
+<ng-template #notFound>
+  <div *ngIf="!isPastDue" class="lock-screen">
+    <div class="lock-box">
+      <p class="text-muted">Activity not found.</p>
+      <a routerLink="/studentactivities" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,39 @@
+.activities-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+}
+
+.activity-row {
+  background: #f0f4ff;
+  transition: background 0.15s;
+}
+
+.activity-row:hover {
+  background: #e4eaff;
+}
+
+.activity-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  background: #dce6ff;
+  color: #3b6bdc;
+}
+
+.points-badge {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #3b6bdc;
+}
+
+.btn-outline-secondary {
+  font-size: 0.8rem;
+  border-color: #ccc;
+  color: #444;
+}
+
+.btn-outline-secondary:hover {
+  background: #e9ecef;
+  border-color: #aaa;
+}

@@ -1,0 +1,49 @@
+.activity-row {
+  background: #f8f9fb;
+  border: 1px solid #e8ecf0;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.activity-row:hover {
+  background: #f0f4ff;
+  box-shadow: 0 2px 8px rgba(59, 107, 220, 0.08);
+}
+
+.activity-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  background: #e8ecff;
+  color: #3b6bdc;
+}
+
+.type-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.badge-quiz {
+  background: #e0f0ff;
+  color: #1a6bbf;
+}
+
+.badge-assignment {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ★ زر Submitted ★ */
+.submitted-btn {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 1 !important;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+}
