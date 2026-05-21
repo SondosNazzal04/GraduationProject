@@ -1,59 +1,87 @@
-# Eduventure
+# EduVenture 🚀
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+> **A Gamified Learning & School Management Platform**
 
-## Development server
+**EduVenture** is a web-based educational platform designed to bridge the gap between traditional school management and modern student engagement. By integrating gamification mechanics (points, badges, challenges) with robust administrative tools, EduVenture makes learning interactive for students while providing transparency for parents and efficiency for teachers.
 
-To start a local development server, run:
+---
 
+## 📖 Table of Contents
+* [About the Project](#-about-the-project)
+* [Key Features](#-key-features)
+* [Technology Stack](#-technology-stack)
+* [System Architecture](#-system-architecture)
+* [Getting Started](#-getting-started)
+* [Team Members](#-team-members)
+* [Supervision](#-supervision)
+
+---
+
+## 🧐 About the Project
+Traditional learning management systems often focus solely on grades and logistics, leading to lower student engagement. **EduVenture** solves this by creating a unified ecosystem where:
+1.  **Students** are motivated by a "mission-based" learning model.
+2.  **Parents** have real-time access to their child's academic and behavioral progress.
+3.  **Schools** can manage users, classes, and content seamlessly.
+
+This project is developed as part of the **Graduation Project** requirements at **The Hashemite University**.
+
+---
+
+## ✨ Key Features
+
+### 🎮 Gamified Learning Hub
+* **VenturePoints & Badges:** Students earn rewards for completing assignments and maintaining good attendance.
+* **VentureShop:** A redeemable reward system where students spend points on items (managed by Admins).
+* **Interactive Challenges:** Engaging interfaces for solving assignments.
+
+### 🏫 School Management
+* **Admin Dashboard:** Complete control to Register Students, Teachers, and Manage Classes (Add/Edit/Delete).
+* **Teacher Dashboard:** Tools to record grades, input attendance, and create new activities.
+
+### 👨‍👩‍👧‍👦 Parental Insight
+* **Parent Dashboard:** Monitor child activity, view grades, and track behavioral achievements in real-time.
+
+---
+
+## 🛠 Technology Stack
+This project utilizes a modern web development stack:
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Frontend** | **Angular** | Interactive User Interface & SPA logic |
+| **Styling** | **Bootstrap** | Responsive design and layout |
+| **Backend** | **Node.js** | Server-side logic and API management |
+| **Database** | **Firebase** | Real-time NoSQL database & Auth |
+| **Design** | **Figma** | UI/UX Prototyping |
+
+---
+
+## 🏗 System Architecture
+* **Architecture Pattern:** Client-Server Architecture (Decoupled Frontend/Backend).
+* **Authentication:** Firebase Auth for handling Students, Teachers, Parents, and Admins.
+* **Database:** Cloud-hosted NoSQL (Firebase Firestore) for real-time data syncing.
+
+---
+
+## 🚀 Getting Started
+*Prerequisites: Node.js (v18+) and Angular CLI.*
+
+### 1. Clone the Repository
 ```bash
-ng serve
+git clone [https://github.com/YourUsername/EduVenture.git](https://github.com/YourUsername/EduVenture.git)
+cd EduVenture
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### 2. Install Dependencies (Frontend)
 ```bash
-ng generate component component-name
+cd frontend
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### 3. Install Dependencies (Backend)
 ```bash
-ng generate --help
+cd backend
+npm install
 ```
 
-## Building
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
