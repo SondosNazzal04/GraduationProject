@@ -11,3 +11,6 @@ backend/serviceAccountKey.json
 *.user
 *.suo
 *.vsidx
+
+node_modules
+eduventure-bes/node_modules

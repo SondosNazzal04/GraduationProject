@@ -12,6 +12,9 @@ import { SubmissionsComponent } from './component/activity/submissions/submissio
 import { StudentActivitiesComponent } from './component/student-activities/student-activities';
 import { VentureShop } from "./student/venture-shop/venture-shop";
 import { AdminVentureShop } from "./admin/admin-venture-shop/admin-venture-shop";
+import { MyClassesComponent } from './pages/my-classes/my-classes.component';
+import { AttendanceComponent } from './pages/attendance/attendance.component';
+import { GradebookComponent } from './pages/gradebook/gradebook.component';
 
 export const routes: Routes = [
   { path: 'teacherdachboard', component: TeacherDachboard },
@@ -29,4 +32,7 @@ export const routes: Routes = [
   { path: 'activities/:id/edit', component: CreateActivityComponent },
   { path: 'venture-shop', component: VentureShop },
   { path: 'admin-venture-shop', component: AdminVentureShop },
+  { path: 'my-classes', component: MyClassesComponent },
+  { path: 'attendance', component: AttendanceComponent },
+  { path: 'gradebook', component: GradebookComponent },
 ];

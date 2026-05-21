@@ -1,0 +1,36 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #1a1a2e;
+  color: #333;
+  height: 100vh;
+  overflow: hidden;
+}
+
+:root {
+  --primary-blue: #2563eb;
+  --sidebar-bg: #1e1e2e;
+  --sidebar-text: #9ca3af;
+  --sidebar-active: #2563eb;
+  --content-bg: #f3f4f6;
+  --white: #ffffff;
+  --border: #e5e7eb;
+  --text-dark: #111827;
+  --text-gray: #6b7280;
+  --badge-blue: #dbeafe;
+  --badge-blue-text: #1d4ed8;
+}
+
+button {
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+select {
+  font-family: 'Inter', sans-serif;
+}
