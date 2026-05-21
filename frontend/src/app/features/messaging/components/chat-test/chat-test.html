@@ -1,0 +1,15 @@
+<div class="chat-container">
+  <h2>EduVenture Chat</h2>
+
+  <div class="message-area">
+    <p>Chat ready...</p>
+  </div>
+
+  <div class="input-area">
+    <input type="text" placeholder="Type a message..." #messageInput>
+
+    <button (click)="sendMessage(messageInput.value)">
+      Send Message
+    </button>
+  </div>
+</div>
