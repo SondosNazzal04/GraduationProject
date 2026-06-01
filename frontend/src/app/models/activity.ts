@@ -21,6 +21,7 @@ export interface Activity {
   title: string;
   description: string;
   type: ActivityType;
+  classId?: string | null;
   questions: Question[];
   totalGrade: number;
   totalPoints: number;

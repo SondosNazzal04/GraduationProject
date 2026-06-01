@@ -1,0 +1,165 @@
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Admin portal</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Admin management</p>
+        <h1 class="page-title">Users and classes</h1>
+        <p class="page-subtitle">Create accounts, build classes, and attach students or teachers.</p>
+      </div>
+    </header>
+
+    @if (message) {
+      <div class="banner banner--success">{{ message }}</div>
+    }
+    @if (error) {
+      <div class="banner banner--error">{{ error }}</div>
+    }
+
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Create user</h2>
+          <span class="panel-chip">Firebase auth + role</span>
+        </div>
+
+        <label class="field-label">Email</label>
+        <input class="field-input" [(ngModel)]="createUserForm.email" placeholder="student@example.com" />
+
+        <label class="field-label">Role</label>
+        <select class="field-input" [(ngModel)]="createUserForm.role">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="parent">Parent</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        <label class="field-label">Assign classes</label>
+        <select class="field-input" multiple [(ngModel)]="createUserForm.classIds">
+          @for (cls of classes; track cls.id) {
+            <option [value]="cls.id">{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</option>
+          }
+        </select>
+
+        <button class="primary-btn" (click)="createUser()">Create account</button>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Create class</h2>
+          <span class="panel-chip">Roster + assignments</span>
+        </div>
+
+        <label class="field-label">Class name</label>
+        <input class="field-input" [(ngModel)]="createClassForm.name" placeholder="Math 101" />
+
+        <label class="field-label">Class code</label>
+        <input class="field-input" [(ngModel)]="createClassForm.code" placeholder="MATH-101" />
+
+        <label class="field-label">Grade level</label>
+        <input class="field-input" [(ngModel)]="createClassForm.gradeLevel" placeholder="10th grade" />
+
+        <label class="field-label">Description</label>
+        <textarea class="field-input field-textarea" [(ngModel)]="createClassForm.description" placeholder="Section, semester, or notes"></textarea>
+
+        <label class="field-label">Teacher UID</label>
+        <input class="field-input" [(ngModel)]="createClassForm.teacherUid" placeholder="Optional teacher uid" />
+
+        <label class="field-label">Student UIDs</label>
+        <textarea class="field-input field-textarea" [(ngModel)]="createClassForm.studentUidsText" placeholder="uid-1, uid-2, uid-3"></textarea>
+
+        <button class="primary-btn" (click)="createClass()">Create class</button>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Users</h2>
+        <span class="panel-chip">{{ users.length }} accounts</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Class assignment</th>
+              <th>Saved classes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user.uid) {
+              <tr>
+                <td>{{ user.email || user.uid }}</td>
+                <td><span class="role-pill role-pill--{{ user.role }}">{{ user.role }}</span></td>
+                <td>
+                  <select class="field-input field-input--inline" multiple [(ngModel)]="userClassDrafts[user.uid]">
+                    @for (cls of classes; track cls.id) {
+                      <option [value]="cls.id">{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</option>
+                    }
+                  </select>
+                  <button class="secondary-btn" (click)="saveUserClasses(user)">Save classes</button>
+                </td>
+                <td>
+                  <div class="tag-row">
+                    @for (classId of user.classIds || []; track classId) {
+                      <span class="tag">{{ className(classId) }}</span>
+                    }
+                    @if (!(user.classIds || []).length) {
+                      <span class="muted">No classes assigned</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Classes</h2>
+        <span class="panel-chip">{{ classes.length }} classes</span>
+      </div>
+
+      <div class="class-grid">
+        @for (cls of classes; track cls.id) {
+          <article class="class-card">
+            <div class="class-top">
+              <div>
+                <h3>{{ cls.name }}</h3>
+                <p>{{ cls.code || 'No code' }} · {{ cls.gradeLevel || 'No grade level' }}</p>
+              </div>
+              <span class="class-count">{{ studentCount(cls) }} students</span>
+            </div>
+            <p class="class-description">{{ cls.description || 'No description provided.' }}</p>
+            <div class="class-meta">
+              <span>Teacher: {{ teacherLabel(cls.teacherUid) }}</span>
+              <span>ID: {{ cls.id }}</span>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  </main>
+</div>

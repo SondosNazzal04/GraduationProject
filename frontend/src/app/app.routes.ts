@@ -12,6 +12,7 @@ import { SubmissionsComponent } from './component/activity/submissions/submissio
 import { StudentActivitiesComponent } from './component/student-activities/student-activities';
 import { VentureShop } from './student/venture-shop/venture-shop';
 import { AdminVentureShop } from './admin/admin-venture-shop/admin-venture-shop';
+import { AdminUsersComponent } from './admin/admin-users/admin-users';
 import { MyClassesComponent } from './pages/my-classes/my-classes.component';
 import { AttendanceComponent } from './pages/attendance/attendance.component';
 import { GradebookComponent } from './pages/gradebook/gradebook.component';
@@ -37,7 +38,7 @@ export const routes: Routes = [
   { path: 'teacherstudent', component: Teacherstudent },
   { path: 'teacherattendance', component: Teacherattendance },
   // { path: 'teacheractivities', component: TeacherActivity },
-  //{ path: 'studentactivities', component: StudentActivities },
+  // { path: 'studentactivities', component: StudentActivities },
   { path: 'activities', component: ActivityListComponent },
   { path: 'activities/create', component: CreateActivityComponent },
   { path: 'activities/:id/take', component: TakeActivityComponent },
@@ -46,6 +47,7 @@ export const routes: Routes = [
   { path: 'studentactivities', component: StudentActivitiesComponent },
   { path: 'activities/:id/edit', component: CreateActivityComponent },
   { path: 'venture-shop', component: VentureShop },
+  { path: 'admin-users', component: AdminUsersComponent },
   { path: 'admin-venture-shop', component: AdminVentureShop },
   { path: 'my-classes', component: MyClassesComponent },
   { path: 'attendance', component: AttendanceComponent },

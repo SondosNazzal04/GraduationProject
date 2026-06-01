@@ -11,8 +11,14 @@ import { Toast } from '../../models/toast.model';
   styleUrl: './venture-shop.css',
 })
 export class VentureShop {
+  private baseUrl = 'http://localhost:3000/api';
+
+  constructor() {
+    void this.loadShopItems();
+    void this.loadWallet();
+  }
   studentName = 'Sara Ahmad';
-  studentPoints = 5200;
+  studentPoints = 0;
 
   toast: Toast | null = null;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -28,56 +34,31 @@ export class VentureShop {
     if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
-  shopItems: ShopItem[] = [
-    {
-      id: 1,
-      name: 'Mini Notebook',
-      description: 'Wear casual clothes for one day instead of uniform',
-      price: 3000,
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=250&fit=crop',
-      emoji: '📒',
-    },
-    {
-      id: 2,
-      name: 'Badges',
-      description: 'Extra Badge Slot',
-      price: 4000,
-      image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=250&fit=crop',
-      emoji: '🏅',
-    },
-    {
-      id: 3,
-      name: 'New Avatar',
-      description: 'Change your profile picture',
-      price: 1120,
-      image: '',
-      emoji: '🖼️',
-    },
-    {
-      id: 4,
-      name: 'Pen',
-      description: 'Get a real pen from the school',
-      price: 500,
-      image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=400&h=250&fit=crop',
-      emoji: '✏️',
-    },
-    {
-      id: 5,
-      name: 'Cafeteria Voucher',
-      description: 'Wear casual clothes for one day instead of uniform',
-      price: 950,
-      image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=250&fit=crop',
-      emoji: '☕',
-    },
-    {
-      id: 6,
-      name: 'Title next to Name',
-      description: 'Top Achiever: Recognizes high performance.',
-      price: 6950,
-      image: 'https://images.unsplash.com/photo-1614149162883-504ce4d13909?w=400&h=250&fit=crop',
-      emoji: '🤩',
-    },
-  ];
+  shopItems: ShopItem[] = [];
+
+  private async loadShopItems(): Promise<void> {
+    try {
+      const resp = await fetch(`${this.baseUrl}/shop/items`);
+      if (resp.ok) {
+        const json = await resp.json();
+        this.shopItems = Array.isArray(json.items) ? json.items : [];
+      }
+    } catch (e) {
+      console.warn('Failed to load shop items', e);
+    }
+  }
+
+  private async loadWallet(): Promise<void> {
+    try {
+      const resp = await fetch(`${this.baseUrl}/student/me/wallet`);
+      if (resp.ok) {
+        const json = await resp.json();
+        this.studentPoints = Number(json.pointsBalance || 0);
+      }
+    } catch (e) {
+      console.warn('Failed to load wallet', e);
+    }
+  }
 
   navItems = [
     { label: 'Dashboard', icon: 'home', route: '/student-dashboard' },
@@ -90,11 +71,32 @@ export class VentureShop {
   ];
 
   purchase(item: ShopItem): void {
-    if (this.studentPoints >= item.price) {
-      this.studentPoints -= item.price;
-      this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
-    } else {
-      this.showToast(`Not enough points to purchase "${item.name}".`, 'error');
-    }
+    void (async () => {
+      try {
+        const resp = await fetch(`${this.baseUrl}/shop/redeem`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId: String(item.id), quantity: 1 }),
+        });
+        if (resp.ok) {
+          const json = await resp.json();
+          const balanceAfter = Number(json.item?.balanceAfter ?? json.item?.balanceAfter ?? 0);
+          this.studentPoints = balanceAfter;
+          this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
+          return;
+        }
+        const err = await resp.json().catch(() => ({}));
+        this.showToast(err.error || 'Purchase failed', 'error');
+      } catch (e) {
+        console.warn('Redeem failed', e);
+        // fallback local behavior
+        if (this.studentPoints >= item.price) {
+          this.studentPoints -= item.price;
+          this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
+        } else {
+          this.showToast(`Not enough points to purchase "${item.name}".`, 'error');
+        }
+      }
+    })();
   }
 }

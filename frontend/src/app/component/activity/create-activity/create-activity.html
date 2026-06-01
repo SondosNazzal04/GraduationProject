@@ -40,6 +40,18 @@
         </select>
       </div>
 
+      <!-- Class -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Class</label>
+        <select class="form-select" formControlName="classId">
+          <option value="">Unassigned</option>
+          <option *ngFor="let cls of classes" [value]="cls.id">
+            {{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}
+          </option>
+        </select>
+        <div class="form-text">Pick the class that should see this quiz or assignment.</div>
+      </div>
+
       <!-- ★ Due Date + Time Limit ★ -->
       <div class="row g-3 mb-4">
         <div class="col-md-6">

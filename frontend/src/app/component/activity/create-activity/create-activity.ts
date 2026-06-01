@@ -6,6 +6,13 @@ import { CommonModule } from '@angular/common';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity } from '../../../models/activity';
 
+interface SchoolClass {
+  id: string;
+  name: string;
+  code?: string;
+  gradeLevel?: string;
+}
+
 @Component({
   selector: 'app-create-activity',
   standalone: true,
@@ -21,6 +28,7 @@ export class CreateActivityComponent implements OnInit {
   isEditMode   = false;
   editActivity: Activity | undefined;
   form!: FormGroup;
+  classes: SchoolClass[] = [];
 
   get questions(): FormArray { return this.form.get('questions') as FormArray; }
 
@@ -34,10 +42,13 @@ export class CreateActivityComponent implements OnInit {
       title:       ['', Validators.required],
       description: [''],
       type:        ['quiz', Validators.required],
+      classId:     [''],
       dueDate:     [''],
       timeLimit:   [null],
       questions:   this.fb.array([], Validators.required),
     });
+
+    void this.loadClasses();
 
     // تحقق من edit mode
     const id = this.route.snapshot.paramMap.get('id');
@@ -57,6 +68,7 @@ export class CreateActivityComponent implements OnInit {
       title:       activity.title,
       description: activity.description,
       type:        activity.type,
+      classId:     activity.classId ?? '',
       dueDate:     activity.dueDate   ?? '',
       timeLimit:   activity.timeLimit ?? null,
     });
@@ -78,6 +90,17 @@ export class CreateActivityComponent implements OnInit {
         points:        [q.points ?? 50, [Validators.required, Validators.min(0)]],
       }));
     });
+  }
+
+  private async loadClasses(): Promise<void> {
+    try {
+      const resp = await fetch('http://localhost:3000/api/admin/classes');
+      if (!resp.ok) return;
+      const json = await resp.json();
+      this.classes = Array.isArray(json.items) ? json.items : [];
+    } catch {
+      this.classes = [];
+    }
   }
 
   addQuestion(): void {
@@ -127,10 +150,14 @@ export class CreateActivityComponent implements OnInit {
       const updated: Activity = {
         ...this.editActivity,
         ...this.form.value,
+        classId: this.form.value.classId || null,
       };
       this.service.updateActivity(updated);
     } else {
-      this.service.createActivity(this.form.value);
+      this.service.createActivity({
+        ...this.form.value,
+        classId: this.form.value.classId || null,
+      });
     }
 
     this.router.navigate(['/activities']);
