@@ -38,7 +38,15 @@ async function getUserRecord(uid) {
 }
 
 async function getProfileRecord(role, uid) {
-	const collectionName = role === 'admin' ? 'adminProfiles' : role === 'student' ? 'studentProfiles' : null;
+	const collectionName = role === 'admin'
+		? 'adminProfiles'
+		: role === 'student'
+			? 'studentProfiles'
+			: role === 'teacher'
+				? 'teacherProfiles'
+				: role === 'parent'
+					? 'parentProfiles'
+					: null;
 	if (!collectionName) {
 		return null;
 	}
@@ -53,13 +61,244 @@ function buildUserResponse(userRecord, profileRecord) {
 		email: userRecord.email ?? null,
 		role: normalizeRole(userRecord.role),
 		requirePasswordChange: !!userRecord.requirePasswordChange,
+		pointsBalance: Number(userRecord.pointsBalance ?? profileRecord?.pointsBalance ?? 0),
+		classIds: Array.isArray(profileRecord?.classIds) ? profileRecord.classIds : Array.isArray(userRecord.classIds) ? userRecord.classIds : [],
 		createdAt: userRecord.createdAt ?? null,
 		updatedAt: userRecord.updatedAt ?? null,
 		profile: profileRecord ?? null,
 	};
 }
 
+function normalizeClassIds(value) {
+	if (!Array.isArray(value)) {
+		return [];
+	}
+
+	return [...new Set(value.map((item) => String(item || '').trim()).filter(Boolean))];
+}
+
+function normalizeAnswerValue(value) {
+	return String(value ?? '').trim().toLowerCase();
+}
+
+function normalizeQuestion(question) {
+	return {
+		id: question.id || db.collection('activities').doc().id,
+		text: String(question.text || '').trim(),
+		type: String(question.type || 'mcq').trim().toLowerCase(),
+		options: Array.isArray(question.options)
+			? question.options.map((option) => ({
+				id: option.id || db.collection('activities').doc().id,
+				text: String(option.text || '').trim(),
+			}))
+			: [],
+		correctAnswer: String(question.correctAnswer || '').trim(),
+		grade: Number(question.grade || 0),
+		points: Number(question.points || 0),
+	};
+}
+
+function serializeActivity(docSnap) {
+	if (!docSnap.exists) {
+		return null;
+	}
+
+	return { id: docSnap.id, ...docSnap.data() };
+}
+
+function serializeShopItem(docSnap) {
+	if (!docSnap.exists) {
+		return null;
+	}
+
+	return { id: docSnap.id, ...docSnap.data() };
+}
+
+function scoreSubmission(activity, answers) {
+	let totalCorrect = 0;
+	let gradeScore = 0;
+	let earnedPoints = 0;
+
+	const gradedAnswers = (Array.isArray(answers) ? answers : []).map((answer) => {
+		const question = activity.questions.find((item) => item.id === answer.questionId);
+		if (!question) {
+			return answer;
+		}
+
+		const isCorrect = normalizeAnswerValue(answer.answer) === normalizeAnswerValue(question.correctAnswer);
+		const earnedGrade = isCorrect ? Number(question.grade || 0) : 0;
+		const earnedQuestionPoints = isCorrect ? Number(question.points || 0) : 0;
+
+		if (isCorrect) {
+			totalCorrect += 1;
+		}
+
+		gradeScore += earnedGrade;
+		earnedPoints += earnedQuestionPoints;
+
+		return {
+			...answer,
+			isCorrect,
+			earnedGrade,
+			earnedPoints: earnedQuestionPoints,
+		};
+	});
+
+	const gradePercentage = activity.totalGrade > 0 ? Math.round((gradeScore / activity.totalGrade) * 100) : 0;
+
+	return {
+		gradedAnswers,
+		totalCorrect,
+		gradeScore,
+		gradePercentage,
+		earnedPoints,
+	};
+}
+
+async function adjustUserPoints(uid, delta, meta = {}) {
+	const userRef = db.collection('users').doc(uid);
+	const profileRef = db.collection('studentProfiles').doc(uid);
+	const transactionRef = db.collection('pointTransactions').doc();
+
+	return db.runTransaction(async (transaction) => {
+		const userSnap = await transaction.get(userRef);
+		if (!userSnap.exists) {
+			throw new Error('User not found');
+		}
+
+		const currentBalance = Number(userSnap.data()?.pointsBalance || 0);
+		const nextBalance = currentBalance + Number(delta || 0);
+
+		if (nextBalance < 0) {
+			throw new Error('Insufficient points');
+		}
+
+		transaction.update(userRef, {
+			pointsBalance: nextBalance,
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+
+		transaction.set(profileRef, {
+			pointsBalance: nextBalance,
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		}, { merge: true });
+
+		transaction.set(transactionRef, {
+			uid,
+			delta: Number(delta || 0),
+			balanceAfter: nextBalance,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			...meta,
+		});
+
+		return { balanceAfter: nextBalance, transactionId: transactionRef.id };
+	});
+}
+
+function sanitizeActivityPayload(payload) {
+	const questions = Array.isArray(payload.questions) ? payload.questions.map(normalizeQuestion) : [];
+	const totalGrade = questions.reduce((sum, question) => sum + Number(question.grade || 0), 0);
+	const totalPoints = questions.reduce((sum, question) => sum + Number(question.points || 0), 0);
+
+	return {
+		title: String(payload.title || '').trim(),
+		description: String(payload.description || '').trim(),
+		type: String(payload.type || 'quiz').trim().toLowerCase(),
+		questions,
+		totalGrade,
+		totalPoints,
+		classId: String(payload.classId || '').trim() || null,
+		dueDate: payload.dueDate || null,
+		timeLimit: payload.timeLimit ? Number(payload.timeLimit) : null,
+		status: String(payload.status || 'published').trim().toLowerCase(),
+	};
+}
+
+function sanitizeClassPayload(payload) {
+	return {
+		name: String(payload.name || '').trim(),
+		code: String(payload.code || '').trim(),
+		description: String(payload.description || '').trim(),
+		gradeLevel: String(payload.gradeLevel || '').trim(),
+		teacherUid: String(payload.teacherUid || '').trim() || null,
+		studentUids: normalizeClassIds(payload.studentUids),
+	};
+}
+
+async function syncClassMembership(uid, role, previousClassIds, nextClassIds) {
+	const normalizedRole = normalizeRole(role);
+	const before = new Set(normalizeClassIds(previousClassIds));
+	const after = new Set(normalizeClassIds(nextClassIds));
+
+	const removed = [...before].filter((classId) => !after.has(classId));
+	const added = [...after].filter((classId) => !before.has(classId));
+
+	for (const classId of removed) {
+		const classRef = db.collection('classes').doc(classId);
+		if (normalizedRole === 'teacher') {
+			await classRef.set({ teacherUid: admin.firestore.FieldValue.delete() }, { merge: true });
+		} else if (normalizedRole === 'student') {
+			await classRef.set({ studentUids: admin.firestore.FieldValue.arrayRemove(uid) }, { merge: true });
+		} else if (normalizedRole === 'parent') {
+			await classRef.set({ parentUids: admin.firestore.FieldValue.arrayRemove(uid) }, { merge: true });
+		}
+	}
+
+	for (const classId of added) {
+		const classRef = db.collection('classes').doc(classId);
+		if (normalizedRole === 'teacher') {
+			await classRef.set({ teacherUid: uid }, { merge: true });
+		} else if (normalizedRole === 'student') {
+			await classRef.set({ studentUids: admin.firestore.FieldValue.arrayUnion(uid) }, { merge: true });
+		} else if (normalizedRole === 'parent') {
+			await classRef.set({ parentUids: admin.firestore.FieldValue.arrayUnion(uid) }, { merge: true });
+		}
+	}
+}
+
+async function getClassesForUser(uid, role) {
+	const normalizedRole = normalizeRole(role);
+	let classIds = [];
+
+	if (normalizedRole === 'student') {
+		const profile = await getProfileRecord('student', uid);
+		classIds = normalizeClassIds(profile?.classIds);
+	} else if (normalizedRole === 'teacher') {
+		const profile = await getProfileRecord('teacher', uid);
+		classIds = normalizeClassIds(profile?.classIds);
+	} else if (normalizedRole === 'parent') {
+		const profile = await getProfileRecord('parent', uid);
+		classIds = normalizeClassIds(profile?.classIds);
+	}
+
+	if (!classIds.length) {
+		return [];
+	}
+
+	const docs = await Promise.all(classIds.map((classId) => db.collection('classes').doc(classId).get()));
+	return docs.filter((docSnap) => docSnap.exists).map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+}
+
+function sanitizeShopItemPayload(payload) {
+	return {
+		name: String(payload.name || '').trim(),
+		description: String(payload.description || '').trim(),
+		price: Number(payload.price || 0),
+		image: String(payload.image || '').trim(),
+		emoji: String(payload.emoji || '').trim(),
+		active: payload.active !== false,
+	};
+}
+
 async function authenticate(req, res, next) {
+	// Development shortcut: skip Firebase token verification when env var is set
+	if (process.env.DEV_NO_AUTH === 'true') {
+		req.user = {
+			uid: process.env.DEV_UID || 'dev-student',
+			role: process.env.DEV_ROLE || 'student',
+		};
+		return next();
+	}
 	const header = req.headers.authorization || '';
 	const token = header.startsWith('Bearer ') ? header.slice(7) : null;
 
@@ -107,8 +346,9 @@ function requireRole(...allowedRoles) {
 }
 
 // Helper function to create user in Firebase
-async function createUser(email, role) {
+async function createUser(email, role, options = {}) {
 	const normalizedRole = normalizeRole(role);
+	const classIds = normalizeClassIds(options.classIds);
 	const tempPassword = Math.random().toString(36).slice(-8);
 	const userRecord = await admin.auth().createUser({
 		email: email,
@@ -119,6 +359,8 @@ async function createUser(email, role) {
 		email,
 		role: normalizedRole,
 		requirePasswordChange: true,
+		pointsBalance: 0,
+		classIds,
 		createdAt: admin.firestore.FieldValue.serverTimestamp(),
 		updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 	};
@@ -130,6 +372,8 @@ async function createUser(email, role) {
 			uid: userRecord.uid,
 			email,
 			status: 'active',
+			pointsBalance: 0,
+			classIds,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -140,6 +384,32 @@ async function createUser(email, role) {
 			uid: userRecord.uid,
 			email,
 			status: 'active',
+			pointsBalance: 0,
+			classIds,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+	}
+
+	if (normalizedRole === 'teacher') {
+		await db.collection('teacherProfiles').doc(userRecord.uid).set({
+			uid: userRecord.uid,
+			email,
+			status: 'active',
+			pointsBalance: 0,
+			classIds,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+	}
+
+	if (normalizedRole === 'parent') {
+		await db.collection('parentProfiles').doc(userRecord.uid).set({
+			uid: userRecord.uid,
+			email,
+			status: 'active',
+			pointsBalance: 0,
+			classIds,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -214,7 +484,7 @@ app.get('/api/admin/users', authenticate, requireRole('admin'), async (req, res)
 			}
 
 			let profileRecord = null;
-			if (role === 'admin' || role === 'student') {
+			if (role === 'admin' || role === 'student' || role === 'teacher' || role === 'parent') {
 				profileRecord = await getProfileRecord(role, docSnap.id);
 			}
 
@@ -225,6 +495,81 @@ app.get('/api/admin/users', authenticate, requireRole('admin'), async (req, res)
 	} catch (error) {
 		console.error('Error listing users:', error);
 		return res.status(500).json({ error: 'Failed to list users' });
+	}
+});
+
+app.get('/api/admin/classes', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const snap = await db.collection('classes').orderBy('createdAt', 'desc').get();
+		const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing classes:', error);
+		return res.status(500).json({ error: 'Failed to list classes' });
+	}
+});
+
+app.post('/api/admin/classes', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const payload = sanitizeClassPayload(req.body || {});
+		if (!payload.name) {
+			return res.status(400).json({ error: 'name is required.' });
+		}
+
+		const docRef = db.collection('classes').doc();
+		await docRef.set({
+			...payload,
+			studentUids: payload.studentUids,
+			createdByUid: req.user.uid,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+
+		if (payload.teacherUid) {
+			const teacherProfile = await getProfileRecord('teacher', payload.teacherUid);
+			const teacherClassIds = normalizeClassIds(teacherProfile?.classIds);
+			const nextTeacherClassIds = [...new Set([...teacherClassIds, docRef.id])];
+			await db.collection('teacherProfiles').doc(payload.teacherUid).set({ classIds: nextTeacherClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+			await db.collection('users').doc(payload.teacherUid).set({ classIds: nextTeacherClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+			await syncClassMembership(payload.teacherUid, 'teacher', teacherClassIds, nextTeacherClassIds);
+		}
+
+		for (const studentUid of payload.studentUids) {
+			const studentProfile = await getProfileRecord('student', studentUid);
+			const studentClassIds = normalizeClassIds(studentProfile?.classIds);
+			const nextStudentClassIds = [...new Set([...studentClassIds, docRef.id])];
+			await db.collection('studentProfiles').doc(studentUid).set({ classIds: nextStudentClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+			await db.collection('users').doc(studentUid).set({ classIds: nextStudentClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+			await syncClassMembership(studentUid, 'student', studentClassIds, nextStudentClassIds);
+		}
+
+		return res.status(201).json({ message: 'Class created successfully!', item: { id: docRef.id, ...payload } });
+	} catch (error) {
+		console.error('Error creating class:', error);
+		return res.status(500).json({ error: error.message || 'Failed to create class' });
+	}
+});
+
+app.put('/api/admin/users/:uid/classes', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const userRecord = await getUserRecord(req.params.uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		const nextClassIds = normalizeClassIds(req.body?.classIds);
+		const previousClassIds = normalizeClassIds(userRecord.classIds);
+		const role = normalizeRole(userRecord.role);
+		const profileCollection = role === 'student' ? 'studentProfiles' : role === 'teacher' ? 'teacherProfiles' : role === 'parent' ? 'parentProfiles' : 'adminProfiles';
+
+		await db.collection('users').doc(req.params.uid).set({ classIds: nextClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+		await db.collection(profileCollection).doc(req.params.uid).set({ classIds: nextClassIds, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+		await syncClassMembership(req.params.uid, role, previousClassIds, nextClassIds);
+
+		return res.json({ message: 'Classes updated successfully!', classIds: nextClassIds });
+	} catch (error) {
+		console.error('Error updating user classes:', error);
+		return res.status(500).json({ error: error.message || 'Failed to update classes' });
 	}
 });
 
@@ -275,9 +620,59 @@ app.get('/api/student/me', authenticate, requireRole('student'), async (req, res
 	}
 });
 
+app.get('/api/student/me/classes', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const items = await getClassesForUser(req.user.uid, 'student');
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error loading student classes:', error);
+		return res.status(500).json({ error: 'Failed to load student classes' });
+	}
+});
+
+app.get('/api/teacher/me', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const userRecord = await getUserRecord(req.user.uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'Teacher record not found' });
+		}
+
+		const profileRecord = await getProfileRecord('teacher', req.user.uid);
+		return res.json(buildUserResponse(userRecord, profileRecord));
+	} catch (error) {
+		console.error('Error loading teacher profile:', error);
+		return res.status(500).json({ error: 'Failed to load teacher profile' });
+	}
+});
+
+app.get('/api/teacher/me/classes', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const items = await getClassesForUser(req.user.uid, 'teacher');
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error loading teacher classes:', error);
+		return res.status(500).json({ error: 'Failed to load teacher classes' });
+	}
+});
+
+app.get('/api/parent/me', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const userRecord = await getUserRecord(req.user.uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'Parent record not found' });
+		}
+
+		const profileRecord = await getProfileRecord('parent', req.user.uid);
+		return res.json(buildUserResponse(userRecord, profileRecord));
+	} catch (error) {
+		console.error('Error loading parent profile:', error);
+		return res.status(500).json({ error: 'Failed to load parent profile' });
+	}
+});
+
 app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (req, res) => {
 	try {
-		const { email, role } = req.body;
+		const { email, role, classIds = [] } = req.body;
 		const normalizedRole = normalizeRole(role);
 		const allowedRoles = ['admin', 'student', 'parent', 'teacher'];
 
@@ -289,8 +684,11 @@ app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (re
 			return res.status(400).json({ error: 'Invalid role.' });
 		}
 
-		const { userRecord, tempPassword } = await createUser(email, normalizedRole);
+		const { userRecord, tempPassword } = await createUser(email, normalizedRole, { classIds });
 		await admin.auth().setCustomUserClaims(userRecord.uid, { role: normalizedRole });
+		if (normalizedRole !== 'admin' && normalizeClassIds(classIds).length) {
+			await syncClassMembership(userRecord.uid, normalizedRole, [], classIds);
+		}
 		const emailStatus = await sendEmail(userRecord.email, tempPassword);
 
 		return res.status(201).json({
@@ -303,6 +701,336 @@ app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (re
 	} catch (error) {
 		console.error('Error creating user:', error);
 		return res.status(500).json({ error: error.message });
+	}
+});
+
+app.get('/api/activities', authenticate, async (req, res) => {
+	try {
+		const role = normalizeRole(req.user?.role || req.user?.claims?.role);
+		const snap = await db.collection('activities').orderBy('createdAt', 'desc').get();
+		const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+		if (role === 'student') {
+			const classes = await getClassesForUser(req.user.uid, role);
+			const classIds = new Set(classes.map((item) => item.id));
+			return res.json({ items: items.filter((item) => !item.classId || classIds.has(item.classId)) });
+		}
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing activities:', error);
+		return res.status(500).json({ error: 'Failed to list activities' });
+	}
+});
+
+app.get('/api/activities/:activityId', authenticate, async (req, res) => {
+	try {
+		const role = normalizeRole(req.user?.role || req.user?.claims?.role);
+		const docSnap = await db.collection('activities').doc(req.params.activityId).get();
+		const activity = serializeActivity(docSnap);
+
+		if (!activity) {
+			return res.status(404).json({ error: 'Activity not found' });
+		}
+
+		if (role === 'student' && activity.classId) {
+			const classes = await getClassesForUser(req.user.uid, role);
+			const classIds = new Set(classes.map((item) => item.id));
+			if (!classIds.has(activity.classId)) {
+				return res.status(403).json({ error: 'Activity not available for this class' });
+			}
+		}
+
+		return res.json(activity);
+	} catch (error) {
+		console.error('Error loading activity:', error);
+		return res.status(500).json({ error: 'Failed to load activity' });
+	}
+});
+
+app.post('/api/activities', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		const payload = sanitizeActivityPayload(req.body || {});
+
+		if (!payload.title || !payload.description || !payload.questions.length) {
+			return res.status(400).json({ error: 'title, description, and questions are required.' });
+		}
+
+		const docRef = db.collection('activities').doc();
+		await docRef.set({
+			...payload,
+			createdByUid: req.user.uid,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+
+		return res.status(201).json({
+			message: 'Activity created successfully!',
+			item: { id: docRef.id, ...payload, createdByUid: req.user.uid },
+		});
+	} catch (error) {
+		console.error('Error creating activity:', error);
+		return res.status(500).json({ error: error.message || 'Failed to create activity' });
+	}
+});
+
+app.put('/api/activities/:activityId', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		const docRef = db.collection('activities').doc(req.params.activityId);
+		const docSnap = await docRef.get();
+		if (!docSnap.exists) {
+			return res.status(404).json({ error: 'Activity not found' });
+		}
+
+		const payload = sanitizeActivityPayload({ ...docSnap.data(), ...req.body });
+		await docRef.set(
+			{
+				...payload,
+				createdByUid: docSnap.data()?.createdByUid || req.user.uid,
+				createdAt: docSnap.data()?.createdAt || admin.firestore.FieldValue.serverTimestamp(),
+				updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+			},
+			{ merge: true },
+		);
+
+		return res.json({
+			message: 'Activity updated successfully!',
+			item: { id: docRef.id, ...payload, createdByUid: docSnap.data()?.createdByUid || req.user.uid },
+		});
+	} catch (error) {
+		console.error('Error updating activity:', error);
+		return res.status(500).json({ error: error.message || 'Failed to update activity' });
+	}
+});
+
+app.delete('/api/activities/:activityId', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		const docRef = db.collection('activities').doc(req.params.activityId);
+		const docSnap = await docRef.get();
+		if (!docSnap.exists) {
+			return res.status(404).json({ error: 'Activity not found' });
+		}
+
+		await docRef.delete();
+		return res.json({ message: 'Activity deleted successfully!' });
+	} catch (error) {
+		console.error('Error deleting activity:', error);
+		return res.status(500).json({ error: 'Failed to delete activity' });
+	}
+});
+
+app.post('/api/activities/:activityId/submissions', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const activitySnap = await db.collection('activities').doc(req.params.activityId).get();
+		const activity = serializeActivity(activitySnap);
+		if (!activity) {
+			return res.status(404).json({ error: 'Activity not found' });
+		}
+
+		const answers = Array.isArray(req.body?.answers) ? req.body.answers : [];
+		const evaluation = scoreSubmission(activity, answers);
+		const studentRecord = await getUserRecord(req.user.uid);
+		const submissionRef = db.collection('activitySubmissions').doc();
+
+		const submission = {
+			activityId: req.params.activityId,
+			studentUid: req.user.uid,
+			studentName: req.body?.studentName || studentRecord?.email || null,
+			answers: evaluation.gradedAnswers,
+			totalCorrect: evaluation.totalCorrect,
+			totalQuestions: activity.questions.length,
+			gradeScore: evaluation.gradeScore,
+			gradePercentage: activity.type === 'quiz' ? evaluation.gradePercentage : undefined,
+			earnedPoints: evaluation.earnedPoints,
+			totalPoints: activity.totalPoints,
+			submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+			status: 'submitted',
+		};
+
+		await submissionRef.set(submission);
+		const pointResult = await adjustUserPoints(req.user.uid, evaluation.earnedPoints, {
+			type: 'activity-completion',
+			activityId: req.params.activityId,
+			activityTitle: activity.title,
+			submissionId: submissionRef.id,
+		});
+
+		return res.status(201).json({
+			message: 'Submission recorded successfully!',
+			item: {
+				id: submissionRef.id,
+				...submission,
+				balanceAfter: pointResult.balanceAfter,
+			},
+		});
+	} catch (error) {
+		console.error('Error recording submission:', error);
+		return res.status(500).json({ error: error.message || 'Failed to record submission' });
+	}
+});
+
+app.get('/api/activities/:activityId/submissions', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		let query = db.collection('activitySubmissions').where('activityId', '==', req.params.activityId);
+		if (req.query.studentUid) {
+			query = query.where('studentUid', '==', String(req.query.studentUid));
+		}
+
+		const snap = await query.get();
+		const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing submissions:', error);
+		return res.status(500).json({ error: 'Failed to list submissions' });
+	}
+});
+
+app.get('/api/student/me/wallet', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const userRecord = await getUserRecord(req.user.uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'Student record not found' });
+		}
+
+		const transactionsSnap = await db
+			.collection('pointTransactions')
+			.where('uid', '==', req.user.uid)
+			.orderBy('createdAt', 'desc')
+			.limit(20)
+			.get();
+
+		return res.json({
+			uid: req.user.uid,
+			pointsBalance: Number(userRecord.pointsBalance || 0),
+			transactions: transactionsSnap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })),
+		});
+	} catch (error) {
+		console.error('Error loading wallet:', error);
+		return res.status(500).json({ error: 'Failed to load wallet' });
+	}
+});
+
+app.get('/api/shop/items', authenticate, async (req, res) => {
+	try {
+		let query = db.collection('shopItems');
+		const currentRole = normalizeRole(req.user?.role) || normalizeRole(await getUserRole(req.user.uid));
+		if (currentRole !== 'admin') {
+			query = query.where('active', '==', true);
+		}
+
+		const snap = await query.orderBy('createdAt', 'desc').get();
+		const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing shop items:', error);
+		return res.status(500).json({ error: 'Failed to list shop items' });
+	}
+});
+
+app.post('/api/shop/items', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const payload = sanitizeShopItemPayload(req.body || {});
+		if (!payload.name || !payload.price) {
+			return res.status(400).json({ error: 'name and price are required.' });
+		}
+
+		const docRef = db.collection('shopItems').doc();
+		await docRef.set({
+			...payload,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+
+		return res.status(201).json({
+			message: 'Shop item created successfully!',
+			item: { id: docRef.id, ...payload },
+		});
+	} catch (error) {
+		console.error('Error creating shop item:', error);
+		return res.status(500).json({ error: error.message || 'Failed to create shop item' });
+	}
+});
+
+app.put('/api/shop/items/:itemId', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const docRef = db.collection('shopItems').doc(req.params.itemId);
+		const docSnap = await docRef.get();
+		if (!docSnap.exists) {
+			return res.status(404).json({ error: 'Shop item not found' });
+		}
+
+		const payload = sanitizeShopItemPayload({ ...docSnap.data(), ...req.body });
+		await docRef.set(
+			{
+				...payload,
+				createdAt: docSnap.data()?.createdAt || admin.firestore.FieldValue.serverTimestamp(),
+				updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+			},
+			{ merge: true },
+		);
+
+		return res.json({
+			message: 'Shop item updated successfully!',
+			item: { id: docRef.id, ...payload },
+		});
+	} catch (error) {
+		console.error('Error updating shop item:', error);
+		return res.status(500).json({ error: error.message || 'Failed to update shop item' });
+	}
+});
+
+app.post('/api/shop/redeem', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const itemId = String(req.body?.itemId || '').trim();
+		if (!itemId) {
+			return res.status(400).json({ error: 'itemId is required.' });
+		}
+
+		const quantity = Number(req.body?.quantity || 1);
+		if (!Number.isInteger(quantity) || quantity < 1) {
+			return res.status(400).json({ error: 'quantity must be a positive integer.' });
+		}
+
+		const itemSnap = await db.collection('shopItems').doc(itemId).get();
+		const item = serializeShopItem(itemSnap);
+		if (!item || !item.active) {
+			return res.status(404).json({ error: 'Shop item not found' });
+		}
+
+		const cost = Number(item.price || 0) * quantity;
+		const pointResult = await adjustUserPoints(req.user.uid, -cost, {
+			type: 'shop-redemption',
+			itemId,
+			itemName: item.name,
+			quantity,
+		});
+
+		const redemptionRef = db.collection('shopRedemptions').doc();
+		await redemptionRef.set({
+			uid: req.user.uid,
+			itemId,
+			itemName: item.name,
+			quantity,
+			cost,
+			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+		});
+
+		return res.status(201).json({
+			message: 'Item redeemed successfully!',
+			item: {
+				id: redemptionRef.id,
+				itemId,
+				itemName: item.name,
+				quantity,
+				cost,
+				balanceAfter: pointResult.balanceAfter,
+			},
+		});
+	} catch (error) {
+		console.error('Error redeeming shop item:', error);
+		if (error.message === 'Insufficient points') {
+			return res.status(400).json({ error: 'Not enough points' });
+		}
+
+		return res.status(500).json({ error: error.message || 'Failed to redeem item' });
 	}
 });
 
