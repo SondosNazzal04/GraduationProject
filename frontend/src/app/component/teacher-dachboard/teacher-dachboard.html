@@ -1,0 +1,241 @@
+<div class="dashboard-bg d-flex">
+
+  <nav class="sidebar py-4 px-3">
+    <div class="sidebar-header mb-4">
+      <div class="fw-bold fs-4 d-flex align-items-center">
+        <span class="me-2">
+          /* <svg width="26" height="26" fill="#3a86ff" viewBox="0 0 16 16"> */
+            <circle cx="8" cy="8" r="8"/>
+            <text x="8" y="12" text-anchor="middle" font-size="10" >EV</text>
+          </svg>
+        </span>
+        EduVenture
+      </div>
+      <div class="text-muted small ms-1">Teacher Portal</div>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item mb-1"><a class="nav-link active" href=""><i class="bi bi-grid"></i> Dashboard</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="">My Classes</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="">Students</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="">Attendance</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="">Gradebook</a></li>
+      <li class="nav-item"><a class="nav-link" href="">Activities</a></li>
+    </ul>
+    <div class="signout mt-auto">
+      <a href="" class="text-muted small d-block py-3 px-2"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-main flex-grow-1">
+    <div class="dashboard-header d-flex align-items-center justify-content-between p-3 mb-3">
+      <h3 class="fw-bold m-0">Teacher Dashboard</h3>
+      <div class="d-flex align-items-center gap-3">
+        <div class="input-group dashboard-search me-2">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search...">
+        </div>
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile" width="38" height="38" class="rounded-circle border">
+        <span class="ms-2">Mr. Smith</span>
+      </div>
+    </div>
+    <div class="dashboard-content p-3">
+      <div class="row mb-3 g-3">
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">My Classes</div>
+              <div class="dashboard-card-value fs-3 fw-bold">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Total Students</div>
+              <div class="dashboard-card-value fs-3 fw-bold">93</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Pending Reviews</div>
+              <div class="dashboard-card-value fs-3 fw-bold">12</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Avg Attendance</div>
+              <div class="dashboard-card-value fs-3 fw-bold">94%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-3 g-3">
+        <div class="col-xl-9 mb-3 mb-xl-0">
+       
+          <div class="card h-100 dashboard-section">
+            <div class="card-header bg-white d-flex align-items-center justify-content-between">
+              <span class="fw-semibold">Today's Schedule</span>
+              <span class="text-muted small">Sunday, Dec 7</span>
+            </div>
+            <div class="card-body py-2">
+              <div class="sched-row">
+                <div class="sched-time">8:00 AM</div>
+                <div class="sched-main bg-sched">
+                  <div>Math 101</div>
+                  <div class="sched-room text-muted small">Room 204</div>
+                </div>
+                <div class="sched-extra">
+                  <span>28 students</span>
+                  <button class="btn btn-outline-primary btn-sm ms-2">View Class</button>
+                </div>
+              </div>
+              <div class="sched-row">
+                <div class="sched-time">9:30 AM</div>
+                <div class="sched-main bg-sched">
+                  <div>Math 102</div>
+                  <div class="sched-room text-muted small">Room 204</div>
+                </div>
+                <div class="sched-extra">
+                  <span>25 students</span>
+                  <button class="btn btn-outline-primary btn-sm ms-2">View Class</button>
+                </div>
+              </div>
+              <div class="sched-row">
+                <div class="sched-time">11:00 AM</div>
+                <div class="sched-main bg-sched">
+                  <div>Algebra Advanced</div>
+                  <div class="sched-room text-muted small">Room 301</div>
+                </div>
+                <div class="sched-extra">
+                  <span>22 students</span>
+                  <button class="btn btn-outline-primary btn-sm ms-2">View Class</button>
+                </div>
+              </div>
+              <div class="sched-row">
+                <div class="sched-time">1:30 PM</div>
+                <div class="sched-main bg-sched">
+                  <div>Calculus</div>
+                  <div class="sched-room text-muted small">Room 301</div>
+                </div>
+                <div class="sched-extra">
+                  <span>18 students</span>
+                  <button class="btn btn-outline-primary btn-sm ms-2">View Class</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="col-xl-3">
+          <div class="mb-3">
+            <div class="card">
+              <div class="card-header bg-white py-2">
+                Quick Actions
+              </div>
+              <div class="card-body py-2 px-3">
+                <button class="btn btn-outline-success btn-sm mb-2 w-100 text-start"><i class="bi bi-journal-check me-2"></i>Take Attendance</button>
+                <button class="btn btn-outline-info btn-sm mb-2 w-100 text-start"><i class="bi bi-pen me-2"></i>Enter Grades</button>
+                <button class="btn btn-outline-primary btn-sm w-100 text-start"><i class="bi bi-lightbulb me-2"></i>Create Activity</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header bg-white py-2">
+              Class Performance
+            </div>
+            <div class="card-body pb-2 px-3">
+              <div class="class-perf-row mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Math 101</span> <span class="text-muted">85%</span>
+                </div>
+                <div class="progress progress-sm">
+                  <div class="progress-bar bg-primary" style="width:85%"></div>
+                </div>
+              </div>
+              <div class="class-perf-row mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Math 102</span> <span class="text-muted">85%</span>
+                </div>
+                <div class="progress progress-sm">
+                  <div class="progress-bar bg-primary" style="width:85%"></div>
+                </div>
+              </div>
+              <div class="class-perf-row">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Algebra Advanced</span> <span class="text-muted">85%</span>
+                </div>
+                <div class="progress progress-sm">
+                  <div class="progress-bar bg-primary" style="width:85%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+   
+      <div class="card dashboard-section mb-3">
+        <div class="card-header bg-white fw-semibold py-2">
+          Recent Submissions
+          <a href="#" class="float-end small text-decoration-none text-primary">View All <i class="bi bi-chevron-right"></i></a>
+        </div>
+        <div class="card-body py-2">
+          <div class="recent-sub-row d-flex align-items-center mb-3">
+            <div class="recent-avatar me-3">EW</div>
+            <div>
+              <div class="fw-semibold">Emma Williams</div>
+              <div class="text-muted small">Chapter 5 Homework</div>
+            </div>
+            <div class="ms-auto text-end">
+              <div class="text-muted small">10 min ago</div>
+              <span class="badge bg-warning text-dark small">pending</span>
+              <button class="btn btn-outline-primary btn-sm ms-2">Grade</button>
+            </div>
+          </div>
+          <div class="recent-sub-row d-flex align-items-center mb-3">
+            <div class="recent-avatar me-3">AJ</div>
+            <div>
+              <div class="fw-semibold">Alex Johnson</div>
+              <div class="text-muted small">Quiz 3</div>
+            </div>
+            <div class="ms-auto text-end">
+              <div class="text-muted small">25 min ago</div>
+              <span class="badge bg-success small">graded</span>
+            </div>
+          </div>
+          <div class="recent-sub-row d-flex align-items-center mb-3">
+            <div class="recent-avatar me-3">MC</div>
+            <div>
+              <div class="fw-semibold">Michael Chen</div>
+              <div class="text-muted small">Chapter 5 Homework</div>
+            </div>
+            <div class="ms-auto text-end">
+              <div class="text-muted small">1 hour ago</div>
+              <span class="badge bg-warning text-dark small">pending</span>
+              <button class="btn btn-outline-primary btn-sm ms-2">Grade</button>
+            </div>
+          </div>
+          <div class="recent-sub-row d-flex align-items-center">
+            <div class="recent-avatar me-3">SM</div>
+            <div>
+              <div class="fw-semibold">Sarah Miller</div>
+              <div class="text-muted small">Extra Credit</div>
+            </div>
+            <div class="ms-auto text-end">
+              <div class="text-muted small">2 hours ago</div>
+              <span class="badge bg-warning text-dark small">pending</span>
+              <button class="btn btn-outline-primary btn-sm ms-2">Grade</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

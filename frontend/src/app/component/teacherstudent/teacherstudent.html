@@ -1,0 +1,94 @@
+<div class="dashboard-bg d-flex">
+  <!-- Sidebar -->
+  <nav class="sidebar py-4 px-3">
+    <div class="sidebar-header mb-4">
+      <div class="fw-bold fs-4 d-flex align-items-center">
+        <span class="me-2">
+          <svg width="26" height="26" fill="none" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="8" fill="#3a86ff"/>
+            <text x="8" y="12" text-anchor="middle" font-size="10" fill="#fff">EV</text>
+          </svg>
+        </span>
+        EduVenture
+      </div>
+      <div class="text-success small ms-1">Teacher Portal</div>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Dashboard</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">My Classes</a></li>
+      <li class="nav-item mb-1"><a class="nav-link active" href="#">Students</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Attendance</a></li>
+      <li class="nav-item mb-1"><a class="nav-link" href="#">Gradebook</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
+    </ul>
+    <div class="signout mt-auto">
+      <a href="#" class="text-muted small d-block py-3 px-2">Sign Out</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="students-main flex-grow-1">
+    <div class="d-flex justify-content-between align-items-center p-4 mb-3">
+      <h3 class="fw-bold m-0">My Students</h3>
+      <div class="d-flex align-items-center gap-3">
+        <div class="input-group dashboard-search">
+          <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search students...">
+        </div>
+        <select class="form-select ms-3" style="width: 165px;">
+          <option>All Classes</option>
+        </select>
+        <div class="notification-indicator ms-4 position-relative">
+          <i class="bi bi-bell fs-5"></i>
+          <span class="dot position-absolute top-0 start-100 translate-middle bg-primary rounded-circle" style="width:6px;height:6px;"></span>
+        </div>
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile" width="38" height="38" class="rounded-circle border ms-3">
+        <span class="ms-2">Mr. Smith</span>
+      </div>
+    </div>
+    <div class="students-list px-4 pb-4">
+      <div class="row g-4">
+        @for (stu of students; track stu) {
+          <div class="col-md-4">
+            <div class="card student-card shadow-sm h-100">
+              <div class="card-body d-flex flex-column h-100">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="student-avatar rounded-circle bg-primary bg-opacity-10 text-primary me-3 d-flex align-items-center justify-content-center">
+                    <span class="fw-bold">{{stu.initials}}</span>
+                  </div>
+                  <div>
+                    <div class="fw-bold fs-5">{{stu.name}}</div>
+                    <div class="text-muted small">{{stu.class}}</div>
+                  </div>
+                </div>
+                <div class="row gx-1 mb-2">
+                  <div class="col-4">
+                    <div class="fw-bold">{{stu.grade}}</div>
+                    <div class="text-muted small lh-sm">Grade</div>
+                  </div>
+                  <div class="col-4">
+                    <div class="fw-bold">{{stu.attendance}}%</div>
+                    <div class="text-muted small lh-sm">Attendance</div>
+                  </div>
+                  <div class="col-4">
+                    <div class="fw-bold">{{stu.points}}</div>
+                    <div class="text-muted small lh-sm">Points</div>
+                  </div>
+                </div>
+                <div class="mt-auto d-flex gap-2">
+                  <button class="btn btn-light flex-fill"><i class="bi bi-envelope me-1"></i>Contact</button>
+                  <button class="btn btn-primary flex-fill"><i class="bi bi-lightning-charge" style="font-size:1rem"></i> Award Points</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      @if (students.length === 0) {
+        <div class="text-center text-muted py-5 fs-4">
+          No students available.
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="dashboard-bg d-flex">
+  <!-- sidebar موجود عندك سابقاً -->
+  <nav class="sidebar py-4 px-3">
+    <!-- ... -->
+  </nav>
+
+  <div class="attendance-main flex-grow-1 p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Take Attendance</h3>
+      <button class="btn btn-primary" (click)="saveAttendance()">Save Attendance</button>
+    </div>
+
+    <div class="card p-3 mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-calendar-event"></i>
+        <div>{{date}}</div>
+        <select class="form-select ms-3" style="width: 180px;">
+          <option>{{selectedClass}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card student-list-card p-3">
+      <div class="fw-semibold mb-3">Math 101 - Student List</div>
+      <div *ngFor="let stu of students; let i = index" class="d-flex align-items-center justify-content-between p-3 mb-2 student-row">
+        <div class="d-flex align-items-center">
+          <div class="student-avatar me-3">{{stu.initials}}</div>
+          <div>
+            <div class="fw-bold">{{stu.name}}</div>
+            <div class="text-muted small">Attendance: {{stu.attendance}}%</div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-light" [class.active]="stu.status==='present'" (click)="setStatus(i,'present')">Present</button>
+          <button class="btn btn-light" [class.active]="stu.status==='late'" (click)="setStatus(i,'late')">Late</button>
+          <button class="btn btn-light" [class.active]="stu.status==='absent'" (click)="setStatus(i,'absent')">Absent</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
