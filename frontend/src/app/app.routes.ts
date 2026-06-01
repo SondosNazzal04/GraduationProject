@@ -53,3 +53,6 @@ export const routes: Routes = [
   { path: 'attendance', component: AttendanceComponent },
   { path: 'gradebook', component: GradebookComponent },
 ];
+
+
+
