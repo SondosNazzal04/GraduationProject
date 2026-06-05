@@ -63,9 +63,17 @@ export class AuthService{
     return (snap.data()[`role`] ?? null) as string | null;
   }
 
-  async createUserAsAdmin(email: string, role: string) {
+  async createUserAsAdmin(
+    email: string,
+    role: string,
+    classIds: string[] = [],
+  ): Promise<any> {
     return await firstValueFrom(
-      this.http.post(`${this.apiBaseUrl}/api/admin/create-user`, { email, role }),
+      this.http.post(`${this.apiBaseUrl}/api/admin/create-user`, {
+        email,
+        role,
+        classIds,
+      }),
     );
   }
 

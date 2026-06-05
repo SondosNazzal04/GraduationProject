@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
+import { AuthService } from '../../shared/services/auth/auth';
 
 type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
 
@@ -35,13 +36,16 @@ interface SchoolClass {
 })
 export class AdminUsersComponent implements OnInit {
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private baseUrl = `${getApiBaseUrl()}/api`;
 
   users: AdminUser[] = [];
   classes: SchoolClass[] = [];
   loading = false;
+  submitting = false;
   message = '';
   error = '';
+  private messageTimer: ReturnType<typeof setTimeout> | null = null;
 
   createUserForm = {
     email: '',
@@ -105,27 +109,102 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async createUser(): Promise<void> {
-    if (!this.createUserForm.email.trim()) {
+    this.clearMessages();
+
+    const email = this.createUserForm.email.trim();
+    if (!email) {
       this.error = 'Email is required.';
       return;
     }
 
+    this.submitting = true;
     try {
-      await firstValueFrom(
-        this.http.post(`${this.baseUrl}/admin/create-user`, {
-          email: this.createUserForm.email.trim(),
-          role: this.createUserForm.role,
-          classIds: this.createUserForm.classIds,
-        }),
+      const result: any = await this.authService.createUserAsAdmin(
+        email,
+        this.createUserForm.role,
+        this.createUserForm.classIds,
       );
 
-      this.message = 'User created successfully.';
+      const tempPassword = result?.temporaryPassword ?? '';
+      const emailStatus = result?.emailStatus ?? '';
+
+      let successMsg = `User "${email}" created as ${this.createUserForm.role}.`;
+      if (tempPassword) {
+        successMsg += ` Temp password: ${tempPassword}`;
+      }
+      if (emailStatus === 'sent') {
+        successMsg += ' — welcome email sent.';
+      } else if (emailStatus === 'failed') {
+        successMsg += ' — ⚠ welcome email could not be sent.';
+      }
+
+      this.showSuccess(successMsg);
       this.createUserForm = { email: '', role: 'student', classIds: [] };
       await this.loadData();
     } catch (err) {
-      this.error = 'Failed to create user.';
-      console.error(err);
+      this.error = this.parseFirebaseError(err);
+      console.error('createUser error:', err);
+    } finally {
+      this.submitting = false;
     }
+  }
+
+  private clearMessages(): void {
+    this.message = '';
+    this.error = '';
+    if (this.messageTimer) {
+      clearTimeout(this.messageTimer);
+      this.messageTimer = null;
+    }
+  }
+
+  private showSuccess(msg: string): void {
+    this.message = msg;
+    this.error = '';
+    this.messageTimer = setTimeout(() => {
+      this.message = '';
+    }, 6000);
+  }
+
+  /**
+   * Extracts a human-readable message from Firebase/backend errors.
+   * The backend at POST /api/admin/create-user returns { error: "..." }
+   * where the message is typically a Firebase Auth error string.
+   */
+  private parseFirebaseError(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const serverMsg: string = err.error?.error || err.error?.message || '';
+
+      // Map well-known Firebase Auth error codes to friendly text
+      if (serverMsg.includes('email-already-exists') || serverMsg.includes('email already exists')) {
+        return 'This email address is already registered. Please use a different email.';
+      }
+      if (serverMsg.includes('invalid-email') || serverMsg.includes('badly formatted')) {
+        return 'The email address is invalid. Please check the format (e.g. user@example.com).';
+      }
+      if (serverMsg.includes('invalid-password') || serverMsg.includes('at least 6 characters')) {
+        return 'Firebase rejected the generated password. Please try again.';
+      }
+      if (serverMsg.includes('too-many-requests')) {
+        return 'Too many requests. Please wait a moment and try again.';
+      }
+      if (serverMsg.includes('insufficient-permission') || serverMsg.includes('PERMISSION_DENIED')) {
+        return 'Permission denied. The admin service account may not have the required access.';
+      }
+
+      // Return the raw server message if it's informative
+      if (serverMsg) {
+        return `Failed to create user: ${serverMsg}`;
+      }
+
+      // Fallback based on HTTP status
+      if (err.status === 400) return 'Bad request — please check the form inputs.';
+      if (err.status === 401) return 'Session expired. Please log in again.';
+      if (err.status === 403) return 'You do not have permission to create users.';
+      if (err.status === 0) return 'Cannot reach the server. Is the backend running?';
+    }
+
+    return 'An unexpected error occurred while creating the user.';
   }
 
   async createClass(): Promise<void> {

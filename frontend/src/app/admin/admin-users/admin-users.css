@@ -107,6 +107,35 @@
   color: #991b1b;
 }
 
+.banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.banner-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: inherit;
+  opacity: 0.55;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.banner-dismiss:hover {
+  opacity: 1;
+}
+
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .panel-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

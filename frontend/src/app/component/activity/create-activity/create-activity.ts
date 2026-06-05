@@ -96,12 +96,27 @@ export class CreateActivityComponent implements OnInit {
     });
   }
 
+  /**
+   * Load classes available to the current user.
+   * Teachers use /api/teacher/me/classes; admins use /api/admin/classes.
+   * Try teacher endpoint first (more common path), fall back to admin.
+   */
   private async loadClasses(): Promise<void> {
     try {
-      const json = await firstValueFrom<any>(this.http.get(`${getApiBaseUrl()}/api/admin/classes`));
+      const json = await firstValueFrom<any>(
+        this.http.get(`${getApiBaseUrl()}/api/teacher/me/classes`),
+      );
       this.classes = Array.isArray(json.items) ? json.items : [];
     } catch {
-      this.classes = [];
+      // Teacher endpoint failed — user may be an admin
+      try {
+        const json = await firstValueFrom<any>(
+          this.http.get(`${getApiBaseUrl()}/api/admin/classes`),
+        );
+        this.classes = Array.isArray(json.items) ? json.items : [];
+      } catch {
+        this.classes = [];
+      }
     }
   }
 

@@ -28,10 +28,16 @@
     </header>
 
     @if (message) {
-      <div class="banner banner--success">{{ message }}</div>
+      <div class="banner banner--success">
+        <span>{{ message }}</span>
+        <button class="banner-dismiss" (click)="message = ''">✕</button>
+      </div>
     }
     @if (error) {
-      <div class="banner banner--error">{{ error }}</div>
+      <div class="banner banner--error">
+        <span>⚠ {{ error }}</span>
+        <button class="banner-dismiss" (click)="error = ''">✕</button>
+      </div>
     }
 
     <section class="panel-grid">
@@ -59,7 +65,9 @@
           }
         </select>
 
-        <button class="primary-btn" (click)="createUser()">Create account</button>
+        <button class="primary-btn" [disabled]="submitting" (click)="createUser()">
+          {{ submitting ? 'Creating…' : 'Create account' }}
+        </button>
       </article>
 
       <article class="panel">
