@@ -3,8 +3,11 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup,
          FormArray, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity } from '../../../models/activity';
+import { getApiBaseUrl } from '../../../firebase.runtime-config';
 
 interface SchoolClass {
   id: string;
@@ -24,6 +27,7 @@ export class CreateActivityComponent implements OnInit {
   private service = inject(ActivityService);
   private router  = inject(Router);
   private route   = inject(ActivatedRoute);
+  private http    = inject(HttpClient);
 
   isEditMode   = false;
   editActivity: Activity | undefined;
@@ -94,9 +98,7 @@ export class CreateActivityComponent implements OnInit {
 
   private async loadClasses(): Promise<void> {
     try {
-      const resp = await fetch('http://localhost:3000/api/admin/classes');
-      if (!resp.ok) return;
-      const json = await resp.json();
+      const json = await firstValueFrom<any>(this.http.get(`${getApiBaseUrl()}/api/admin/classes`));
       this.classes = Array.isArray(json.items) ? json.items : [];
     } catch {
       this.classes = [];

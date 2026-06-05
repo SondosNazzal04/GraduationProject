@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import {
   Activity,
   Submission,
@@ -6,10 +8,12 @@ import {
   StudentWallet,
   PointTransaction,
 } from '../../models/activity';
+import { getApiBaseUrl } from '../../firebase.runtime-config';
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
-  private baseUrl = 'http://localhost:3000/api';
+  private http = inject(HttpClient);
+  private baseUrl = `${getApiBaseUrl()}/api`;
 
   constructor() {
     void this.syncFromBackend();
@@ -47,28 +51,22 @@ export class ActivityService {
   // Try to sync activities/submissions/wallets from backend (DEV_NO_AUTH can be used to skip auth locally)
   async syncFromBackend(): Promise<void> {
     try {
-      const resp = await fetch(`${this.baseUrl}/activities`);
-      if (resp.ok) {
-        const json = await resp.json();
-        if (Array.isArray(json.items)) {
-          this.activities.set(json.items);
-          this.save('activities', json.items);
-        }
+      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/activities`));
+      if (Array.isArray(json.items)) {
+        this.activities.set(json.items);
+        this.save('activities', json.items);
       }
 
       // load recent submissions if any
       // Note: listing all submissions requires activityId; we keep local submissions unless user asks to view per-activity.
-      const walletResp = await fetch(`${this.baseUrl}/student/me/wallet`);
-      if (walletResp.ok) {
-        const walletJson = await walletResp.json();
-        const wallet = {
-          studentName: walletJson.uid || 'me',
-          totalPoints: Number(walletJson.pointsBalance || 0),
-          history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
-        } as StudentWallet;
-        this.wallets.set([wallet]);
-        this.save('wallets', [wallet]);
-      }
+      const walletJson = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/wallet`));
+      const wallet = {
+        studentName: walletJson.uid || 'me',
+        totalPoints: Number(walletJson.pointsBalance || 0),
+        history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
+      } as StudentWallet;
+      this.wallets.set([wallet]);
+      this.save('wallets', [wallet]);
     } catch (e) {
       // keep local data if backend unavailable
       console.warn('ActivityService: backend sync failed', e);
@@ -97,13 +95,8 @@ export class ActivityService {
     // attempt to persist to backend first
     void (async () => {
       try {
-        const resp = await fetch(`${this.baseUrl}/activities`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newActivity),
-        });
-        if (resp.ok) {
-          const json = await resp.json();
+        const json = await firstValueFrom<any>(this.http.post(`${this.baseUrl}/activities`, newActivity));
+        if (json) {
           const item = json.item || json;
           this.activities.update((list) => {
             const updated = [...list, item];
@@ -198,15 +191,13 @@ export class ActivityService {
     // submit to backend if possible, fallback to local evaluation
     void (async () => {
       try {
-        const resp = await fetch(`${this.baseUrl}/activities/${encodeURIComponent(
-          data.activityId,
-        )}/submissions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers: data.answers, studentName: data.studentName }),
-        });
-        if (resp.ok) {
-          const json = await resp.json();
+        const json = await firstValueFrom<any>(
+          this.http.post(
+            `${this.baseUrl}/activities/${encodeURIComponent(data.activityId)}/submissions`,
+            { answers: data.answers, studentName: data.studentName },
+          ),
+        );
+        if (json) {
           const item = json.item || json;
           this.submissions.update((list) => {
             const updated = [...list, item];
@@ -216,17 +207,16 @@ export class ActivityService {
 
           // update wallet locally
           try {
-            const walletResp = await fetch(`${this.baseUrl}/student/me/wallet`);
-            if (walletResp.ok) {
-              const walletJson = await walletResp.json();
-              const wallet = {
-                studentName: walletJson.uid || 'me',
-                totalPoints: Number(walletJson.pointsBalance || 0),
-                history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
-              } as StudentWallet;
-              this.wallets.update(() => [wallet]);
-              this.save('wallets', [wallet]);
-            }
+            const walletJson = await firstValueFrom<any>(
+              this.http.get(`${this.baseUrl}/student/me/wallet`),
+            );
+            const wallet = {
+              studentName: walletJson.uid || 'me',
+              totalPoints: Number(walletJson.pointsBalance || 0),
+              history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
+            } as StudentWallet;
+            this.wallets.update(() => [wallet]);
+            this.save('wallets', [wallet]);
           } catch {}
 
           return;

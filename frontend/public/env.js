@@ -1,4 +1,5 @@
 window.__env = {
+  apiBaseUrl: "http://localhost:3000",
   firebase: {
     apiKey: "AIzaSyAYjy6TsDvesiAQDUb39VNzZyEPDoc5xic",
     authDomain: "eduventure-project.firebaseapp.com",

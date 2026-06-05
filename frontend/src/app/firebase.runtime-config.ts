@@ -7,11 +7,14 @@ type FirebaseWebConfig = {
   appId: string;
 };
 
+type RuntimeConfig = {
+  firebase?: FirebaseWebConfig;
+  apiBaseUrl?: string;
+};
+
 declare global {
   interface Window {
-    __env?: {
-      firebase?: FirebaseWebConfig;
-    };
+    __env?: RuntimeConfig;
   }
 }
 
@@ -31,4 +34,15 @@ export function getFirebaseConfig(): FirebaseWebConfig {
   }
 
   return cfg;
+}
+
+export function getApiBaseUrl(): string {
+  const apiBaseUrl = window.__env?.apiBaseUrl;
+
+  if (!apiBaseUrl) {
+    console.warn('Missing API base URL runtime config. Falling back to http://localhost:3000. Add apiBaseUrl to public/env.js for deployment.');
+    return 'http://localhost:3000';
+  }
+
+  return apiBaseUrl.replace(/\/$/, '');
 }

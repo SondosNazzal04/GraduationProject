@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { getApiBaseUrl } from '../../firebase.runtime-config';
 
 type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
 
@@ -31,7 +34,8 @@ interface SchoolClass {
   styleUrl: './admin-users.css',
 })
 export class AdminUsersComponent implements OnInit {
-  private baseUrl = 'http://localhost:3000/api';
+  private http = inject(HttpClient);
+  private baseUrl = `${getApiBaseUrl()}/api`;
 
   users: AdminUser[] = [];
   classes: SchoolClass[] = [];
@@ -79,25 +83,19 @@ export class AdminUsersComponent implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      const [usersResp, classesResp] = await Promise.all([
-        fetch(`${this.baseUrl}/admin/users`),
-        fetch(`${this.baseUrl}/admin/classes`),
+      const [usersJson, classesJson] = await Promise.all([
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/admin/users`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/admin/classes`)),
       ]);
 
-      if (usersResp.ok) {
-        const usersJson = await usersResp.json();
-        this.users = Array.isArray(usersJson.items) ? usersJson.items : [];
-        for (const user of this.users) {
-          if (!this.userClassDrafts[user.uid]) {
-            this.userClassDrafts[user.uid] = [...(user.classIds || [])];
-          }
+      this.users = Array.isArray(usersJson.items) ? usersJson.items : [];
+      for (const user of this.users) {
+        if (!this.userClassDrafts[user.uid]) {
+          this.userClassDrafts[user.uid] = [...(user.classIds || [])];
         }
       }
 
-      if (classesResp.ok) {
-        const classesJson = await classesResp.json();
-        this.classes = Array.isArray(classesJson.items) ? classesJson.items : [];
-      }
+      this.classes = Array.isArray(classesJson.items) ? classesJson.items : [];
     } catch (err) {
       this.error = 'Failed to load admin data.';
       console.error(err);
@@ -113,21 +111,13 @@ export class AdminUsersComponent implements OnInit {
     }
 
     try {
-      const resp = await fetch(`${this.baseUrl}/admin/create-user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await firstValueFrom(
+        this.http.post(`${this.baseUrl}/admin/create-user`, {
           email: this.createUserForm.email.trim(),
           role: this.createUserForm.role,
           classIds: this.createUserForm.classIds,
         }),
-      });
-
-      if (!resp.ok) {
-        const payload = await resp.json().catch(() => ({}));
-        this.error = payload.error || 'Failed to create user.';
-        return;
-      }
+      );
 
       this.message = 'User created successfully.';
       this.createUserForm = { email: '', role: 'student', classIds: [] };
@@ -145,10 +135,8 @@ export class AdminUsersComponent implements OnInit {
     }
 
     try {
-      const resp = await fetch(`${this.baseUrl}/admin/classes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await firstValueFrom(
+        this.http.post(`${this.baseUrl}/admin/classes`, {
           name: this.createClassForm.name.trim(),
           code: this.createClassForm.code.trim(),
           gradeLevel: this.createClassForm.gradeLevel.trim(),
@@ -156,13 +144,7 @@ export class AdminUsersComponent implements OnInit {
           teacherUid: this.createClassForm.teacherUid.trim() || null,
           studentUids: this.parseList(this.createClassForm.studentUidsText),
         }),
-      });
-
-      if (!resp.ok) {
-        const payload = await resp.json().catch(() => ({}));
-        this.error = payload.error || 'Failed to create class.';
-        return;
-      }
+      );
 
       this.message = 'Class created successfully.';
       this.createClassForm = {
@@ -182,17 +164,11 @@ export class AdminUsersComponent implements OnInit {
 
   async saveUserClasses(user: AdminUser): Promise<void> {
     try {
-      const resp = await fetch(`${this.baseUrl}/admin/users/${encodeURIComponent(user.uid)}/classes`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ classIds: this.userClassDrafts[user.uid] || [] }),
-      });
-
-      if (!resp.ok) {
-        const payload = await resp.json().catch(() => ({}));
-        this.error = payload.error || 'Failed to update classes.';
-        return;
-      }
+      await firstValueFrom(
+        this.http.put(`${this.baseUrl}/admin/users/${encodeURIComponent(user.uid)}/classes`, {
+          classIds: this.userClassDrafts[user.uid] || [],
+        }),
+      );
 
       this.message = `Updated classes for ${user.email || user.uid}.`;
       await this.loadData();

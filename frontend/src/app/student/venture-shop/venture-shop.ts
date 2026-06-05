@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ShopItem } from '../../models/shop-item.model';
 import { Toast } from '../../models/toast.model';
+import { getApiBaseUrl } from '../../firebase.runtime-config';
 
 @Component({
   selector: 'app-venture-shop',
@@ -11,7 +14,8 @@ import { Toast } from '../../models/toast.model';
   styleUrl: './venture-shop.css',
 })
 export class VentureShop {
-  private baseUrl = 'http://localhost:3000/api';
+  private http = inject(HttpClient);
+  private baseUrl = `${getApiBaseUrl()}/api`;
 
   constructor() {
     void this.loadShopItems();
@@ -38,11 +42,8 @@ export class VentureShop {
 
   private async loadShopItems(): Promise<void> {
     try {
-      const resp = await fetch(`${this.baseUrl}/shop/items`);
-      if (resp.ok) {
-        const json = await resp.json();
-        this.shopItems = Array.isArray(json.items) ? json.items : [];
-      }
+      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/shop/items`));
+      this.shopItems = Array.isArray(json.items) ? json.items : [];
     } catch (e) {
       console.warn('Failed to load shop items', e);
     }
@@ -50,11 +51,8 @@ export class VentureShop {
 
   private async loadWallet(): Promise<void> {
     try {
-      const resp = await fetch(`${this.baseUrl}/student/me/wallet`);
-      if (resp.ok) {
-        const json = await resp.json();
-        this.studentPoints = Number(json.pointsBalance || 0);
-      }
+      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/wallet`));
+      this.studentPoints = Number(json.pointsBalance || 0);
     } catch (e) {
       console.warn('Failed to load wallet', e);
     }
@@ -73,20 +71,12 @@ export class VentureShop {
   purchase(item: ShopItem): void {
     void (async () => {
       try {
-        const resp = await fetch(`${this.baseUrl}/shop/redeem`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ itemId: String(item.id), quantity: 1 }),
-        });
-        if (resp.ok) {
-          const json = await resp.json();
-          const balanceAfter = Number(json.item?.balanceAfter ?? json.item?.balanceAfter ?? 0);
-          this.studentPoints = balanceAfter;
-          this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
-          return;
-        }
-        const err = await resp.json().catch(() => ({}));
-        this.showToast(err.error || 'Purchase failed', 'error');
+        const json = await firstValueFrom<any>(
+          this.http.post(`${this.baseUrl}/shop/redeem`, { itemId: String(item.id), quantity: 1 }),
+        );
+        const balanceAfter = Number(json.item?.balanceAfter ?? 0);
+        this.studentPoints = balanceAfter;
+        this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
       } catch (e) {
         console.warn('Redeem failed', e);
         // fallback local behavior

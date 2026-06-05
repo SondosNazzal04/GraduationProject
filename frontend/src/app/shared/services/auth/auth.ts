@@ -1,7 +1,10 @@
 
 import { Auth, signInWithEmailAndPassword, signOut, updatePassword } from '@angular/fire/auth';
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { firstValueFrom } from 'rxjs';
+import { getApiBaseUrl } from '../../../firebase.runtime-config';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +12,8 @@ import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
 export class AuthService{
   private firestore = inject(Firestore);
   private auth = inject(Auth);
-  private apiBaseUrl = 'http://localhost:3000';
+  private http = inject(HttpClient);
+  private apiBaseUrl = getApiBaseUrl();
 
   async getRequirePasswordChange(uid: string): Promise<boolean> {
     const userRef = doc(this.firestore, `users/${uid}`);
@@ -60,72 +64,22 @@ export class AuthService{
   }
 
   async createUserAsAdmin(email: string, role: string) {
-    const token = await this.getIdToken();
-
-    const response = await fetch(`${this.apiBaseUrl}/api/admin/create-user`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ email, role })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data?.error ?? 'Failed to create user.');
-    }
-
-    return data;
+    return await firstValueFrom(
+      this.http.post(`${this.apiBaseUrl}/api/admin/create-user`, { email, role }),
+    );
   }
 
   async getAdminProfile() {
-    const token = await this.getIdToken();
-    const response = await fetch(`${this.apiBaseUrl}/api/admin/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error ?? 'Failed to load admin profile.');
-    }
-
-    return data;
+    return await firstValueFrom(this.http.get(`${this.apiBaseUrl}/api/admin/me`));
   }
 
   async listStudents() {
-    const token = await this.getIdToken();
-    const response = await fetch(`${this.apiBaseUrl}/api/admin/students`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error ?? 'Failed to load students.');
-    }
-
+    const data = await firstValueFrom<any>(this.http.get(`${this.apiBaseUrl}/api/admin/students`));
     return data.items ?? [];
   }
 
   async getStudentProfile() {
-    const token = await this.getIdToken();
-    const response = await fetch(`${this.apiBaseUrl}/api/student/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error ?? 'Failed to load student profile.');
-    }
-
-    return data;
+    return await firstValueFrom(this.http.get(`${this.apiBaseUrl}/api/student/me`));
   }
 
   logout() {
