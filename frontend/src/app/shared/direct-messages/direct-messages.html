@@ -1,1 +1,152 @@
-<p>direct-messages works!</p>
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Student portal</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+          @if (item.label === 'Messages' && totalUnread > 0) {
+            <span class="nav-badge">{{ totalUnread }}</span>
+          }
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <p class="eyebrow">Student portal</p>
+      <h1 class="page-title">Messages</h1>
+    </header>
+
+    <div class="messaging-layout">
+      <!-- Inbox -->
+      <aside class="inbox-panel">
+        <div class="inbox-header">
+          <h2>Conversations</h2>
+          @if (totalUnread > 0) {
+            <span class="unread-chip">{{ totalUnread }} new</span>
+          }
+        </div>
+
+        <div class="search-wrap">
+          <span class="material-icons search-icon">search</span>
+          <input class="search-input" type="text" placeholder="Search contacts…" [(ngModel)]="searchQuery" />
+        </div>
+
+        @if (loadingContacts) {
+          <div class="inbox-loading">
+            <span class="material-icons spinning">sync</span>
+          </div>
+        }
+
+        <div class="contact-list">
+          @for (contact of filteredContacts; track contact.uid) {
+            <button class="contact-item" [class.active]="selectedContact?.uid === contact.uid" (click)="selectContact(contact)">
+              <div class="contact-avatar" [attr.data-role]="contact.role">{{ contact.avatarInitials }}</div>
+              <div class="contact-info">
+                <div class="contact-row">
+                  <span class="contact-name">{{ contact.name }}</span>
+                  <span class="contact-time">{{ contact.lastMessageTime || '' }}</span>
+                </div>
+                <div class="contact-row">
+                  <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>
+                  @if (contact.unreadCount && contact.unreadCount > 0) {
+                    <span class="contact-badge">{{ contact.unreadCount }}</span>
+                  }
+                </div>
+              </div>
+            </button>
+          }
+          @if (!loadingContacts && filteredContacts.length === 0) {
+            <div class="empty-contacts">
+              <span class="material-icons">search_off</span>
+              <p>No contacts found</p>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- Chat -->
+      <section class="chat-panel">
+        @if (!selectedContact) {
+          <div class="chat-empty">
+            <span class="material-icons chat-empty-icon">forum</span>
+            <h3>Select a conversation</h3>
+            <p>Choose a contact from the left to start messaging.</p>
+          </div>
+        }
+
+        @if (selectedContact) {
+          <div class="chat-header">
+            <div class="chat-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
+            <div class="chat-contact-info">
+              <span class="chat-contact-name">{{ selectedContact.name }}</span>
+              <span class="role-pill role-pill--{{ selectedContact.role }}">{{ selectedContact.role }}</span>
+            </div>
+          </div>
+
+          <div class="messages-area">
+            @if (loadingMessages) {
+              <div class="messages-loading">
+                <span class="material-icons spinning">sync</span>
+                <p>Loading messages…</p>
+              </div>
+            }
+
+            @if (!loadingMessages) {
+              @for (msg of messages; track msg.id; let i = $index) {
+                @if (shouldShowDateSeparator(i)) {
+                  <div class="date-separator"><span>{{ formatDate(msg.timestamp) }}</span></div>
+                }
+                <div class="message-row" [class.message-row--own]="msg.isOwn">
+                  @if (!msg.isOwn) {
+                    <div class="msg-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
+                  }
+                  <div class="bubble-wrap">
+                    <div class="bubble" [class.bubble--own]="msg.isOwn" [class.bubble--failed]="msg.id.startsWith('failed-')">
+                      {{ msg.content }}
+                    </div>
+                    <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+                  </div>
+                </div>
+              }
+
+              @if (messages.length === 0) {
+                <div class="no-messages">
+                  <span class="material-icons">chat_bubble_outline</span>
+                  <p>No messages yet. Say hello!</p>
+                </div>
+              }
+            }
+            <div #messagesEnd></div>
+          </div>
+
+          <div class="input-area">
+            <textarea
+              class="message-input"
+              placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+              [(ngModel)]="newMessage"
+              (keydown)="onKeyDown($event)"
+              rows="1"
+            ></textarea>
+            <button class="send-btn" [disabled]="!newMessage.trim() || sending" (click)="sendMessage()">
+              @if (sending) {
+                <span class="material-icons spinning">sync</span>
+              } @else {
+                <span class="material-icons">send</span>
+              }
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+  </main>
+</div>

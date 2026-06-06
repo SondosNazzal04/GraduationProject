@@ -27,6 +27,7 @@ import { StudentDashboard } from './component/student-dashboard/student-dashboar
 import { AdminDashboard } from './component/admin-dashboard/admin-dashboard';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
+import { DirectMessages } from './shared/direct-messages/direct-messages';
 
 export const routes: Routes = [
   // ── Public routes ──────────────────────────────────────────────
@@ -59,6 +60,12 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['student'] },
   },
+  {
+  path: 'student-messages',
+  component: DirectMessages,
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['student'] },
+},
 
   // ── Teacher routes ─────────────────────────────────────────────
   {
