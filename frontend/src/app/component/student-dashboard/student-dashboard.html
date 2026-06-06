@@ -1,1 +1,90 @@
-<p>student-dashboard works!</p>
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Student portal</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h1 class="page-title">{{ profile?.email || 'Student' }}</h1>
+        <p class="page-subtitle">Here's your learning overview.</p>
+      </div>
+    </header>
+
+    @if (loading) {
+      <div class="loading-state">
+        <span class="material-icons spinning">sync</span>
+        <p>Loading your dashboard…</p>
+      </div>
+    }
+
+    @if (error) {
+      <div class="banner banner--error">⚠ {{ error }}</div>
+    }
+
+    @if (!loading && !error && profile) {
+      <div class="stats-row">
+        <div class="stat-card stat-card--points">
+          <span class="material-icons stat-icon">stars</span>
+          <div>
+            <p class="stat-label">VenturePoints</p>
+            <p class="stat-value">{{ profile.pointsBalance || 0 }}</p>
+          </div>
+        </div>
+        <div class="stat-card stat-card--classes">
+          <span class="material-icons stat-icon">class</span>
+          <div>
+            <p class="stat-label">Enrolled Classes</p>
+            <p class="stat-value">{{ classes.length }}</p>
+          </div>
+        </div>
+        <div class="stat-card stat-card--attendance">
+          <span class="material-icons stat-icon">event_available</span>
+          <div>
+            <p class="stat-label">Attendance Rate</p>
+            <p class="stat-value">{{ getAttendanceRate() }}%</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>My Classes</h2>
+          <span class="panel-chip">{{ classes.length }} enrolled</span>
+        </div>
+
+        @if (!classes.length) {
+          <p class="muted">No classes assigned yet.</p>
+        }
+
+        <div class="class-grid">
+          @for (cls of classes; track cls.id) {
+            <article class="class-card">
+              <div class="class-top">
+                <h3>{{ cls.name }}</h3>
+                <span class="grade-badge">{{ cls.gradeLevel || 'N/A' }}</span>
+              </div>
+              <p class="class-code">{{ cls.code || 'No code' }}</p>
+              <p class="class-description">{{ cls.description || 'No description.' }}</p>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  </main>
+</div>

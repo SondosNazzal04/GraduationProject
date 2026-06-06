@@ -67,13 +67,43 @@ export class AuthService{
     email: string,
     role: string,
     classIds: string[] = [],
+    firstName: string = '',
+    lastName: string = '',
+    dateOfBirth: string = '',
+    childrenUids: string[] = [],
   ): Promise<any> {
     return await firstValueFrom(
       this.http.post(`${this.apiBaseUrl}/api/admin/create-user`, {
         email,
         role,
         classIds,
+        firstName,
+        lastName,
+        dateOfBirth,
+        childrenUids,
       }),
+    );
+  }
+
+  async updateUserAsAdmin(
+    uid: string,
+    data: {
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      dateOfBirth?: string;
+      classIds?: string[];
+      childrenUids?: string[];
+    }
+  ): Promise<any> {
+    return await firstValueFrom(
+      this.http.put(`${this.apiBaseUrl}/api/admin/users/${encodeURIComponent(uid)}`, data)
+    );
+  }
+
+  async deleteUserAsAdmin(uid: string): Promise<any> {
+    return await firstValueFrom(
+      this.http.delete(`${this.apiBaseUrl}/api/admin/users/${encodeURIComponent(uid)}`)
     );
   }
 

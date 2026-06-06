@@ -1,4 +1,4 @@
-<div class="page-wrapper">
+<!-- <div class="page-wrapper">
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon"><span class="logo-letter">E</span></div>
@@ -169,5 +169,367 @@
         }
       </div>
     </section>
+  </main>
+</div> -->
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Admin portal</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Admin management</p>
+        <h1 class="page-title">Users and classes</h1>
+        <p class="page-subtitle">Create accounts, build classes, and attach students or teachers.</p>
+      </div>
+    </header>
+
+    @if (message) {
+      <div class="banner banner--success">
+        <span>{{ message }}</span>
+        <button class="banner-dismiss" (click)="message = ''">✕</button>
+      </div>
+    }
+    @if (error) {
+      <div class="banner banner--error">
+        <span>⚠ {{ error }}</span>
+        <button class="banner-dismiss" (click)="error = ''">✕</button>
+      </div>
+    }
+    <!-- ✅ Tab Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="setTab('users')">
+        <span class="material-icons">people</span> Manage Users
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'classes'" (click)="setTab('classes')">
+        <span class="material-icons">class</span> Manage Classes
+      </button>
+    </div>
+
+    <!-- ── USERS TAB ── -->
+    @if (activeTab === 'users') {
+      <section class="panel-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Create user</h2>
+            <span class="panel-chip">Firebase auth + profile</span>
+          </div>
+
+          <label class="field-label">Email</label>
+          <input class="field-input" [(ngModel)]="createUserForm.email" placeholder="student@example.com" />
+
+          <div class="row-grid">
+            <div>
+              <label class="field-label">First Name</label>
+              <input class="field-input" [(ngModel)]="createUserForm.firstName" placeholder="John" />
+            </div>
+            <div>
+              <label class="field-label">Last Name</label>
+              <input class="field-input" [(ngModel)]="createUserForm.lastName" placeholder="Doe" />
+            </div>
+          </div>
+
+          <label class="field-label">Date of Birth</label>
+          <input class="field-input" type="date" [(ngModel)]="createUserForm.dateOfBirth" />
+
+          <label class="field-label">Role</label>
+          <select class="field-input" [(ngModel)]="createUserForm.role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="parent">Parent</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          @if (createUserForm.role !== 'parent' && createUserForm.role !== 'admin') {
+            <label class="field-label">Assign classes</label>
+            <select class="field-input" multiple [(ngModel)]="createUserForm.classIds">
+              @for (cls of classes; track cls.id) {
+                <option [value]="cls.id">{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</option>
+              }
+            </select>
+          }
+
+          @if (createUserForm.role === 'parent') {
+            <label class="field-label">Link Children (Students)</label>
+            <select class="field-input" multiple [(ngModel)]="createUserForm.childrenUids">
+              @for (student of studentsOnly; track student.uid) {
+                <option [value]="student.uid">
+                  {{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}
+                </option>
+              }
+            </select>
+          }
+
+          <button class="primary-btn" [disabled]="submitting" (click)="createUser()">
+            {{ submitting ? 'Creating…' : 'Create account' }}
+          </button>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Users</h2>
+          <span class="panel-chip">{{ filteredUsers.length }} accounts</span>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn" [class.active]="activeFilter==='all'"     (click)="setFilter('all')">All</button>
+          <button class="filter-btn" [class.active]="activeFilter==='student'" (click)="setFilter('student')">Students</button>
+          <button class="filter-btn" [class.active]="activeFilter==='teacher'" (click)="setFilter('teacher')">Teachers</button>
+          <button class="filter-btn" [class.active]="activeFilter==='parent'"  (click)="setFilter('parent')">Parents</button>
+          <button class="filter-btn" [class.active]="activeFilter==='admin'"   (click)="setFilter('admin')">Admins</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name / DOB</th>
+                <th>Email & Role</th>
+                <th>Classes / Children</th>
+                <th style="width: 120px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of filteredUsers; track user.uid) {
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">{{ user.firstName || '—' }} {{ user.lastName || '' }}</div>
+                    @if (user.dateOfBirth) {
+                      <div class="muted" style="font-size: 11px;">DoB: {{ user.dateOfBirth }}</div>
+                    }
+                  </td>
+                  <td>
+                    <div>{{ user.email || user.uid }}</div>
+                    <div><span class="role-pill role-pill--{{ user.role }}">{{ user.role }}</span></div>
+                  </td>
+                  <td>
+                    @if (user.role === 'parent') {
+                      <div class="tag-row">
+                        @for (childUid of user.childrenUids || []; track childUid) {
+                          <span class="tag tag--child">Child UID: {{ childUid }}</span>
+                        }
+                        @if (!(user.childrenUids || []).length) {
+                          <span class="muted">No children linked</span>
+                        }
+                      </div>
+                    } @else {
+                      <div class="tag-row">
+                        @for (classId of user.classIds || []; track classId) {
+                          <span class="tag">{{ className(classId) }}</span>
+                        }
+                        @if (!(user.classIds || []).length) {
+                          <span class="muted">No classes assigned</span>
+                        }
+                      </div>
+                    }
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="icon-btn edit-btn" title="Edit" (click)="editUser(user)">
+                        <span class="material-icons" style="font-size: 18px;">edit</span>
+                      </button>
+                      <button class="icon-btn delete-btn" title="Delete" (click)="deleteUser(user.uid)">
+                        <span class="material-icons" style="font-size: 18px;">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- ── CLASSES TAB ── -->
+    @if (activeTab === 'classes') {
+      <section class="panel-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Create class</h2>
+            <span class="panel-chip">Roster + assignments</span>
+          </div>
+          <label class="field-label">Class name</label>
+          <input class="field-input" [(ngModel)]="createClassForm.name" placeholder="Math 101" />
+          <label class="field-label">Class code</label>
+          <input class="field-input" [(ngModel)]="createClassForm.code" placeholder="MATH-101" />
+          <label class="field-label">Grade level</label>
+          <input class="field-input" [(ngModel)]="createClassForm.gradeLevel" placeholder="10th grade" />
+          <label class="field-label">Description</label>
+          <textarea class="field-input field-textarea" [(ngModel)]="createClassForm.description" placeholder="Section, semester, or notes"></textarea>
+          <label class="field-label">Assign Teacher</label>
+          <select class="field-input" [(ngModel)]="createClassForm.teacherUid">
+            <option value="">Unassigned</option>
+            @for (t of teachersOnly; track t.uid) {
+              <option [value]="t.uid">{{ t.firstName ? t.firstName + ' ' + t.lastName : t.email }}</option>
+            }
+          </select>
+          <label class="field-label">Student UIDs (Comma separated)</label>
+          <textarea class="field-input field-textarea" [(ngModel)]="createClassForm.studentUidsText" placeholder="uid-1, uid-2, uid-3"></textarea>
+          <button class="primary-btn" (click)="createClass()">Create class</button>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Classes</h2>
+          <span class="panel-chip">{{ classes.length }} classes</span>
+        </div>
+        <div class="class-grid">
+          @for (cls of classes; track cls.id) {
+            <article class="class-card">
+              <div class="class-top">
+                <div>
+                  <h3 style="font-weight: 800;">{{ cls.name }}</h3>
+                  <p>{{ cls.code || 'No code' }} · {{ cls.gradeLevel || 'No grade level' }}</p>
+                </div>
+                <span class="class-count">{{ studentCount(cls) }} students</span>
+              </div>
+              <p class="class-description">{{ cls.description || 'No description provided.' }}</p>
+              <div class="class-meta">
+                <span>Teacher: {{ teacherLabel(cls.teacherUid) }}</span>
+                <span>ID: {{ cls.id }}</span>
+              </div>
+              <div class="class-actions-bar" style="margin-top: 14px; display: flex; gap: 8px;">
+                <button class="secondary-btn" style="margin-top:0; padding: 6px 12px; font-size:12px;" (click)="editClass(cls)">Edit Class</button>
+                <button class="secondary-btn" style="margin-top:0; padding: 6px 12px; font-size:12px; background:#fee2e2; color:#991b1b;" (click)="deleteClass(cls.id)">Delete</button>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── EDIT USER MODAL ── -->
+    @if (showEditUserModal && editingUser) {
+      <div class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Edit User Details</h3>
+            <button class="close-btn" (click)="showEditUserModal = false">✕</button>
+          </div>
+          <div class="modal-body">
+            <label class="field-label">Email</label>
+            <input class="field-input" [(ngModel)]="editingUser.email" />
+
+            <div class="row-grid">
+              <div>
+                <label class="field-label">First Name</label>
+                <input class="field-input" [(ngModel)]="editingUser.firstName" />
+              </div>
+              <div>
+                <label class="field-label">Last Name</label>
+                <input class="field-input" [(ngModel)]="editingUser.lastName" />
+              </div>
+            </div>
+
+            <label class="field-label">Date of Birth</label>
+            <input class="field-input" type="date" [(ngModel)]="editingUser.dateOfBirth" />
+
+            @if (editingUser.childrenUids) {
+              <label class="field-label" style="margin-top: 16px;">Linked Children (Students)</label>
+              <div class="checkbox-list">
+                @for (student of studentsOnly; track student.uid) {
+                  <label class="checkbox-item">
+                    <input type="checkbox" [checked]="editingUser.childrenUids.includes(student.uid)" (change)="toggleEditUserChild(student.uid)" />
+                    <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
+                  </label>
+                }
+                @if (!studentsOnly.length) {
+                  <p class="muted">No students available in the system</p>
+                }
+              </div>
+            }
+
+            <label class="field-label" style="margin-top: 16px;">Assigned Classes</label>
+            <div class="checkbox-list">
+              @for (cls of classes; track cls.id) {
+                <label class="checkbox-item">
+                  <input type="checkbox" [checked]="editingUser.classIds.includes(cls.id)" (change)="toggleEditUserClass(cls.id)" />
+                  <span>{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</span>
+                </label>
+              }
+              @if (!classes.length) {
+                <p class="muted">No classes available in the system</p>
+              }
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="secondary-btn" (click)="showEditUserModal = false">Cancel</button>
+            <button class="primary-btn" style="width: auto; margin-top:0;" [disabled]="submitting" (click)="saveEditedUser()">
+              {{ submitting ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ── EDIT CLASS MODAL ── -->
+    @if (showEditClassModal && editingClass) {
+      <div class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Edit Class Details</h3>
+            <button class="close-btn" (click)="showEditClassModal = false">✕</button>
+          </div>
+          <div class="modal-body">
+            <label class="field-label">Class Name</label>
+            <input class="field-input" [(ngModel)]="editingClass.name" />
+
+            <label class="field-label">Class Code</label>
+            <input class="field-input" [(ngModel)]="editingClass.code" />
+
+            <label class="field-label">Grade Level</label>
+            <input class="field-input" [(ngModel)]="editingClass.gradeLevel" />
+
+            <label class="field-label">Description</label>
+            <textarea class="field-input field-textarea" [(ngModel)]="editingClass.description"></textarea>
+
+            <label class="field-label">Assign Teacher</label>
+            <select class="field-input" [(ngModel)]="editingClass.teacherUid">
+              <option value="">Unassigned</option>
+              @for (t of teachersOnly; track t.uid) {
+                <option [value]="t.uid">{{ t.firstName ? t.firstName + ' ' + t.lastName : t.email }}</option>
+              }
+            </select>
+
+            <label class="field-label" style="margin-top: 16px;">Class Roster (Students)</label>
+            <div class="checkbox-list">
+              @for (student of studentsOnly; track student.uid) {
+                <label class="checkbox-item">
+                  <input type="checkbox" [checked]="editingClass.studentUids.includes(student.uid)" (change)="toggleEditClassStudent(student.uid)" />
+                  <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
+                </label>
+              }
+              @if (!studentsOnly.length) {
+                <p class="muted">No students available in the system</p>
+              }
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="secondary-btn" (click)="showEditClassModal = false">Cancel</button>
+            <button class="primary-btn" style="width: auto; margin-top:0;" [disabled]="submitting" (click)="saveEditedClass()">
+              {{ submitting ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </main>
 </div>

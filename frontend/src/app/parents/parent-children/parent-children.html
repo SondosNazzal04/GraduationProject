@@ -1,1 +1,84 @@
-<p>parent-children works!</p>
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Parent portal</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Parent Portal</p>
+        <h1 class="page-title">My Children</h1>
+        <p class="page-subtitle">Track academic details and VenturePoints for your children.</p>
+      </div>
+    </header>
+
+    @if (loading) {
+      <div class="loading-state" style="text-align: center; padding: 40px;">
+        <span class="material-icons spinning" style="font-size: 40px; animation: spin 2s linear infinite;">sync</span>
+        <p>Loading children details…</p>
+      </div>
+    }
+
+    @if (error) {
+      <div class="banner banner--error" style="background: #fee2e2; color: #991b1b; padding: 14px; border-radius: 12px; margin-bottom: 20px;">⚠ {{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+      <div class="children-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+        @for (child of children; track child.uid) {
+          <article class="child-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 20px;">
+            <div class="child-card-header" style="display: flex; align-items: center; gap: 16px;">
+              <span class="material-icons avatar-icon" style="font-size: 48px; color: #38bdf8; background: #e0f2fe; padding: 10px; border-radius: 16px;">face</span>
+              <div>
+                <h2 style="margin: 0; font-size: 20px; font-weight: 800;">{{ child.firstName || 'Student' }} {{ child.lastName || '' }}</h2>
+                <p class="child-email" style="margin: 4px 0 0; color: #64748b; font-size: 14px;">{{ child.email || 'No email provided' }}</p>
+              </div>
+            </div>
+            
+            <div class="child-stats" style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+              <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">VenturePoints</span>
+                <span class="stat-val points-val" style="font-weight: 800; color: #e28743; display: flex; align-items: center; gap: 4px;">
+                  <span class="material-icons point-star" style="font-size: 18px; color: #e28743;">stars</span>
+                  {{ child.pointsBalance || 0 }} pts
+                </span>
+              </div>
+              @if (child.dateOfBirth) {
+                <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">Date of Birth</span>
+                  <span class="stat-val" style="font-weight: 700; color: #0f172a;">{{ child.dateOfBirth }}</span>
+                </div>
+              }
+              <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">Student ID</span>
+                <span class="stat-val" style="font-family: monospace; font-size: 12px; color: #64748b;">{{ child.uid }}</span>
+              </div>
+            </div>
+          </article>
+        }
+
+        @if (!children.length) {
+          <div class="empty-state panel" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 22px;">
+            <span class="material-icons empty-icon" style="font-size: 64px; color: #94a3b8; margin-bottom: 16px;">child_care</span>
+            <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #0f172a;">No children linked yet</h3>
+            <p style="color: #64748b; margin: 8px 0 0; font-size: 14px; max-width: 400px; margin-inline: auto;">Please contact the school administrator to link student accounts to your parent portal.</p>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

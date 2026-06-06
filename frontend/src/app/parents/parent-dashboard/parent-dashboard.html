@@ -1,1 +1,81 @@
-<p>parent-dashboard works!</p>
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><span class="logo-letter">E</span></div>
+      <div class="logo-text">
+        <span class="logo-title">EduVenture</span>
+        <span class="logo-subtitle">Parent portal</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Parent portal</p>
+        <h1 class="page-title">{{ profile?.email || 'Parent' }}</h1>
+        <p class="page-subtitle">Monitor your child's academic progress.</p>
+      </div>
+    </header>
+
+    @if (loading) {
+      <div class="loading-state">
+        <span class="material-icons spinning">sync</span>
+        <p>Loading dashboard…</p>
+      </div>
+    }
+
+    @if (error) {
+      <div class="banner banner--error">⚠ {{ error }}</div>
+    }
+
+    @if (!loading && !error && profile) {
+      <div class="stats-row">
+        <a class="stat-card" routerLink="/parent-attendance">
+          <span class="material-icons stat-icon">event_available</span>
+          <div>
+            <p class="stat-label">Attendance</p>
+            <p class="stat-value">View</p>
+          </div>
+        </a>
+        <a class="stat-card" routerLink="/parent-grades">
+          <span class="material-icons stat-icon">grade</span>
+          <div>
+            <p class="stat-label">Grades</p>
+            <p class="stat-value">View</p>
+          </div>
+        </a>
+        <a class="stat-card" routerLink="/parent-classes">
+          <span class="material-icons stat-icon">class</span>
+          <div>
+            <p class="stat-label">Classes</p>
+            <p class="stat-value">View</p>
+          </div>
+        </a>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>My Children</h2>
+        </div>
+        @if (!profile.classIds?.length) {
+          <p class="muted">No children linked yet. Contact the admin.</p>
+        } @else {
+          <div class="tag-row">
+            @for (classId of profile.classIds; track classId) {
+              <span class="tag">{{ className(classId) }}</span>
+            }
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>

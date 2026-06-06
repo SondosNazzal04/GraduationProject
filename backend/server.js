@@ -63,6 +63,11 @@ function buildUserResponse(userRecord, profileRecord) {
 		requirePasswordChange: !!userRecord.requirePasswordChange,
 		pointsBalance: Number(userRecord.pointsBalance ?? profileRecord?.pointsBalance ?? 0),
 		classIds: Array.isArray(profileRecord?.classIds) ? profileRecord.classIds : Array.isArray(userRecord.classIds) ? userRecord.classIds : [],
+		firstName: userRecord.firstName ?? profileRecord?.firstName ?? '',
+		lastName: userRecord.lastName ?? profileRecord?.lastName ?? '',
+		dateOfBirth: userRecord.dateOfBirth ?? profileRecord?.dateOfBirth ?? '',
+		childrenUids: Array.isArray(profileRecord?.childrenUids) ? profileRecord.childrenUids : Array.isArray(userRecord.childrenUids) ? userRecord.childrenUids : [],
+		parentUid: userRecord.parentUid ?? profileRecord?.parentUid ?? null,
 		createdAt: userRecord.createdAt ?? null,
 		updatedAt: userRecord.updatedAt ?? null,
 		profile: profileRecord ?? null,
@@ -349,6 +354,10 @@ function requireRole(...allowedRoles) {
 async function createUser(email, role, options = {}) {
 	const normalizedRole = normalizeRole(role);
 	const classIds = normalizeClassIds(options.classIds);
+	const firstName = String(options.firstName || '').trim();
+	const lastName = String(options.lastName || '').trim();
+	const dateOfBirth = String(options.dateOfBirth || '').trim();
+	const childrenUids = Array.isArray(options.childrenUids) ? options.childrenUids : [];
 	const tempPassword = Math.random().toString(36).slice(-8);
 	const userRecord = await admin.auth().createUser({
 		email: email,
@@ -361,6 +370,10 @@ async function createUser(email, role, options = {}) {
 		requirePasswordChange: true,
 		pointsBalance: 0,
 		classIds,
+		firstName,
+		lastName,
+		dateOfBirth,
+		...(normalizedRole === 'parent' ? { childrenUids } : {}),
 		createdAt: admin.firestore.FieldValue.serverTimestamp(),
 		updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 	};
@@ -374,6 +387,9 @@ async function createUser(email, role, options = {}) {
 			status: 'active',
 			pointsBalance: 0,
 			classIds,
+			firstName,
+			lastName,
+			dateOfBirth,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -386,6 +402,9 @@ async function createUser(email, role, options = {}) {
 			status: 'active',
 			pointsBalance: 0,
 			classIds,
+			firstName,
+			lastName,
+			dateOfBirth,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -398,6 +417,9 @@ async function createUser(email, role, options = {}) {
 			status: 'active',
 			pointsBalance: 0,
 			classIds,
+			firstName,
+			lastName,
+			dateOfBirth,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -410,6 +432,10 @@ async function createUser(email, role, options = {}) {
 			status: 'active',
 			pointsBalance: 0,
 			classIds,
+			firstName,
+			lastName,
+			dateOfBirth,
+			childrenUids,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 		});
@@ -573,6 +599,194 @@ app.put('/api/admin/users/:uid/classes', authenticate, requireRole('admin'), asy
 	}
 });
 
+app.put('/api/admin/users/:uid', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const uid = req.params.uid;
+		const userRecord = await getUserRecord(uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		const { email, firstName = '', lastName = '', dateOfBirth = '', classIds = [], childrenUids = [] } = req.body;
+		const role = normalizeRole(userRecord.role);
+		const profileCollection = role === 'student' ? 'studentProfiles' : role === 'teacher' ? 'teacherProfiles' : role === 'parent' ? 'parentProfiles' : 'adminProfiles';
+
+		const updatedUserData = {
+			firstName: String(firstName || '').trim(),
+			lastName: String(lastName || '').trim(),
+			dateOfBirth: String(dateOfBirth || '').trim(),
+			classIds: normalizeClassIds(classIds),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+		};
+
+		if (email && email.trim() !== userRecord.email) {
+			const cleanEmail = email.trim();
+			await admin.auth().updateUser(uid, { email: cleanEmail });
+			updatedUserData.email = cleanEmail;
+		}
+
+		if (role === 'parent') {
+			const prevChildren = Array.isArray(userRecord.childrenUids) ? userRecord.childrenUids : [];
+			const nextChildren = Array.isArray(childrenUids) ? childrenUids : [];
+			const removedChildren = prevChildren.filter(c => !nextChildren.includes(c));
+			const addedChildren = nextChildren.filter(c => !prevChildren.includes(c));
+
+			for (const studentUid of removedChildren) {
+				await db.collection('users').doc(studentUid).set({ parentUid: admin.firestore.FieldValue.delete() }, { merge: true });
+				await db.collection('studentProfiles').doc(studentUid).set({ parentUid: admin.firestore.FieldValue.delete() }, { merge: true });
+			}
+			for (const studentUid of addedChildren) {
+				await db.collection('users').doc(studentUid).set({ parentUid: uid }, { merge: true });
+				await db.collection('studentProfiles').doc(studentUid).set({ parentUid: uid }, { merge: true });
+			}
+			updatedUserData.childrenUids = nextChildren;
+		}
+
+		await db.collection('users').doc(uid).set(updatedUserData, { merge: true });
+		await db.collection(profileCollection).doc(uid).set({
+			...updatedUserData,
+			email: updatedUserData.email || userRecord.email,
+		}, { merge: true });
+
+		const previousClassIds = normalizeClassIds(userRecord.classIds);
+		const nextClassIds = normalizeClassIds(classIds);
+		await syncClassMembership(uid, role, previousClassIds, nextClassIds);
+
+		return res.json({ message: 'User updated successfully!' });
+	} catch (error) {
+		console.error('Error updating user:', error);
+		return res.status(500).json({ error: error.message });
+	}
+});
+
+app.delete('/api/admin/users/:uid', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const uid = req.params.uid;
+		const userRecord = await getUserRecord(uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		const role = normalizeRole(userRecord.role);
+		const classIds = normalizeClassIds(userRecord.classIds);
+		const profileCollection = role === 'student' ? 'studentProfiles' : role === 'teacher' ? 'teacherProfiles' : role === 'parent' ? 'parentProfiles' : 'adminProfiles';
+
+		await admin.auth().deleteUser(uid);
+		await syncClassMembership(uid, role, classIds, []);
+
+		if (role === 'parent') {
+			const childrenUids = Array.isArray(userRecord.childrenUids) ? userRecord.childrenUids : [];
+			for (const studentUid of childrenUids) {
+				await db.collection('users').doc(studentUid).set({ parentUid: admin.firestore.FieldValue.delete() }, { merge: true });
+				await db.collection('studentProfiles').doc(studentUid).set({ parentUid: admin.firestore.FieldValue.delete() }, { merge: true });
+			}
+		} else if (role === 'student' && userRecord.parentUid) {
+			await db.collection('users').doc(userRecord.parentUid).set({ childrenUids: admin.firestore.FieldValue.arrayRemove(uid) }, { merge: true });
+			await db.collection('parentProfiles').doc(userRecord.parentUid).set({ childrenUids: admin.firestore.FieldValue.arrayRemove(uid) }, { merge: true });
+		}
+
+		await db.collection('users').doc(uid).delete();
+		await db.collection(profileCollection).doc(uid).delete();
+
+		return res.json({ message: 'User deleted successfully!' });
+	} catch (error) {
+		console.error('Error deleting user:', error);
+		return res.status(500).json({ error: error.message });
+	}
+});
+
+app.put('/api/admin/classes/:id', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const classId = req.params.id;
+		const classRef = db.collection('classes').doc(classId);
+		const classSnap = await classRef.get();
+		if (!classSnap.exists) {
+			return res.status(404).json({ error: 'Class not found' });
+		}
+		const prevClass = classSnap.data();
+		const payload = sanitizeClassPayload(req.body || {});
+
+		await classRef.set({
+			...payload,
+			updatedAt: admin.firestore.FieldValue.serverTimestamp()
+		}, { merge: true });
+
+		const prevTeacherUid = prevClass.teacherUid || null;
+		const nextTeacherUid = payload.teacherUid || null;
+		if (prevTeacherUid !== nextTeacherUid) {
+			if (prevTeacherUid) {
+				const teacherProfile = await getProfileRecord('teacher', prevTeacherUid);
+				const nextClassIds = normalizeClassIds(teacherProfile?.classIds).filter(id => id !== classId);
+				await db.collection('teacherProfiles').doc(prevTeacherUid).set({ classIds: nextClassIds }, { merge: true });
+				await db.collection('users').doc(prevTeacherUid).set({ classIds: nextClassIds }, { merge: true });
+			}
+			if (nextTeacherUid) {
+				const teacherProfile = await getProfileRecord('teacher', nextTeacherUid);
+				const nextClassIds = [...new Set([...normalizeClassIds(teacherProfile?.classIds), classId])];
+				await db.collection('teacherProfiles').doc(nextTeacherUid).set({ classIds: nextClassIds }, { merge: true });
+				await db.collection('users').doc(nextTeacherUid).set({ classIds: nextClassIds }, { merge: true });
+			}
+		}
+
+		const prevStudentUids = prevClass.studentUids || [];
+		const nextStudentUids = payload.studentUids || [];
+		const removedStudents = prevStudentUids.filter(uid => !nextStudentUids.includes(uid));
+		const addedStudents = nextStudentUids.filter(uid => !prevStudentUids.includes(uid));
+
+		for (const studentUid of removedStudents) {
+			const profile = await getProfileRecord('student', studentUid);
+			const nextClassIds = normalizeClassIds(profile?.classIds).filter(id => id !== classId);
+			await db.collection('studentProfiles').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+			await db.collection('users').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+		}
+
+		for (const studentUid of addedStudents) {
+			const profile = await getProfileRecord('student', studentUid);
+			const nextClassIds = [...new Set([...normalizeClassIds(profile?.classIds), classId])];
+			await db.collection('studentProfiles').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+			await db.collection('users').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+		}
+
+		return res.json({ message: 'Class updated successfully!', item: { id: classId, ...payload } });
+	} catch (error) {
+		console.error('Error updating class:', error);
+		return res.status(500).json({ error: error.message });
+	}
+});
+
+app.delete('/api/admin/classes/:id', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const classId = req.params.id;
+		const classRef = db.collection('classes').doc(classId);
+		const classSnap = await classRef.get();
+		if (!classSnap.exists) {
+			return res.status(404).json({ error: 'Class not found' });
+		}
+		const classData = classSnap.data();
+
+		if (classData.teacherUid) {
+			const teacherProfile = await getProfileRecord('teacher', classData.teacherUid);
+			const nextClassIds = normalizeClassIds(teacherProfile?.classIds).filter(id => id !== classId);
+			await db.collection('teacherProfiles').doc(classData.teacherUid).set({ classIds: nextClassIds }, { merge: true });
+			await db.collection('users').doc(classData.teacherUid).set({ classIds: nextClassIds }, { merge: true });
+		}
+
+		const studentUids = classData.studentUids || [];
+		for (const studentUid of studentUids) {
+			const profile = await getProfileRecord('student', studentUid);
+			const nextClassIds = normalizeClassIds(profile?.classIds).filter(id => id !== classId);
+			await db.collection('studentProfiles').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+			await db.collection('users').doc(studentUid).set({ classIds: nextClassIds }, { merge: true });
+		}
+
+		await classRef.delete();
+		return res.json({ message: 'Class deleted successfully!' });
+	} catch (error) {
+		console.error('Error deleting class:', error);
+		return res.status(500).json({ error: error.message });
+	}
+});
+
 app.get('/api/admin/students', authenticate, requireRole('admin'), async (req, res) => {
 	try {
 		const snap = await db.collection('users').where('role', '==', 'student').get();
@@ -670,9 +884,39 @@ app.get('/api/parent/me', authenticate, requireRole('parent'), async (req, res) 
 	}
 });
 
+app.get('/api/parent/me/children', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const userRecord = await getUserRecord(req.user.uid);
+		if (!userRecord) {
+			return res.status(404).json({ error: 'Parent record not found' });
+		}
+
+		const profileRecord = await getProfileRecord('parent', req.user.uid);
+		const childrenUids = Array.isArray(profileRecord?.childrenUids) ? profileRecord.childrenUids : Array.isArray(userRecord.childrenUids) ? userRecord.childrenUids : [];
+
+		if (!childrenUids.length) {
+			return res.json({ items: [] });
+		}
+
+		const items = [];
+		for (const studentUid of childrenUids) {
+			const studentUser = await getUserRecord(studentUid);
+			if (studentUser) {
+				const studentProfile = await getProfileRecord('student', studentUid);
+				items.push(buildUserResponse(studentUser, studentProfile));
+			}
+		}
+
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error loading parent children:', error);
+		return res.status(500).json({ error: 'Failed to load children details' });
+	}
+});
+
 app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (req, res) => {
 	try {
-		const { email, role, classIds = [] } = req.body;
+		const { email, role, classIds = [], firstName = '', lastName = '', dateOfBirth = '', childrenUids = [] } = req.body;
 		const normalizedRole = normalizeRole(role);
 		const allowedRoles = ['admin', 'student', 'parent', 'teacher'];
 
@@ -684,8 +928,16 @@ app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (re
 			return res.status(400).json({ error: 'Invalid role.' });
 		}
 
-		const { userRecord, tempPassword } = await createUser(email, normalizedRole, { classIds });
+		const { userRecord, tempPassword } = await createUser(email, normalizedRole, { classIds, firstName, lastName, dateOfBirth, childrenUids });
 		await admin.auth().setCustomUserClaims(userRecord.uid, { role: normalizedRole });
+		
+		if (normalizedRole === 'parent' && childrenUids.length) {
+			for (const studentUid of childrenUids) {
+				await db.collection('users').doc(studentUid).set({ parentUid: userRecord.uid }, { merge: true });
+				await db.collection('studentProfiles').doc(studentUid).set({ parentUid: userRecord.uid }, { merge: true });
+			}
+		}
+
 		if (normalizedRole !== 'admin' && normalizeClassIds(classIds).length) {
 			await syncClassMembership(userRecord.uid, normalizedRole, [], classIds);
 		}
