@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Firestore, collection, query, where, orderBy, onSnapshot } from '@angular/fire/firestore';
@@ -14,16 +14,21 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
   templateUrl: './venture-shop.html',
   styleUrl: './venture-shop.css',
 })
-export class VentureShop implements OnDestroy {
+export class VentureShop implements OnInit {
   private http = inject(HttpClient);
   private firestore = inject(Firestore);
   private baseUrl = `${getApiBaseUrl()}/api`;
+  private cdr = inject(ChangeDetectorRef);
 
-  /** Firestore real-time listener teardown */
-  private unsubscribeShop: (() => void) | null = null;
 
-  constructor() {
-    this.listenToShopItems();
+  // constructor() {
+  //   this.listenToShopItems();
+  //   void this.loadWallet();
+  // }
+
+  ngOnInit(): void {
+    // Fire off your background tasks here instead
+    void this.loadShopItems();
     void this.loadWallet();
   }
 
@@ -47,29 +52,19 @@ export class VentureShop implements OnDestroy {
   shopItems: ShopItem[] = [];
   isLoading = true;
 
-  /**
-   * Subscribe to the Firestore `shopItems` collection in real-time.
-   * Only active items are shown. Any change the admin makes is
-   * reflected instantly without a page refresh.
-   */
-  private listenToShopItems(): void {
-    const colRef = collection(this.firestore, 'shopItems');
-    const q = query(colRef, where('active', '==', true), orderBy('createdAt', 'desc'));
-
-    this.unsubscribeShop = onSnapshot(
-      q,
-      (snapshot) => {
-        this.shopItems = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as unknown as ShopItem[];
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Firestore shop items listener error:', error);
-        this.isLoading = false;
-      },
-    );
+  async loadShopItems(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const json = await firstValueFrom<any>(
+        this.http.get(`${this.baseUrl}/shop/items`)
+      );
+      this.shopItems = Array.isArray(json.items) ? json.items : [];
+    } catch (error) {
+      console.error('Failed to load shop items:', error);
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
   }
 
   private async loadWallet(): Promise<void> {
@@ -116,11 +111,5 @@ export class VentureShop implements OnDestroy {
     })();
   }
 
-  ngOnDestroy(): void {
-    // Clean up Firestore listener to prevent memory leaks
-    if (this.unsubscribeShop) {
-      this.unsubscribeShop();
-      this.unsubscribeShop = null;
-    }
-  }
+
 }

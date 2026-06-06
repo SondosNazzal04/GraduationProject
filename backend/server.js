@@ -1163,10 +1163,10 @@ app.get('/api/student/me/wallet', authenticate, requireRole('student'), async (r
 app.get('/api/shop/items', authenticate, async (req, res) => {
 	try {
 		let query = db.collection('shopItems');
-		const currentRole = normalizeRole(req.user?.role) || normalizeRole(await getUserRole(req.user.uid));
-		if (currentRole !== 'admin') {
-			query = query.where('active', '==', true);
-		}
+		// const currentRole = normalizeRole(req.user?.role) || normalizeRole(await getUserRole(req.user.uid));
+		// if (currentRole !== 'admin') {
+		// 	query = query.where('active', '==', true);
+		// }
 
 		const snap = await query.orderBy('createdAt', 'desc').get();
 		const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
@@ -1226,6 +1226,24 @@ app.put('/api/shop/items/:itemId', authenticate, requireRole('admin'), async (re
 	} catch (error) {
 		console.error('Error updating shop item:', error);
 		return res.status(500).json({ error: error.message || 'Failed to update shop item' });
+	}
+});
+
+app.delete('/api/shop/items/:itemId', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const docRef = db.collection('shopItems').doc(req.params.itemId);
+		const docSnap = await docRef.get();
+		
+		if (!docSnap.exists) {
+			return res.status(404).json({ error: 'Shop item not found' });
+		}
+
+		await docRef.delete();
+		
+		return res.json({ message: 'Shop item deleted successfully!' });
+	} catch (error) {
+		console.error('Error deleting shop item:', error);
+		return res.status(500).json({ error: error.message || 'Failed to delete shop item' });
 	}
 });
 

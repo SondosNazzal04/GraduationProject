@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, ChangeDetectorRef } from '@angular/core';
 import { firstValueFrom, timeout } from 'rxjs';
 import { ShopItem } from '../../models/shop-item.model';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
@@ -20,6 +20,7 @@ const REQUEST_TIMEOUT = 10_000;
 export class AdminVentureShop {
   private http = inject(HttpClient);
   private baseUrl = `${getApiBaseUrl()}/api`;
+  private cdr = inject(ChangeDetectorRef);
 
   showAddModal = false;
   showEditModal = false;
@@ -63,19 +64,25 @@ export class AdminVentureShop {
   }
 
   // ── Load Items from API ───────────────────────────────────────────
-  private async loadShopItems(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/shop/items`).pipe(timeout(REQUEST_TIMEOUT)));
-      this.shopItems = Array.isArray(json.items) ? json.items : [];
-    } catch (e: any) {
-      console.error('Failed to load shop items', e);
-      const msg = e?.name === 'TimeoutError' ? 'Server not responding. Is the backend running?' : 'Failed to load shop items from server.';
-      this.showToast(msg, 'error');
-    } finally {
-      this.isLoading = false;
-    }
+  async loadShopItems(): Promise<void> {
+  this.isLoading = true;
+  
+  try {
+    // Fetch items from the backend
+    const json = await firstValueFrom<any>(
+      this.http.get(`${this.baseUrl}/shop/items`)
+    );
+    this.shopItems = Array.isArray(json.items) ? json.items : [];
+  } catch (error) {
+    console.error('Failed to load shop items:', error);
+    // Optional: Add a toast or alert here to notify the student 
+    // e.g., this.showToast('Could not load shop items', 'error');
+  } finally {
+    // THIS IS THE MISSING PIECE: It stops the spinner even if the request crashes
+    this.isLoading = false; 
+    this.cdr.detectChanges();
   }
+}
 
   // ── Add Item ──────────────────────────────────────────────────────
   openAddModal(): void {
@@ -89,7 +96,7 @@ export class AdminVentureShop {
   }
 
   confirmAdd(): void {
-    if (!this.newItem.name || !this.newItem.price) return;
+    if (!this.newItem.name || this.newItem.price == null) return;
     void this.createItemOnServer();
   }
 
@@ -119,6 +126,7 @@ export class AdminVentureShop {
       this.showToast(msg, 'error');
     } finally {
       this.isSaving = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -175,6 +183,7 @@ export class AdminVentureShop {
       this.showToast(msg, 'error');
     } finally {
       this.isSaving = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -191,32 +200,37 @@ export class AdminVentureShop {
 
   confirmRemove(): void {
     if (!this.itemToRemove) return;
-    void this.deactivateItemOnServer();
+    void this.deleteItemOnServer();
   }
 
-  private async deactivateItemOnServer(): Promise<void> {
+  private async deleteItemOnServer(): Promise<void> {
     if (!this.itemToRemove) return;
 
     const removedItem = this.itemToRemove;
     this.isSaving = true;
+    
     try {
-      // Soft-delete: set active = false so the item disappears from the student shop
+      // Hard delete: permanently remove the item via the new DELETE endpoint
       await firstValueFrom<any>(
-        this.http.put(`${this.baseUrl}/shop/items/${removedItem.id}`, {
-          active: false,
-        }).pipe(timeout(REQUEST_TIMEOUT)),
+        this.http.delete(`${this.baseUrl}/shop/items/${removedItem.id}`).pipe(timeout(REQUEST_TIMEOUT)),
       );
 
+      // Remove from the local UI array
       this.shopItems = this.shopItems.filter((i) => i.id !== removedItem.id);
-      this.showToast(`"${removedItem.name}" removed from the shop.`, 'success');
+      this.showToast(`"${removedItem.name}" permanently removed from the shop.`, 'success');
       this.closeRemoveConfirm();
+      
     } catch (e: any) {
       console.error('Failed to remove shop item', e);
-      const msg = e?.name === 'TimeoutError' ? 'Server not responding. Is the backend running?' : (e?.error?.error || 'Failed to remove item. Please try again.');
+      const msg = e?.name === 'TimeoutError' 
+        ? 'Server not responding. Is the backend running?' 
+        : (e?.error?.error || 'Failed to remove item. Please try again.');
       this.showToast(msg, 'error');
       this.closeRemoveConfirm();
+      
     } finally {
       this.isSaving = false;
+      this.cdr.detectChanges();
     }
   }
 }
