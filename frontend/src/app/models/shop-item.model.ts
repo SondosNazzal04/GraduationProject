@@ -5,4 +5,5 @@ export interface ShopItem {
   price: number;
   image: string;
   emoji: string;
+  active?: boolean;
 }

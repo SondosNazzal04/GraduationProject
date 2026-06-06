@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { Firestore, collection, query, where, orderBy, onSnapshot } from '@angular/fire/firestore';
+import { firstValueFrom, timeout } from 'rxjs';
 import { ShopItem } from '../../models/shop-item.model';
 import { Toast } from '../../models/toast.model';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
@@ -13,14 +14,19 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
   templateUrl: './venture-shop.html',
   styleUrl: './venture-shop.css',
 })
-export class VentureShop {
+export class VentureShop implements OnDestroy {
   private http = inject(HttpClient);
+  private firestore = inject(Firestore);
   private baseUrl = `${getApiBaseUrl()}/api`;
 
+  /** Firestore real-time listener teardown */
+  private unsubscribeShop: (() => void) | null = null;
+
   constructor() {
-    void this.loadShopItems();
+    this.listenToShopItems();
     void this.loadWallet();
   }
+
   studentName = 'Sara Ahmad';
   studentPoints = 0;
 
@@ -39,19 +45,38 @@ export class VentureShop {
   }
 
   shopItems: ShopItem[] = [];
+  isLoading = true;
 
-  private async loadShopItems(): Promise<void> {
-    try {
-      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/shop/items`));
-      this.shopItems = Array.isArray(json.items) ? json.items : [];
-    } catch (e) {
-      console.warn('Failed to load shop items', e);
-    }
+  /**
+   * Subscribe to the Firestore `shopItems` collection in real-time.
+   * Only active items are shown. Any change the admin makes is
+   * reflected instantly without a page refresh.
+   */
+  private listenToShopItems(): void {
+    const colRef = collection(this.firestore, 'shopItems');
+    const q = query(colRef, where('active', '==', true), orderBy('createdAt', 'desc'));
+
+    this.unsubscribeShop = onSnapshot(
+      q,
+      (snapshot) => {
+        this.shopItems = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as unknown as ShopItem[];
+        this.isLoading = false;
+      },
+      (error) => {
+        console.error('Firestore shop items listener error:', error);
+        this.isLoading = false;
+      },
+    );
   }
 
   private async loadWallet(): Promise<void> {
     try {
-      const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/wallet`));
+      const json = await firstValueFrom<any>(
+        this.http.get(`${this.baseUrl}/student/me/wallet`).pipe(timeout(10_000)),
+      );
       this.studentPoints = Number(json.pointsBalance || 0);
     } catch (e) {
       console.warn('Failed to load wallet', e);
@@ -72,15 +97,16 @@ export class VentureShop {
     void (async () => {
       try {
         const json = await firstValueFrom<any>(
-          this.http.post(`${this.baseUrl}/shop/redeem`, { itemId: String(item.id), quantity: 1 }),
+          this.http.post(`${this.baseUrl}/shop/redeem`, { itemId: String(item.id), quantity: 1 }).pipe(timeout(10_000)),
         );
         const balanceAfter = Number(json.item?.balanceAfter ?? 0);
         this.studentPoints = balanceAfter;
         this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
-      } catch (e) {
+      } catch (e: any) {
         console.warn('Redeem failed', e);
-        // fallback local behavior
-        if (this.studentPoints >= item.price) {
+        if (e?.error?.error === 'Not enough points') {
+          this.showToast(`Not enough points to purchase "${item.name}".`, 'error');
+        } else if (this.studentPoints >= item.price) {
           this.studentPoints -= item.price;
           this.showToast(`${item.emoji} "${item.name}" purchased successfully!`, 'success');
         } else {
@@ -88,5 +114,13 @@ export class VentureShop {
         }
       }
     })();
+  }
+
+  ngOnDestroy(): void {
+    // Clean up Firestore listener to prevent memory leaks
+    if (this.unsubscribeShop) {
+      this.unsubscribeShop();
+      this.unsubscribeShop = null;
+    }
   }
 }

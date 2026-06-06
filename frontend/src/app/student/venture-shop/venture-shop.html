@@ -64,6 +64,20 @@
       </div>
     }
 
+    @if (isLoading) {
+      <div class="loading-state">
+        <span class="material-icons spin">sync</span>
+        <span>Loading shop…</span>
+      </div>
+    }
+
+    @if (!isLoading && shopItems.length === 0) {
+      <div class="empty-state">
+        <span class="material-icons empty-icon">storefront</span>
+        <p class="empty-text">No items available in the shop right now.</p>
+      </div>
+    }
+
     <div class="shop-grid">
       @for (item of shopItems; track item.id) {
         <div class="shop-card">

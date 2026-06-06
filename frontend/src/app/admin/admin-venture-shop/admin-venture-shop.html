@@ -45,11 +45,25 @@
     </header>
 
     <div class="toolbar">
-      <button class="add-btn" (click)="openAddModal()">
+      <button class="add-btn" (click)="openAddModal()" [disabled]="isSaving">
         Add to Shop
         <span class="material-icons">dashboard</span>
       </button>
     </div>
+
+    @if (isLoading) {
+      <div class="loading-state">
+        <span class="material-icons spin">sync</span>
+        <span>Loading shop items…</span>
+      </div>
+    }
+
+    @if (!isLoading && shopItems.length === 0) {
+      <div class="empty-state">
+        <span class="material-icons empty-icon">storefront</span>
+        <p class="empty-text">No shop items yet. Click "Add to Shop" to create one!</p>
+      </div>
+    }
 
     <div class="shop-grid">
       @for (item of shopItems; track item.id) {
@@ -71,11 +85,11 @@
               <span class="price-text">{{ item.price | number }} pts</span>
             </div>
             <div class="card-actions">
-              <button class="edit-btn" (click)="openEditModal(item)">
+              <button class="edit-btn" (click)="openEditModal(item)" [disabled]="isSaving">
                 Edit
                 <span class="material-icons">edit</span>
               </button>
-              <button class="remove-btn" (click)="openRemoveConfirm(item)">
+              <button class="remove-btn" (click)="openRemoveConfirm(item)" [disabled]="isSaving">
                 Remove
                 <span class="material-icons">cancel</span>
               </button>
@@ -86,6 +100,16 @@
     </div>
   </div>
 </div>
+
+@if (toast) {
+  <div class="toast" [class.toast--success]="toast.type === 'success'" [class.toast--error]="toast.type === 'error'">
+    <span class="material-icons toast-icon">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
+    <span class="toast-message">{{ toast.message }}</span>
+    <button class="toast-close" (click)="dismissToast()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+}
 
 @if (showAddModal) {
   <div class="modal-overlay" (click)="closeAddModal()">
@@ -108,8 +132,15 @@
       <input class="form-input" [(ngModel)]="newItem.image" placeholder="https://..." />
 
       <div class="modal-actions">
-        <button class="modal-cancel-btn" (click)="closeAddModal()">Cancel</button>
-        <button class="modal-confirm-btn" (click)="confirmAdd()">Add Item</button>
+        <button class="modal-cancel-btn" (click)="closeAddModal()" [disabled]="isSaving">Cancel</button>
+        <button class="modal-confirm-btn" (click)="confirmAdd()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="material-icons spin btn-spin-icon">sync</span>
+            Saving…
+          } @else {
+            Add Item
+          }
+        </button>
       </div>
     </div>
   </div>
@@ -136,8 +167,15 @@
       <input class="form-input" [(ngModel)]="editItem.image" placeholder="https://..." />
 
       <div class="modal-actions">
-        <button class="modal-cancel-btn" (click)="closeEditModal()">Cancel</button>
-        <button class="modal-confirm-btn" (click)="confirmEdit()">Save Changes</button>
+        <button class="modal-cancel-btn" (click)="closeEditModal()" [disabled]="isSaving">Cancel</button>
+        <button class="modal-confirm-btn" (click)="confirmEdit()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="material-icons spin btn-spin-icon">sync</span>
+            Saving…
+          } @else {
+            Save Changes
+          }
+        </button>
       </div>
     </div>
   </div>
@@ -153,8 +191,15 @@
         This action cannot be undone.
       </p>
       <div class="modal-actions">
-        <button class="modal-cancel-btn" (click)="closeRemoveConfirm()">Cancel</button>
-        <button class="modal-remove-btn" (click)="confirmRemove()">Remove</button>
+        <button class="modal-cancel-btn" (click)="closeRemoveConfirm()" [disabled]="isSaving">Cancel</button>
+        <button class="modal-remove-btn" (click)="confirmRemove()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="material-icons spin btn-spin-icon">sync</span>
+            Removing…
+          } @else {
+            Remove
+          }
+        </button>
       </div>
     </div>
   </div>
