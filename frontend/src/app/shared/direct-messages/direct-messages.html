@@ -48,29 +48,37 @@
         }
 
         <div class="contact-list">
-          @for (contact of filteredContacts; track contact.uid) {
-            <button class="contact-item" [class.active]="selectedContact?.uid === contact.uid" (click)="selectContact(contact)">
-              <div class="contact-avatar" [attr.data-role]="contact.role">{{ contact.avatarInitials }}</div>
-              <div class="contact-info">
-                <div class="contact-row">
-                  <span class="contact-name">{{ contact.name }}</span>
-                  <span class="contact-time">{{ contact.lastMessageTime || '' }}</span>
-                </div>
-                <div class="contact-row">
-                  <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>
-                  @if (contact.unreadCount && contact.unreadCount > 0) {
-                    <span class="contact-badge">{{ contact.unreadCount }}</span>
-                  }
-                </div>
+            @if (contactsError) {
+              <div class="chat-empty" style="padding: 1rem; color: #e74c3c;">
+                <span class="material-icons chat-empty-icon" style="font-size: 24px; margin-bottom: 8px;">error_outline</span>
+                <p style="font-size: 0.9rem; margin: 0;">{{ contactsError }}</p>
+                <p style="font-size: 0.8rem; margin-top: 8px;">Please check your Firestore rules for the 'users' collection.</p>
               </div>
-            </button>
-          }
-          @if (!loadingContacts && filteredContacts.length === 0) {
-            <div class="empty-contacts">
-              <span class="material-icons">search_off</span>
-              <p>No contacts found</p>
-            </div>
-          }
+            } @else {
+              @for (contact of filteredContacts; track contact.uid) {
+                <button class="contact-item" [class.active]="selectedContact?.uid === contact.uid" (click)="selectContact(contact)">
+                  <div class="contact-avatar" [attr.data-role]="contact.role">{{ contact.avatarInitials }}</div>
+                  <div class="contact-info">
+                    <div class="contact-row">
+                      <span class="contact-name">{{ contact.name }}</span>
+                      <span class="contact-time">{{ contact.lastMessageTime || '' }}</span>
+                    </div>
+                    <div class="contact-row">
+                      <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>
+                      @if (contact.unreadCount && contact.unreadCount > 0) {
+                        <span class="contact-badge">{{ contact.unreadCount }}</span>
+                      }
+                    </div>
+                  </div>
+                </button>
+              }
+              @if (!loadingContacts && filteredContacts.length === 0) {
+                <div class="empty-contacts">
+                  <span class="material-icons">search_off</span>
+                  <p>No contacts found</p>
+                </div>
+              }
+            }
         </div>
       </aside>
 
@@ -111,7 +119,7 @@
                     <div class="msg-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
                   }
                   <div class="bubble-wrap">
-                    <div class="bubble" [class.bubble--own]="msg.isOwn" [class.bubble--failed]="msg.id.startsWith('failed-')">
+                    <div class="bubble" [class.bubble--own]="msg.isOwn" [class.bubble--failed]="msg.id?.startsWith('failed-')">
                       {{ msg.content }}
                     </div>
                     <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
@@ -129,9 +137,15 @@
             <div #messagesEnd></div>
           </div>
 
-          <div class="input-area">
-            <textarea
-              class="message-input"
+          <div class="input-area" style="flex-direction: column;">
+            @if (sendError) {
+              <div style="color: #e74c3c; font-size: 0.8rem; margin-bottom: 8px; padding: 0 16px;">
+                <span class="material-icons" style="font-size: 14px; vertical-align: middle;">error</span> {{ sendError }}
+              </div>
+            }
+            <div style="display: flex; width: 100%;">
+              <textarea
+                class="message-input"
               placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
               [(ngModel)]="newMessage"
               (keydown)="onKeyDown($event)"
@@ -144,6 +158,7 @@
                 <span class="material-icons">send</span>
               }
             </button>
+            </div>
           </div>
         }
       </section>

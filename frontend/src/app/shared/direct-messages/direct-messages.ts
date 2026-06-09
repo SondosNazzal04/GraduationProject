@@ -1,11 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ElementRef, ViewChild, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import { getApiBaseUrl } from '../../firebase.runtime-config';
-import { AuthService } from '../services/auth/auth';
+import { Subscription } from 'rxjs';
+import { ChatService, Message } from '../services/chat/chat.service';
 
 interface Contact {
   uid: string;
@@ -17,14 +15,7 @@ interface Contact {
   avatarInitials: string;
 }
 
-interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
-  timestamp: string;
-  isOwn: boolean;
-}
+// Message interface is now imported from ChatService
 
 @Component({
   selector: 'app-direct-messages',
@@ -36,9 +27,8 @@ interface Message {
 export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;
 
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private baseUrl = `${getApiBaseUrl()}/api`;
+  private chatService = inject(ChatService);
+  private cdr = inject(ChangeDetectorRef);
 
   navItems = [
     { label: 'Dashboard',  icon: 'dashboard',           route: '/student-dashboard' },
@@ -59,28 +49,11 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   sending = false;
   searchQuery = '';
   private shouldScrollToBottom = false;
-  private pollInterval: any = null;
+  private messagesSub?: Subscription;
+  contactsError = '';
+  sendError = '';
 
-  private mockContacts: Contact[] = [
-    { uid: 'teacher-1', name: 'Mr. Khalid Hassan', role: 'teacher', avatarInitials: 'KH', lastMessage: 'Great work on your assignment!', lastMessageTime: '10:30 AM', unreadCount: 2 },
-    { uid: 'teacher-2', name: 'Ms. Lara Nasser',   role: 'teacher', avatarInitials: 'LN', lastMessage: "Don't forget the quiz tomorrow.", lastMessageTime: 'Yesterday', unreadCount: 0 },
-    { uid: 'teacher-3', name: 'Dr. Omar Saleh',    role: 'teacher', avatarInitials: 'OS', lastMessage: 'Office hours at 2PM today.', lastMessageTime: 'Mon', unreadCount: 1 },
-  ];
 
-  private mockMessages: Record<string, Message[]> = {
-    'teacher-1': [
-      { id: '1', senderId: 'teacher-1', receiverId: 'me', content: 'Hi! I reviewed your last assignment.', timestamp: '2025-01-10T09:00:00Z', isOwn: false },
-      { id: '2', senderId: 'me', receiverId: 'teacher-1', content: 'Thank you Mr. Khalid! I worked really hard on it.', timestamp: '2025-01-10T09:05:00Z', isOwn: true },
-      { id: '3', senderId: 'teacher-1', receiverId: 'me', content: 'Great work! You scored 95/100.', timestamp: '2025-01-10T10:30:00Z', isOwn: false },
-    ],
-    'teacher-2': [
-      { id: '4', senderId: 'teacher-2', receiverId: 'me', content: "Don't forget the quiz tomorrow covers chapters 3–5.", timestamp: '2025-01-09T14:00:00Z', isOwn: false },
-      { id: '5', senderId: 'me', receiverId: 'teacher-2', content: 'Got it, thank you Ms. Lara!', timestamp: '2025-01-09T14:10:00Z', isOwn: true },
-    ],
-    'teacher-3': [
-      { id: '6', senderId: 'teacher-3', receiverId: 'me', content: 'Office hours at 2PM today if anyone needs help.', timestamp: '2025-01-08T10:00:00Z', isOwn: false },
-    ],
-  };
 
   get filteredContacts(): Contact[] {
     if (!this.searchQuery.trim()) return this.contacts;
@@ -105,21 +78,41 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
-    if (this.pollInterval) clearInterval(this.pollInterval);
+    if (this.messagesSub) {
+      this.messagesSub.unsubscribe();
+    }
   }
 
   private async loadContacts(): Promise<void> {
     this.loadingContacts = true;
     try {
-      // TODO: replace with real API
-      // const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/contacts`));
-      // this.contacts = json.items ?? [];
-      await this.delay(400);
-      this.contacts = this.mockContacts;
-    } catch {
-      this.contacts = this.mockContacts;
+      const users = await this.chatService.getUsers();
+      const currentUserId = this.chatService.currentUserId;
+      
+      this.contacts = users
+        .filter(u => u.uid !== currentUserId)
+        .map(u => {
+          const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email || 'Unknown User';
+          const initials = name.substring(0, 2).toUpperCase();
+          return {
+            uid: u.uid,
+            name: name,
+            role: u.role || 'student',
+            avatarInitials: initials,
+            lastMessage: '',
+            lastMessageTime: '',
+            unreadCount: 0
+          };
+        });
+        
+      this.contactsError = '';
+    } catch (error: any) {
+      console.error('Error fetching contacts:', error);
+      this.contactsError = error?.message || 'Failed to fetch contacts';
+      this.contacts = [];
     } finally {
       this.loadingContacts = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -128,58 +121,51 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     contact.unreadCount = 0;
     this.loadingMessages = true;
     this.messages = [];
-    if (this.pollInterval) clearInterval(this.pollInterval);
-    try {
-      // TODO: replace with real API
-      // const json = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/messages/${contact.uid}`));
-      // this.messages = json.items ?? [];
-      await this.delay(300);
-      this.messages = (this.mockMessages[contact.uid] || []).map(m => ({ ...m }));
-      this.shouldScrollToBottom = true;
-    } catch {
-      this.messages = this.mockMessages[contact.uid] || [];
-    } finally {
-      this.loadingMessages = false;
+    
+    if (this.messagesSub) {
+      this.messagesSub.unsubscribe();
     }
-    this.pollInterval = setInterval(() => this.pollMessages(), 5000);
-  }
 
-  private async pollMessages(): Promise<void> {
-    if (!this.selectedContact) return;
-    // TODO: replace with real API or WebSocket
+    const currentUserId = this.chatService.currentUserId || 'me';
+    const chatId = this.chatService.getChatId(currentUserId, contact.uid);
+
+    this.messagesSub = this.chatService.getMessages(chatId).subscribe({
+      next: (messages) => {
+        this.messages = messages;
+        this.loadingMessages = false;
+        this.shouldScrollToBottom = true;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error fetching messages:', error);
+        this.loadingMessages = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   async sendMessage(): Promise<void> {
     const content = this.newMessage.trim();
     if (!content || !this.selectedContact || this.sending) return;
 
-    const tempMsg: Message = {
-      id: `temp-${Date.now()}`,
-      senderId: 'me',
-      receiverId: this.selectedContact.uid,
-      content,
-      timestamp: new Date().toISOString(),
-      isOwn: true,
-    };
-
-    this.messages.push(tempMsg);
-    this.newMessage = '';
-    this.shouldScrollToBottom = true;
     this.sending = true;
 
-    if (this.selectedContact) {
-      this.selectedContact.lastMessage = content;
-      this.selectedContact.lastMessageTime = 'Just now';
-    }
-
     try {
-      // TODO: replace with real API
-      // await firstValueFrom(this.http.post(`${this.baseUrl}/messages`, { receiverId: this.selectedContact.uid, content }));
-      await this.delay(300);
-    } catch {
-      tempMsg.id = `failed-${tempMsg.id}`;
+      this.sendError = '';
+      await this.chatService.sendMessage(this.selectedContact.uid, content);
+      this.newMessage = '';
+      this.shouldScrollToBottom = true;
+      
+      if (this.selectedContact) {
+        this.selectedContact.lastMessage = content;
+        this.selectedContact.lastMessageTime = 'Just now';
+      }
+    } catch (error: any) {
+      console.error('Failed to send message:', error);
+      this.sendError = error?.message || 'Failed to send message. Check permissions.';
     } finally {
       this.sending = false;
+      this.cdr.detectChanges();
     }
   }
 
