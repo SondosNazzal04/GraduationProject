@@ -1,0 +1,202 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <div class="layout__main">
+    <app-topbar pageTitle="Gradebook"></app-topbar>
+    <div class="page-body">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-header__title">Gradebook</h1>
+          <p class="page-header__sub">Record and view student grades</p>
+        </div>
+      </div>
+
+      <!-- Success toast -->
+      <div class="toast" *ngIf="savedSuccessfully">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Grade saved successfully!
+      </div>
+
+      <!-- Class selector -->
+      <div class="controls-row">
+        <div class="control-group">
+          <label class="control-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            Select Class
+          </label>
+          <select [(ngModel)]="selectedClassId" (ngModelChange)="onClassChange()">
+            <option *ngFor="let c of classes" [value]="c.id">Class {{ c.name }} — {{ c.gradeLevel }}</option>
+          </select>
+        </div>
+        <div class="class-avg-badge">
+          Class Average: <strong>{{ classAverage }}%</strong>
+        </div>
+      </div>
+
+      <div class="grades-layout">
+
+        <!-- Left: student list -->
+        <div class="student-panel">
+          <div class="student-panel__heading">Students</div>
+          <div class="student-item"
+               *ngFor="let s of summaries"
+               [class.student-item--active]="selectedStudent?.studentId === s.studentId"
+               (click)="selectStudent(s)">
+            <div class="student-item__avatar">{{ s.initials }}</div>
+            <div class="student-item__info">
+              <div class="student-item__name">{{ s.studentName }}</div>
+              <div class="student-item__class">{{ s.className }}</div>
+            </div>
+            <div class="student-item__avg" [style.color]="getScoreColor(s.overallAverage)">
+              {{ s.overallAverage }}%
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: grade detail -->
+        <div class="grade-detail" *ngIf="selectedStudent; else noSelection">
+
+          <!-- Student header -->
+          <div class="grade-detail__header">
+            <div class="grade-detail__student">
+              <div class="grade-detail__avatar">{{ selectedStudent.initials }}</div>
+              <div>
+                <div class="grade-detail__name">{{ selectedStudent.studentName }}</div>
+                <div class="grade-detail__class">{{ selectedStudent.className }}</div>
+              </div>
+            </div>
+            <button class="add-grade-btn" (click)="openAddGrade()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Grade
+            </button>
+          </div>
+
+          <!-- Summary stats -->
+          <div class="grade-stats">
+            <div class="grade-stat-card">
+              <div class="grade-stat-card__val" [style.color]="getScoreColor(selectedStudent.overallAverage)">
+                {{ selectedStudent.overallAverage }}%
+              </div>
+              <div class="grade-stat-card__lbl">Overall</div>
+            </div>
+            <div class="grade-stat-card">
+              <div class="grade-stat-card__val" [style.color]="getScoreColor(selectedStudent.examAverage)">
+                {{ selectedStudent.examAverage }}%
+              </div>
+              <div class="grade-stat-card__lbl">Exams</div>
+            </div>
+            <div class="grade-stat-card">
+              <div class="grade-stat-card__val" [style.color]="getScoreColor(selectedStudent.assignmentAverage)">
+                {{ selectedStudent.assignmentAverage }}%
+              </div>
+              <div class="grade-stat-card__lbl">Assignments</div>
+            </div>
+            <div class="grade-stat-card">
+              <div class="grade-stat-card__val">{{ selectedStudent.grades.length }}</div>
+              <div class="grade-stat-card__lbl">Activities</div>
+            </div>
+          </div>
+
+          <!-- Add grade form -->
+          <div class="grade-form" *ngIf="showForm">
+            <div class="grade-form__title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Grade Entry
+            </div>
+            <div class="grade-form__fields">
+              <div class="field-group">
+                <label>Activity Title *</label>
+                <input type="text" placeholder="e.g. Midterm Exam" [(ngModel)]="newGrade.activityTitle">
+              </div>
+              <div class="field-group">
+                <label>Subject *</label>
+                <select [(ngModel)]="newGrade.subject">
+                  <option *ngFor="let sub of subjects" [value]="sub">{{ sub }}</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Type *</label>
+                <select [(ngModel)]="newGrade.activityType">
+                  <option *ngFor="let t of activityTypes" [value]="t">{{ t | titlecase }}</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Score (0–100) *</label>
+                <input type="number" min="0" max="100" placeholder="85" [(ngModel)]="newGrade.score">
+              </div>
+              <div class="field-group">
+                <label>Date</label>
+                <input type="date" [(ngModel)]="newGrade.date">
+              </div>
+            </div>
+            <div class="grade-form__actions">
+              <button class="btn-cancel" (click)="showForm = false">Cancel</button>
+              <button class="btn-save" (click)="submitGrade()">Save Grade</button>
+            </div>
+          </div>
+
+          <!-- Grades table -->
+          <div class="grades-table-wrap">
+            <table class="grades-table">
+              <thead>
+                <tr>
+                  <th>Activity</th>
+                  <th>Subject</th>
+                  <th>Type</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let g of selectedStudent.grades">
+                  <td class="td-title">{{ g.activityTitle }}</td>
+                  <td>{{ g.subject }}</td>
+                  <td>
+                    <span class="type-badge type-badge--{{g.activityType}}">{{ g.activityType }}</span>
+                  </td>
+                  <td>
+                    <span class="score-pill" [style.color]="getScoreColor(g.score)" [style.background]="getScoreColor(g.score) + '18'">
+                      {{ g.score }}/{{ g.maxScore }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-label" [style.color]="getScoreColor(g.score)">{{ getScoreLabel(g.score) }}</span>
+                  </td>
+                  <td class="td-date">{{ g.date }}</td>
+                  <td>
+                    <button class="delete-btn" (click)="deleteGrade(g.id)" title="Delete">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="selectedStudent.grades.length === 0">
+                  <td colspan="7" class="td-empty">No grades recorded yet. Click "Add Grade" to get started.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- No student selected -->
+        <ng-template #noSelection>
+          <div class="no-selection">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#d0d5e0" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p>Select a student to view grades</p>
+          </div>
+        </ng-template>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,106 @@
+$blue:#1565C0; $pink:#f06292; $bg:#f5f6fa; $white:#fff; $radius:14px; $font:'Segoe UI',Arial,sans-serif;
+
+.layout { display:flex; min-height:100vh; background:$bg; font-family:$font;
+  &__main { flex:1; margin-left:175px; display:flex; flex-direction:column; } }
+.page-body { padding:30px 36px; flex:1; display:flex; flex-direction:column; }
+
+.page-header { margin-bottom:20px;
+  &__title { font-size:23px; font-weight:700; color:#1a1a2e; margin:0 0 4px; }
+  &__sub   { font-size:13.5px; color:#888; margin:0; }
+}
+
+.messages-layout {
+  display:grid; grid-template-columns:280px 1fr; gap:16px;
+  flex:1; min-height:0; height:calc(100vh - 200px);
+}
+
+// Conversation list
+.conv-list {
+  background:$white; border-radius:$radius; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  display:flex; flex-direction:column; overflow:hidden;
+
+  &__search {
+    display:flex; align-items:center; gap:8px; padding:14px 16px;
+    border-bottom:1px solid #f0f0f0;
+    input { border:none; outline:none; font-size:13px; color:#333; width:100%; background:transparent; font-family:$font; }
+  }
+}
+
+.conv-item {
+  display:flex; align-items:flex-start; gap:11px; padding:13px 16px;
+  border-bottom:1px solid #f8f8f8; cursor:pointer; transition:background 0.13s;
+  &:hover { background:#fafbff; }
+  &--active { background:#e3f2fd; }
+  &:last-child { border-bottom:none; }
+
+  &__avatar {
+    width:42px; height:42px; border-radius:50%; background:$pink; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0;
+  }
+  &__info { flex:1; min-width:0; }
+  &__name    { font-size:13.5px; font-weight:700; color:#1a1a2e; }
+  &__role    { font-size:11px; color:#aaa; }
+  &__preview { font-size:12px; color:#888; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  &__right   { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+  &__time    { font-size:10.5px; color:#bbb; }
+  &__unread  { width:9px; height:9px; border-radius:50%; background:$blue; }
+}
+
+// Chat panel
+.chat-panel {
+  background:$white; border-radius:$radius; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  display:flex; flex-direction:column; overflow:hidden;
+
+  &__header {
+    display:flex; align-items:center; gap:12px; padding:14px 20px;
+    border-bottom:1px solid #f0f0f0; flex-shrink:0;
+  }
+  &__avatar {
+    width:40px; height:40px; border-radius:50%; background:$pink; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;
+  }
+  &__name { font-size:14.5px; font-weight:700; color:#1a1a2e; }
+  &__role { font-size:11.5px; color:#aaa; }
+}
+
+.chat-messages {
+  flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px;
+  &::-webkit-scrollbar { width:4px; }
+  &::-webkit-scrollbar-thumb { background:#e0e0e0; border-radius:4px; }
+}
+
+.chat-msg {
+  display:flex; flex-direction:column; max-width:72%; align-self:flex-start;
+  &--mine { align-self:flex-end; .chat-msg__bubble { background:$blue; color:#fff; border-radius:18px 18px 4px 18px; } }
+
+  &__bubble {
+    background:#f0f4f8; color:#1a1a2e; padding:11px 16px; border-radius:18px 18px 18px 4px;
+    font-size:13.5px; line-height:1.5;
+  }
+  &__time { font-size:10.5px; color:#bbb; margin-top:4px; padding:0 4px; }
+}
+
+.chat-input-row {
+  display:flex; gap:10px; padding:14px 20px; border-top:1px solid #f0f0f0; flex-shrink:0;
+}
+
+.chat-input {
+  flex:1; padding:10px 16px; border:1px solid #e0e0e0; border-radius:24px;
+  font-size:13.5px; outline:none; font-family:$font; color:#333;
+  &:focus { border-color:$blue; }
+}
+
+.send-btn {
+  width:44px; height:44px; border-radius:50%; background:$blue; color:#fff;
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s;
+  &:hover { background:#0d47a1; }
+}
+
+@media(max-width:800px) {
+  .messages-layout { grid-template-columns:1fr; height:auto; }
+}
+@media(max-width:640px) {
+  .layout__main { margin-left:0; }
+  .page-body { padding:16px; }
+}

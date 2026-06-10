@@ -1,0 +1,26 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Notifications" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="notif-header"><div><h1 class="p-heading__title">Notifications</h1><p class="p-heading__sub">Stay up to date with all your alerts</p></div><div style="display:flex;align-items:center;gap:12px"><div *ngIf="unread>0" class="chip chip--red">{{ unread }} unread</div><button class="btn-primary" style="font-size:12px;padding:8px 16px" (click)="markAll()">Mark all read</button></div></div>
+      <div class="child-tabs" style="margin-bottom:18px">
+        <span class="child-tabs__lbl">Filter:</span>
+        <button *ngFor="let t of types" class="child-tab-btn" [class.active]="filter()===t" (click)="filter.set(t)">{{ t==='all'?'All':(t|titlecase) }}</button>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item" *ngFor="let n of filtered()" [class.notif-item--unread]="!n.read" (click)="n.read=true">
+          <div class="notif-item__dot" [style.background]="tb(n.type)" [style.color]="tc(n.type)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+          </div>
+          <div class="notif-item__body">
+            <div class="notif-item__title">{{ n.title }}</div>
+            <div class="notif-item__text">{{ n.body }}</div>
+            <div class="notif-item__meta"><span class="chip" style="font-size:10px" [style.background]="tb(n.type)" [style.color]="tc(n.type)">{{ n.type | titlecase }}</span> · {{ n.date }}</div>
+          </div>
+          <div class="notif-item__unread-dot" *ngIf="!n.read"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

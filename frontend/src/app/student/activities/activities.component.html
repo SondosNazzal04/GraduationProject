@@ -1,0 +1,57 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="My Activities" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">My Activities</h1><p class="p-heading__sub">All your learning activities in one place</p></div>
+      <div class="filter-row">
+        <div class="filter-group"><label>Subject</label>
+          <select [(ngModel)]="subj" (ngModelChange)="subj.set($event)">
+            <option *ngFor="let s of subjects" [value]="s">{{ s==='all'?'All Subjects':s }}</option>
+          </select>
+        </div>
+        <div class="filter-group"><label>Difficulty</label>
+          <select [(ngModel)]="diff" (ngModelChange)="diff.set($event)">
+            <option *ngFor="let d of diffs" [value]="d">{{ d==='all'?'All Levels':(d|titlecase) }}</option>
+          </select>
+        </div>
+        <div class="filter-group"><label>Status</label>
+          <select [(ngModel)]="status" (ngModelChange)="status.set($event)">
+            <option *ngFor="let s of statuses" [value]="s">{{ s==='all'?'All Status':s.replace('_',' ')|titlecase }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="act-grid">
+        <div class="act-card" *ngFor="let a of filtered()">
+          <div class="act-card__top">
+            <div class="act-card__subject chip chip--blue" style="font-size:10.5px">{{ a.subject }}</div>
+            <span class="chip" [ngClass]="dc(a.difficulty)" style="font-size:10.5px">{{ a.difficulty | titlecase }}</span>
+          </div>
+          <div class="act-card__title">{{ a.title }}</div>
+          <div class="act-card__desc">{{ a.description }}</div>
+          <div class="act-card__progress" *ngIf="a.status !== 'not_started'">
+            <div class="act-card__prog-row"><span style="font-size:11px;color:#888">Progress</span><span style="font-size:11px;font-weight:700;color:#555">{{ a.progress }}%</span></div>
+            <div class="prog-track"><div class="prog-fill" [style.width.%]="a.progress" [style.background]="gc(a.progress)"></div></div>
+          </div>
+          <div class="act-card__footer">
+            <div class="act-card__meta">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Due {{ a.dueDate }}</span>
+            </div>
+            <div class="act-card__reward">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              <span style="color:#6b21a8;font-weight:700">+{{ a.rewardPoints }} VP</span>
+            </div>
+          </div>
+          <div class="act-card__actions">
+            <button class="btn-primary" *ngIf="a.status==='not_started'" style="font-size:12px;padding:7px 16px">Start</button>
+            <button class="btn-primary" *ngIf="a.status==='in_progress'" style="font-size:12px;padding:7px 16px">Continue</button>
+            <button class="chip chip--green" *ngIf="a.status==='completed'" style="padding:7px 14px;font-size:12px;cursor:default">✓ Completed</button>
+            <button class="btn-ghost" style="font-size:12px;padding:7px 14px">Details</button>
+          </div>
+          <div class="act-card__status-bar"><span class="chip" [ngClass]="sc(a.status)" style="font-size:10px">{{ a.status.replace('_',' ') | titlecase }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

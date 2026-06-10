@@ -1,0 +1,153 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Dashboard" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+
+      <!-- Welcome -->
+      <div class="welcome-bar">
+        <div>
+          <h2 class="welcome-bar__title">Welcome back, Omar! 👋</h2>
+          <p class="welcome-bar__sub">Here's an overview of your children's academic progress.</p>
+        </div>
+        <a class="btn-primary" routerLink="/parent/my-children">View All Children</a>
+      </div>
+
+      <!-- Top KPI cards -->
+      <div class="kpi-grid">
+        <div class="scard scard--blue">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+          <div class="scard__val">{{ children().length }}</div>
+          <div class="scard__lbl">Total Children</div>
+        </div>
+        <div class="scard scard--green">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="scard__val" [style.color]="getGpaColor(avgGpa)">{{ avgGpa }}</div>
+          <div class="scard__lbl">Average GPA</div>
+        </div>
+        <div class="scard scard--amber">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="scard__val">{{ avgAttendance }}%</div>
+          <div class="scard__lbl">Avg Attendance</div>
+        </div>
+        <div class="scard scard--purple">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+          <div class="scard__val">{{ totalVP | number }}</div>
+          <div class="scard__lbl">Total Venture Points</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="charts-row">
+
+        <!-- Attendance trend bar chart -->
+        <div class="p-card chart-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Attendance Trend
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let d of attendanceTrend">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ d.pct }}%</span>
+                  <div class="bar-chart__bar"
+                       [style.height.px]="barHeight(d.pct)"
+                       [style.background]="d.pct >= 90 ? '#1565C0' : d.pct >= 80 ? '#f59e0b' : '#ef4444'">
+                  </div>
+                </div>
+                <div class="bar-chart__label">{{ d.month }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GPA comparison -->
+        <div class="p-card chart-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            GPA Comparison
+          </div>
+          <div class="chart-body">
+            <div class="gpa-compare" *ngFor="let c of children()">
+              <div class="gpa-compare__header">
+                <div class="gpa-compare__avatar">{{ c.initials }}</div>
+                <span class="gpa-compare__name">{{ c.firstName }}</span>
+                <span class="gpa-compare__val" [style.color]="getGpaColor(c.gpa)">{{ c.gpa }}</span>
+              </div>
+              <div class="prog-track" style="margin-top:6px">
+                <div class="prog-fill" [style.width.%]="(c.gpa/4)*100" [style.background]="getGpaColor(c.gpa)"></div>
+              </div>
+            </div>
+
+            <!-- Academic progress per child -->
+            <div class="academic-prog" *ngFor="let c of children()">
+              <div class="academic-prog__title">{{ c.firstName }} — Academic Progress</div>
+              <div class="prog-track" style="margin-top:6px">
+                <div class="prog-fill" [style.width.%]="c.attendancePct" style="background:#1565C0"></div>
+              </div>
+              <div class="academic-prog__sub">Attendance: {{ c.attendancePct }}% · VP: {{ c.venturePoints | number }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom row: Recent Activity + Events -->
+      <div class="bottom-row">
+
+        <!-- Recent Activity -->
+        <div class="p-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Recent Activity
+            <a class="see-all" routerLink="/parent/my-children">See all →</a>
+          </div>
+          <div class="activity-list">
+            <div class="act-item" *ngFor="let a of recentActivity">
+              <div class="act-item__dot" [style.background]="a.bg" [style.color]="a.color">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline *ngIf="a.icon==='assignment'||a.icon==='grade'" points="20 6 9 17 4 12"/>
+                  <polygon  *ngIf="a.icon==='badge'"  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  <circle   *ngIf="a.icon==='streak'" cx="12" cy="12" r="10"/>
+                  <rect     *ngIf="a.icon==='attend'" x="3" y="4" width="18" height="18" rx="2"/>
+                </svg>
+              </div>
+              <div class="act-item__body">
+                <div class="act-item__text">{{ a.text }}</div>
+                <div class="act-item__meta">{{ a.child }} · {{ a.time }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="p-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Upcoming Events
+          </div>
+          <div class="events-list">
+            <div class="event-item" *ngFor="let e of events()">
+              <div class="event-item__date">
+                <div class="event-item__day">{{ e.date | date:'d' }}</div>
+                <div class="event-item__mon">{{ e.date | date:'MMM' }}</div>
+              </div>
+              <div class="event-item__info">
+                <div class="event-item__title">{{ e.title }}</div>
+                <div class="event-item__type chip"
+                     [class.chip--blue]="e.type==='meeting'"
+                     [class.chip--amber]="e.type==='event'"
+                     [class.chip--purple]="e.type==='ceremony'"
+                     [class.chip--red]="e.type==='exam'">
+                  {{ e.type | titlecase }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

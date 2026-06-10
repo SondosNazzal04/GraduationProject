@@ -1,0 +1,50 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="My Profile" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="profile-layout">
+        <!-- Left: Profile card -->
+        <div class="profile-card p-card">
+          <div class="profile-card__avatar">{{ ps.profile().initials }}</div>
+          <div class="profile-card__name">{{ ps.profile().name }}</div>
+          <div class="profile-card__grade">{{ ps.profile().gradeLevel }}</div>
+          <div class="profile-card__class chip chip--blue">{{ ps.profile().className }}</div>
+          <div class="profile-card__email">{{ ps.profile().email }}</div>
+          <div class="profile-card__level">
+            <div class="level-badge">Level {{ ps.profile().level }}</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">Rank #{{ ps.profile().rank }} in class</div>
+          </div>
+          <div class="profile-card__stats">
+            <div class="pstat"><div class="pstat__val" [style.color]="gc(ps.profile().gpa)">{{ ps.profile().gpa }}</div><div class="pstat__lbl">GPA</div></div>
+            <div class="pstat"><div class="pstat__val" style="color:#1565C0">{{ ps.profile().attendancePct }}%</div><div class="pstat__lbl">Attend.</div></div>
+            <div class="pstat"><div class="pstat__val" style="color:#9333ea">{{ ps.profile().venturePoints | number }}</div><div class="pstat__lbl">VP</div></div>
+            <div class="pstat"><div class="pstat__val" style="color:#f59e0b">{{ ps.profile().streak }}</div><div class="pstat__lbl">Streak</div></div>
+          </div>
+        </div>
+        <!-- Right: Details -->
+        <div class="profile-details">
+          <div class="p-card" style="margin-bottom:16px">
+            <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Subject Progress</div>
+            <div class="p-card__body">
+              <div *ngFor="let s of ps.subjectProgress" style="display:grid;grid-template-columns:90px 1fr 38px;align-items:center;gap:10px;margin-bottom:10px">
+                <span style="font-size:12px;font-weight:600;color:#555">{{ s.subject }}</span>
+                <div class="prog-track"><div class="prog-fill" [style.width.%]="s.progress" [style.background]="s.progress>=85?'#22c55e':s.progress>=70?'#f59e0b':'#ef4444'"></div></div>
+                <span style="font-size:12px;font-weight:700;text-align:right" [style.color]="s.progress>=85?'#22c55e':s.progress>=70?'#f59e0b':'#ef4444'">{{ s.progress }}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-card">
+            <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Recent Activities</div>
+            <div class="p-card__body" style="display:flex;flex-direction:column;gap:10px">
+              <div *ngFor="let a of recentActs" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5">
+                <div><div style="font-size:13px;font-weight:600;color:#1a1a2e">{{ a.title }}</div><div style="font-size:11px;color:#aaa">{{ a.date }}</div></div>
+                <span style="font-size:12px;font-weight:700;color:#9333ea">+{{ a.pts }} VP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

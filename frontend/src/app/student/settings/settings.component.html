@@ -1,0 +1,69 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Settings" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Settings</h1><p class="p-heading__sub">Manage your account and preferences</p></div>
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <button *ngFor="let t of tabs" class="settings-nav__item" [class.active]="tab()===t.id" (click)="tab.set(t.id)">{{ t.label }}</button>
+        </div>
+        <div class="settings-content p-card">
+          <div class="save-toast" *ngIf="saved()">✓ Settings saved!</div>
+          <ng-container *ngIf="tab()==='personal'">
+            <div class="settings-section-title">Personal Information</div>
+            <div class="form-grid">
+              <div class="form-group"><label>Full Name</label><input [(ngModel)]="profile.name"></div>
+              <div class="form-group"><label>Email</label><input [(ngModel)]="profile.email"></div>
+              <div class="form-group"><label>Phone</label><input [(ngModel)]="profile.phone"></div>
+              <div class="form-group"><label>Bio</label><input [(ngModel)]="profile.bio"></div>
+            </div>
+            <button class="btn-primary" (click)="save()">Save Changes</button>
+          </ng-container>
+          <ng-container *ngIf="tab()==='password'">
+            <div class="settings-section-title">Change Password</div>
+            <div class="form-grid form-grid--single">
+              <div class="form-group"><label>Current Password</label><input type="password" [(ngModel)]="password.current" placeholder="Current password"></div>
+              <div class="form-group"><label>New Password</label><input type="password" [(ngModel)]="password.newPass" placeholder="New password"></div>
+              <div class="form-group"><label>Confirm</label><input type="password" [(ngModel)]="password.confirm" placeholder="Confirm new password"></div>
+            </div>
+            <button class="btn-primary" (click)="save()">Update Password</button>
+          </ng-container>
+          <ng-container *ngIf="tab()==='notifications'">
+            <div class="settings-section-title">Notification Preferences</div>
+            <div class="notif-list">
+              <div class="notif-row" *ngFor="let k of nkeys">
+                <div><div class="notif-row__label">{{ k | titlecase }} Alerts</div><div class="notif-row__sub">Receive notifications about {{ k }}</div></div>
+                <label class="toggle"><input type="checkbox" [checked]="gn(k)" (change)="sn(k,$any($event.target).checked)"><span class="toggle__slider"></span></label>
+              </div>
+            </div>
+            <button class="btn-primary" (click)="save()" style="margin-top:14px">Save Preferences</button>
+          </ng-container>
+          <ng-container *ngIf="tab()==='language'">
+            <div class="settings-section-title">Language</div>
+            <div class="lang-options">
+              <div class="lang-opt" [class.active]="lang()==='en'" (click)="lang.set('en')">🇺🇸 English</div>
+              <div class="lang-opt" [class.active]="lang()==='ar'" (click)="lang.set('ar')">🇸🇦 Arabic</div>
+              <div class="lang-opt" [class.active]="lang()==='fr'" (click)="lang.set('fr')">🇫🇷 French</div>
+            </div>
+            <button class="btn-primary" (click)="save()" style="margin-top:18px">Save Language</button>
+          </ng-container>
+          <ng-container *ngIf="tab()==='privacy'">
+            <div class="settings-section-title">Privacy Settings</div>
+            <div class="notif-list">
+              <div class="notif-row">
+                <div><div class="notif-row__label">Public Profile</div><div class="notif-row__sub">Allow classmates to view your profile</div></div>
+                <label class="toggle"><input type="checkbox" [checked]="showProfile()" (change)="setShowProfile($any($event.target).checked)"><span class="toggle__slider"></span></label>
+              </div>
+              <div class="notif-row">
+                <div><div class="notif-row__label">Activity Visibility</div><div class="notif-row__sub">Show your activity to others</div></div>
+                <label class="toggle"><input type="checkbox" [checked]="showActivity()" (change)="setShowActivity($any($event.target).checked)"><span class="toggle__slider"></span></label>
+              </div>
+            </div>
+            <button class="btn-primary" (click)="save()" style="margin-top:14px">Save Privacy Settings</button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

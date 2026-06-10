@@ -1,0 +1,69 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Attendance" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Attendance</h1><p class="p-heading__sub">Track your children's attendance records</p></div>
+
+      <!-- Filters -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Child</label>
+          <select [(ngModel)]="selectedChild" (ngModelChange)="selectedChild.set($event)">
+            <option value="all">All Children</option>
+            <option *ngFor="let c of children()" [value]="c.id">{{ c.firstName }} {{ c.lastName }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Month</label>
+          <select [(ngModel)]="selectedMonth" (ngModelChange)="selectedMonth.set($event)">
+            <option *ngFor="let m of months" [value]="m">{{ m === 'all' ? 'All Months' : m }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="att-cards">
+        <div class="att-card att-card--green"><div class="att-card__val">{{ presentCount }}</div><div class="att-card__lbl">Present Days</div></div>
+        <div class="att-card att-card--red">  <div class="att-card__val">{{ absentCount }}</div> <div class="att-card__lbl">Absent Days</div></div>
+        <div class="att-card att-card--amber"><div class="att-card__val">{{ lateCount }}</div>   <div class="att-card__lbl">Late Days</div></div>
+        <div class="att-card att-card--blue"> <div class="att-card__val">{{ presentPct }}%</div> <div class="att-card__lbl">Attendance %</div></div>
+      </div>
+
+      <!-- Monthly bar chart -->
+      <div class="p-card" style="margin-bottom:18px">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Monthly Attendance Graph</div>
+        <div class="p-card__body">
+          <div class="bar-chart">
+            <div class="bar-chart__col" *ngFor="let c of children()">
+              <div class="bar-chart__bar-wrap">
+                <span class="bar-chart__pct">{{ c.attendancePct }}%</span>
+                <div class="bar-chart__bar" [style.height.px]="(c.attendancePct/100)*80" style="background:#1565C0;max-width:40px"></div>
+              </div>
+              <div class="bar-chart__label">{{ c.firstName }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="p-card">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Attendance Records</div>
+        <div style="overflow-x:auto">
+          <table class="p-table">
+            <thead><tr><th>Child</th><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let r of filtered()">
+                <td style="font-weight:600">{{ r.childName }}</td>
+                <td>{{ r.date | date:'mediumDate' }}</td>
+                <td><span class="chip" [style.background]="sb(r.status)" [style.color]="sc(r.status)">{{ r.status | titlecase }}</span></td>
+                <td style="color:#aaa">{{ r.notes || '—' }}</td>
+              </tr>
+              <tr *ngIf="filtered().length===0"><td colspan="4" class="empty-cell">No records found</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

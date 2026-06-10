@@ -1,0 +1,41 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Classes" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Classes</h1><p class="p-heading__sub">View all enrolled classes for your children</p></div>
+      <div class="child-tabs">
+        <span class="child-tabs__lbl">Child:</span>
+        <button class="child-tab-btn" [class.active]="selectedChild()==='all'" (click)="selectedChild.set('all')">All</button>
+        <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+      </div>
+      <div class="classes-grid">
+        <div class="class-card" *ngFor="let cls of filtered()">
+          <div class="class-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="class-card__subject">{{ cls.subject }}</div>
+          <div class="class-card__name">{{ cls.name }}</div>
+          <div class="class-card__info-row">
+            <div class="class-card__info-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              {{ cls.teacher }}
+            </div>
+            <div class="class-card__info-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {{ cls.schedule }}
+            </div>
+            <div class="class-card__info-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Room {{ cls.room }}
+            </div>
+          </div>
+          <div class="class-card__actions">
+            <button class="btn-outline" style="font-size:12px;padding:6px 14px">View Details</button>
+            <button class="btn-ghost"   style="font-size:12px;padding:6px 14px">Contact Teacher</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

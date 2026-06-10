@@ -1,0 +1,221 @@
+<div class="layout">
+  <app-parent-sidebar></app-parent-sidebar>
+
+  <div class="layout__main">
+    <app-topbar pageTitle="My Children" userName="Omar Rami"></app-topbar>
+
+    <div class="page-body">
+
+      <!-- Page heading -->
+      <div class="page-heading">
+        <h1 class="page-heading__title">My Children</h1>
+        <p class="page-heading__sub">View detailed information about each of your children</p>
+      </div>
+
+      <!-- Children list -->
+      <ng-container *ngIf="children$ | async as children">
+        <div class="children-list">
+
+          <div class="child-card" *ngFor="let child of children">
+
+            <!-- ── Left: Pink avatar panel ───────────────── -->
+            <div class="child-card__avatar-panel">
+              <div class="child-card__initials-circle">{{ child.initials }}</div>
+              <div class="child-card__name">{{ child.firstName }} {{ child.lastName }}</div>
+              <div class="child-card__grade">{{ child.gradeLevel }}</div>
+              <div class="child-card__stars">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- ── Right: Stats panel ────────────────────── -->
+            <div class="child-card__stats-panel">
+
+              <!-- Row 1 — Primary stats (original 4 + Grades + Class) -->
+              <div class="stats-row">
+
+                <!-- VenturePoints -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                      <path d="M4 22h16"/>
+                      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.venturePoints | number }}</div>
+                  <div class="stat-card__label">VenturePoints</div>
+                </div>
+
+                <!-- Current Streak -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.currentStreak }} Days</div>
+                  <div class="stat-card__label">Current Streak</div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.attendance.percentage }}%</div>
+                  <div class="stat-card__label">Attendance</div>
+                  <div class="stat-card__badges">
+                    <span class="badge badge--green">✓ {{ child.attendance.presentDays }}</span>
+                    <span class="badge badge--red">✗ {{ child.attendance.absentDays }}</span>
+                  </div>
+                </div>
+
+                <!-- GPA -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.gpa }}</div>
+                  <div class="stat-card__label">GPA</div>
+                </div>
+
+                <!-- Grades -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.grades.overallAverage }}%</div>
+                  <div class="stat-card__label">Grades</div>
+                  <div class="stat-card__badges">
+                    <span class="badge badge--blue">Exam {{ child.grades.latestExamScore }}%</span>
+                    <span class="badge badge--purple">Asgn {{ child.grades.latestAssignmentScore }}%</span>
+                  </div>
+                </div>
+
+                <!-- Class -->
+                <div class="stat-card">
+                  <div class="stat-card__icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                  </div>
+                  <div class="stat-card__value">{{ child.classInfo.className }}</div>
+                  <div class="stat-card__label">Class</div>
+                  <div class="stat-card__badges">
+                    <span class="badge badge--orange">{{ child.classInfo.numberOfSubjects }} Subj</span>
+                    <span class="badge badge--grey">{{ child.classInfo.homeroomTeacher }}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Row 2 — Learning Summary -->
+              <div class="summary-section">
+                <div class="summary-section__title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                  Learning Summary
+                </div>
+                <div class="summary-row">
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.learningSummary.assignmentsCompleted }}</div>
+                    <div class="sum-card__lbl">Completed</div>
+                  </div>
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.learningSummary.assignmentsPending }}</div>
+                    <div class="sum-card__lbl">Pending</div>
+                  </div>
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.learningSummary.achievementsEarned }}</div>
+                    <div class="sum-card__lbl">Achievements</div>
+                  </div>
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.learningSummary.monthlyVenturePoints }}</div>
+                    <div class="sum-card__lbl">Monthly VP</div>
+                  </div>
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <circle cx="12" cy="8" r="6"/>
+                        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.achievements.totalBadges }}</div>
+                    <div class="sum-card__lbl">Badges</div>
+                  </div>
+                  <div class="sum-card">
+                    <div class="sum-card__icon-wrap">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                        <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+                        <path d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      </svg>
+                    </div>
+                    <div class="sum-card__val">{{ child.achievements.totalAchievements }}</div>
+                    <div class="sum-card__lbl">Achievements</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contact Teacher button -->
+              <button class="contact-btn" (click)="onContactTeacher(child.teacherId)">
+                Contact Teacher
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+</div>

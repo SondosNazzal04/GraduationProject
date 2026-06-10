@@ -1,0 +1,127 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <div class="layout__main">
+    <app-topbar pageTitle="My Classes"></app-topbar>
+    <div class="page-body">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-header__title">My Classes</h1>
+          <p class="page-header__sub">Overview of all your assigned classes</p>
+        </div>
+      </div>
+
+      <div class="classes-layout">
+
+        <!-- Classes list (left) -->
+        <div class="classes-list">
+          <div class="classes-list__heading">All Classes</div>
+          <div class="class-item"
+               *ngFor="let c of classes"
+               [class.class-item--active]="selectedClass?.id === c.id"
+               (click)="selectClass(c)">
+            <div class="class-item__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <div class="class-item__info">
+              <div class="class-item__name">Class {{ c.name }}</div>
+              <div class="class-item__grade">{{ c.gradeLevel }}</div>
+            </div>
+            <div class="class-item__count">{{ c.numberOfStudents }}</div>
+          </div>
+        </div>
+
+        <!-- Class detail (right) -->
+        <div class="class-detail" *ngIf="selectedClass">
+
+          <!-- Top stat cards -->
+          <div class="detail-stats">
+            <div class="detail-stat-card">
+              <div class="detail-stat-card__icon detail-stat-card__icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="detail-stat-card__val">{{ selectedClass.numberOfStudents }}</div>
+              <div class="detail-stat-card__lbl">Total Students</div>
+            </div>
+            <div class="detail-stat-card">
+              <div class="detail-stat-card__icon detail-stat-card__icon--teal">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <div class="detail-stat-card__val">{{ selectedClass.subjects.length }}</div>
+              <div class="detail-stat-card__lbl">Subjects</div>
+            </div>
+            <div class="detail-stat-card">
+              <div class="detail-stat-card__icon detail-stat-card__icon--pink">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div class="detail-stat-card__val detail-stat-card__val--sm">{{ selectedClass.schedule }}</div>
+              <div class="detail-stat-card__lbl">Schedule</div>
+            </div>
+            <div class="detail-stat-card">
+              <div class="detail-stat-card__icon detail-stat-card__icon--orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="detail-stat-card__val detail-stat-card__val--sm">{{ selectedClass.homeroomTeacher }}</div>
+              <div class="detail-stat-card__lbl">Homeroom</div>
+            </div>
+          </div>
+
+          <!-- Subjects -->
+          <div class="section-card">
+            <div class="section-card__header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              <span>Subjects ({{ selectedClass.subjects.length }})</span>
+            </div>
+            <div class="subjects-grid">
+              <div class="subject-chip" *ngFor="let sub of selectedClass.subjects">
+                {{ sub.name }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Students in class -->
+          <div class="section-card">
+            <div class="section-card__header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+                <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+              </svg>
+              <span>Students</span>
+            </div>
+            <div class="students-list">
+              <div class="student-row" *ngFor="let s of getStudentsForClass(selectedClass.id); let i = index">
+                <div class="student-row__num">{{ i + 1 }}</div>
+                <div class="student-row__avatar">{{ s.initials }}</div>
+                <div class="student-row__name">{{ s.firstName }} {{ s.lastName }}</div>
+                <div class="student-row__gpa" [style.color]="s.gpa >= 3.7 ? '#22c55e' : s.gpa >= 3.0 ? '#f59e0b' : '#ef4444'">
+                  GPA {{ s.gpa }}
+                </div>
+                <div class="student-row__vp">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                  </svg>
+                  {{ s.venturePoints | number }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

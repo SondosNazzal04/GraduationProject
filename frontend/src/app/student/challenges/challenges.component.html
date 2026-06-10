@@ -1,0 +1,32 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Challenges" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Challenges</h1><p class="p-heading__sub">Join challenges, earn big rewards</p></div>
+      <div class="ch-grid">
+        <div class="ch-card" *ngFor="let c of challenges()" [class.ch-card--joined]="c.status==='joined'" [class.ch-card--completed]="c.status==='completed'">
+          <div class="ch-card__top">
+            <span class="chip" [ngClass]="dc(c.difficulty)" style="font-size:10px">{{ c.difficulty | titlecase }}</span>
+            <span class="chip" [class.chip--green]="c.status==='completed'" [class.chip--blue]="c.status==='joined'" [class.chip--amber]="c.status==='available'" style="font-size:10px">{{ c.status | titlecase }}</span>
+          </div>
+          <div class="ch-card__name">{{ c.name }}</div>
+          <div class="ch-card__desc">{{ c.description }}</div>
+          <div class="ch-card__meta">
+            <div class="ch-card__meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Due {{ c.deadline }}</div>
+            <div class="ch-card__meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span style="color:#6b21a8;font-weight:700">+{{ c.rewardPoints }} VP</span></div>
+          </div>
+          <div class="ch-card__progress" *ngIf="c.status!=='available'">
+            <div class="ch-card__prog-row"><span style="font-size:11px;color:#888">Progress {{ c.progress }}/{{ c.maxProgress }}</span><span style="font-size:11px;font-weight:700" [style.color]="gc(pct(c))">{{ pct(c) }}%</span></div>
+            <div class="prog-track"><div class="prog-fill" [style.width.%]="pct(c)" [style.background]="gc(pct(c))"></div></div>
+          </div>
+          <div class="ch-card__actions">
+            <button class="btn-primary" *ngIf="c.status==='available'" (click)="join(c.id)" style="font-size:12px;padding:8px 18px">Join Challenge</button>
+            <button class="btn-primary" *ngIf="c.status==='joined'" style="font-size:12px;padding:8px 18px">Continue</button>
+            <button class="chip chip--green" *ngIf="c.status==='completed'" style="padding:8px 16px;font-size:12px;cursor:default">✓ Completed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

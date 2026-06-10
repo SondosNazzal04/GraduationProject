@@ -1,0 +1,57 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Learning Progress" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Learning Progress</h1><p class="p-heading__sub">Detailed academic progress and analytics</p></div>
+      <div class="child-tabs">
+        <span class="child-tabs__lbl">Child:</span>
+        <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+      </div>
+
+      <!-- Subject progress cards -->
+      <div class="progress-grid">
+        <div class="prog-card" *ngFor="let p of filtered()">
+          <div class="prog-card__header">
+            <div class="prog-card__subject">{{ p.subject }}</div>
+            <div class="prog-card__pct" [style.color]="gc(p.progress)">{{ p.progress }}%</div>
+          </div>
+          <!-- Mini line chart (SVG) -->
+          <svg class="prog-card__sparkline" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <polyline [attr.points]="trendBar(p.trend)" fill="none" [attr.stroke]="gc(p.progress)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="prog-track" style="margin:10px 0">
+            <div class="prog-fill" [style.width.%]="p.progress" [style.background]="gc(p.progress)"></div>
+          </div>
+          <div class="prog-card__stats">
+            <div class="prog-card__stat">
+              <div class="prog-card__stat-val">{{ p.assignmentsCompleted }}/{{ p.assignmentsTotal }}</div>
+              <div class="prog-card__stat-lbl">Assignments</div>
+            </div>
+            <div class="prog-card__stat">
+              <div class="prog-card__stat-val">{{ p.quizAverage }}%</div>
+              <div class="prog-card__stat-lbl">Quiz Avg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall stats row -->
+      <div class="p-card" style="margin-top:18px">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Learning Trends</div>
+        <div class="p-card__body">
+          <div class="trend-list">
+            <div class="trend-row" *ngFor="let p of filtered()">
+              <div class="trend-row__subject">{{ p.subject }}</div>
+              <div class="trend-row__bars">
+                <div *ngFor="let v of p.trend" class="trend-bar"
+                     [style.height.px]="(v/100)*40" [style.background]="gc(v)" [title]="v+'%'"></div>
+              </div>
+              <div class="trend-row__latest" [style.color]="gc(p.trend[p.trend.length-1])">{{ p.trend[p.trend.length-1] }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

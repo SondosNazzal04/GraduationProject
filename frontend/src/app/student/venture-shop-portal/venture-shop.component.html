@@ -1,0 +1,39 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Venture Shop" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Venture Shop</h1><p class="p-heading__sub">Redeem your points for awesome rewards</p></div>
+      <div class="shop-header">
+        <div class="vp-balance"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span>Balance: <strong>{{ ps.profile().venturePoints | number }} VP</strong></span></div>
+        <div class="filter-row" style="margin-bottom:0">
+          <div class="filter-group"><label>Category</label>
+            <select [(ngModel)]="cat" (ngModelChange)="cat.set($event)">
+              <option *ngFor="let c of cats" [value]="c">{{ c==='all'?'All Categories':(c|titlecase) }}</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Availability</label>
+            <select [(ngModel)]="avail" (ngModelChange)="avail.set($event)">
+              <option value="all">All Items</option><option value="available">Available Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="shop-grid">
+        <div class="shop-card" *ngFor="let item of filtered()" [class.shop-card--unavailable]="!item.available" [class.shop-card--popular]="item.popular">
+          <div class="shop-card__popular-badge" *ngIf="item.popular">🔥 Popular</div>
+          <div class="shop-card__emoji">{{ item.emoji }}</div>
+          <div class="shop-card__cat chip chip--blue" style="font-size:10px;align-self:flex-start">{{ item.category }}</div>
+          <div class="shop-card__name">{{ item.name }}</div>
+          <div class="shop-card__desc">{{ item.description }}</div>
+          <div class="shop-card__footer">
+            <div class="shop-card__cost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span>{{ item.cost }} VP</span></div>
+            <button *ngIf="!isRedeemed(item.id)&&item.available" class="btn-primary" style="font-size:12px;padding:7px 14px" [class.btn-disabled]="!canAfford(item.cost)" (click)="redeem(item)">{{ canAfford(item.cost)?'Redeem':'Need More VP' }}</button>
+            <button *ngIf="isRedeemed(item.id)" class="chip chip--green" style="padding:7px 14px;font-size:12px;cursor:default">✓ Redeemed</button>
+            <button *ngIf="!item.available&&!isRedeemed(item.id)" class="btn-ghost" style="font-size:12px;padding:7px 14px;opacity:.6;cursor:not-allowed">Out of Stock</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

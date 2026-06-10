@@ -1,0 +1,28 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Achievements" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Achievements</h1><p class="p-heading__sub">Your earned badges, awards and milestones</p></div>
+      <div class="child-tabs" style="margin-bottom:20px">
+        <span class="child-tabs__lbl">Category:</span>
+        <button *ngFor="let c of cats" class="child-tab-btn" [class.active]="cat()===c" (click)="cat.set(c)">{{ c==='all'?'All':(c|titlecase) }}</button>
+      </div>
+      <div class="ach-grid">
+        <div class="ach-card" *ngFor="let a of filtered()" [class.ach-card--earned]="a.earned" [class.ach-card--locked]="!a.earned">
+          <div class="ach-card__top">
+            <div class="ach-card__emoji" [style.opacity]="a.earned?'1':'0.4'">{{ a.icon }}</div>
+            <span class="chip" [ngClass]="tc(a.category)" style="font-size:10px">{{ a.category | titlecase }}</span>
+          </div>
+          <div class="ach-card__title" [style.opacity]="a.earned?'1':'0.7'">{{ a.title }}</div>
+          <div class="ach-card__desc">{{ a.description }}</div>
+          <div class="ach-card__footer">
+            <div class="ach-card__xp"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>{{ a.xpReward }} XP</div>
+            <span class="chip chip--green" *ngIf="a.earned" style="font-size:10px">✓ Earned {{ a.dateEarned | date:'MMM d' }}</span>
+            <span class="chip chip--amber" *ngIf="!a.earned" style="font-size:10px">🔒 Locked</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

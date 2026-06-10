@@ -1,0 +1,65 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Grades" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Grades</h1><p class="p-heading__sub">Academic performance across all subjects</p></div>
+
+      <!-- Child filter -->
+      <div class="child-tabs">
+        <span class="child-tabs__lbl">Child:</span>
+        <button class="child-tab-btn" [class.active]="selectedChild()==='all'" (click)="selectedChild.set('all')">All</button>
+        <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+      </div>
+
+      <!-- Summary -->
+      <div class="grade-kpi">
+        <div class="scard scard--blue"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="scard__val">{{ avgGpa }}</div><div class="scard__lbl">Average GPA</div></div>
+        <div class="scard scard--amber"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="scard__val">{{ totalSubj }}</div><div class="scard__lbl">Total Subjects</div></div>
+        <div class="scard scard--green"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="scard__val" [style.color]="gc(highest)">{{ highest }}%</div><div class="scard__lbl">Highest Grade</div></div>
+        <div class="scard scard--red">  <div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="scard__val" [style.color]="gc(lowest)">{{ lowest }}%</div><div class="scard__lbl">Lowest Grade</div></div>
+      </div>
+
+      <!-- Subject performance bars -->
+      <div class="p-card" style="margin-bottom:18px">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Subject Performance</div>
+        <div class="p-card__body">
+          <div class="subj-bars">
+            <div class="subj-bar-row" *ngFor="let g of filtered()">
+              <div class="subj-bar-row__label">{{ g.subject }}</div>
+              <div class="prog-track" style="flex:1">
+                <div class="prog-fill" [style.width.%]="g.percentage" [style.background]="gc(g.percentage)"></div>
+              </div>
+              <div class="subj-bar-row__val" [style.color]="gc(g.percentage)">{{ g.percentage }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="p-card">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Grades Table</div>
+        <div style="overflow-x:auto">
+          <table class="p-table">
+            <thead><tr><th>Subject</th><th>Teacher</th><th>Grade</th><th>Percentage</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let g of filtered()">
+                <td style="font-weight:600">{{ g.subject }}</td>
+                <td style="color:#888">{{ g.teacher }}</td>
+                <td><span class="grade-badge" [style.color]="gc(g.percentage)" [style.background]="gb(g.percentage)">{{ g.grade }}</span></td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="prog-track" style="width:80px"><div class="prog-fill" [style.width.%]="g.percentage" [style.background]="gc(g.percentage)"></div></div>
+                    <span style="font-size:12px;font-weight:700" [style.color]="gc(g.percentage)">{{ g.percentage }}%</span>
+                  </div>
+                </td>
+                <td><span class="chip" [ngClass]="gs(g.status)">{{ g.status | titlecase }}</span></td>
+              </tr>
+              <tr *ngIf="filtered().length===0"><td colspan="5" style="text-align:center;color:#bbb;padding:30px">No grades found</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

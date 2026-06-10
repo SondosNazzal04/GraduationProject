@@ -1,0 +1,28 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Rewards History" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Rewards History</h1><p class="p-heading__sub">Redeemed rewards and their status</p></div>
+      <div class="child-tabs">
+        <span class="child-tabs__lbl">Child:</span>
+        <button class="child-tab-btn" [class.active]="selectedChild()==='all'" (click)="selectedChild.set('all')">All</button>
+        <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+      </div>
+      <div class="rewards-grid">
+        <div class="reward-card" *ngFor="let r of filtered()">
+          <div class="reward-card__top">
+            <div class="reward-card__icon">🎁</div>
+            <span class="chip" [ngClass]="sc(r.status)">{{ r.status | titlecase }}</span>
+          </div>
+          <div class="reward-card__name">{{ r.rewardName }}</div>
+          <div class="reward-card__meta">
+            <div class="reward-card__cost"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> {{ r.cost }} VP</div>
+            <div class="reward-card__date"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> {{ r.redeemedDate | date:'mediumDate' }}</div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="filtered().length===0"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>No rewards found</p></div>
+      </div>
+    </div>
+  </div>
+</div>

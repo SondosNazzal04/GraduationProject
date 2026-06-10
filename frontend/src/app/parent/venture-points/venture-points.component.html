@@ -1,0 +1,36 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Venture Points" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Venture Points</h1><p class="p-heading__sub">Track earned and spent venture points</p></div>
+      <div class="child-tabs">
+        <span class="child-tabs__lbl">Child:</span>
+        <button class="child-tab-btn" [class.active]="selectedChild()==='all'" (click)="selectedChild.set('all')">All</button>
+        <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+      </div>
+      <div class="vp-kpi">
+        <div class="scard scard--purple"><div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div><div class="scard__val">{{ current | number }}</div><div class="scard__lbl">Current Points</div></div>
+        <div class="scard scard--green"> <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="scard__val">+{{ totalEarned | number }}</div><div class="scard__lbl">Total Earned</div></div>
+        <div class="scard scard--red">   <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="scard__val">-{{ totalSpent | number }}</div><div class="scard__lbl">Total Spent</div></div>
+      </div>
+      <div class="p-card">
+        <div class="p-card__header"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Points History</div>
+        <div style="overflow-x:auto">
+          <table class="p-table">
+            <thead><tr><th>Date</th><th>Activity</th><th>Points</th><th>Type</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of filtered()">
+                <td>{{ e.date | date:'mediumDate' }}</td>
+                <td style="font-weight:600">{{ e.activity }}</td>
+                <td><span style="font-weight:700" [style.color]="gc(e.points)">{{ e.points > 0 ? '+'+e.points : e.points }}</span></td>
+                <td><span class="chip" [class.chip--green]="e.type==='earned'" [class.chip--red]="e.type==='spent'">{{ e.type | titlecase }}</span></td>
+              </tr>
+              <tr *ngIf="filtered().length===0"><td colspan="4" style="text-align:center;color:#bbb;padding:30px">No records</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

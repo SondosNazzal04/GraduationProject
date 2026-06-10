@@ -1,0 +1,73 @@
+<div class="layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="layout__main">
+    <app-topbar pageTitle="Messages" userName="Omar Rami"></app-topbar>
+    <div class="page-body">
+
+      <div class="page-header">
+        <h1 class="page-header__title">Messages</h1>
+        <p class="page-header__sub">Communicate directly with your children's teachers</p>
+      </div>
+
+      <div class="messages-layout">
+
+        <!-- Conversation list -->
+        <div class="conv-list">
+          <div class="conv-list__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" placeholder="Search messages...">
+          </div>
+
+          <div class="conv-item" *ngFor="let c of conversations"
+               [class.conv-item--active]="selectedConversation?.id === c.id"
+               (click)="selectConversation(c)">
+            <div class="conv-item__avatar">{{ c.initials }}</div>
+            <div class="conv-item__info">
+              <div class="conv-item__name">{{ c.from }}</div>
+              <div class="conv-item__role">{{ c.role }}</div>
+              <div class="conv-item__preview">{{ c.preview }}</div>
+            </div>
+            <div class="conv-item__right">
+              <div class="conv-item__time">{{ c.timeAgo }}</div>
+              <div class="conv-item__unread" *ngIf="c.unread"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat panel -->
+        <div class="chat-panel" *ngIf="selectedConversation">
+          <div class="chat-panel__header">
+            <div class="chat-panel__avatar">{{ selectedConversation.initials }}</div>
+            <div>
+              <div class="chat-panel__name">{{ selectedConversation.from }}</div>
+              <div class="chat-panel__role">{{ selectedConversation.role }}</div>
+            </div>
+          </div>
+
+          <div class="chat-messages">
+            <div class="chat-msg" *ngFor="let m of selectedConversation.messages"
+                 [class.chat-msg--mine]="m.mine">
+              <div class="chat-msg__bubble">{{ m.text }}</div>
+              <div class="chat-msg__time">{{ m.time }}</div>
+            </div>
+          </div>
+
+          <div class="chat-input-row">
+            <input class="chat-input" type="text" placeholder="Type a message..."
+                   [(ngModel)]="newMessage"
+                   (keyup.enter)="sendMessage()">
+            <button class="send-btn" (click)="sendMessage()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Messages" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Messages</h1><p class="p-heading__sub">Chat with your teachers</p></div>
+      <div class="msg-layout">
+        <div class="conv-list">
+          <div class="conv-list__search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search..."></div>
+          <div class="conv-item" *ngFor="let c of conversations(); let i=index" [class.conv-item--active]="selected()?.id===c.id" (click)="select(c,i)">
+            <div class="conv-item__avatar" [style.background]="color(i)">{{ c.initials }}</div>
+            <div class="conv-item__info"><div class="conv-item__name">{{ c.from }}</div><div class="conv-item__role">{{ c.role }}</div><div class="conv-item__preview">{{ c.preview }}</div></div>
+            <div class="conv-item__right"><div class="conv-item__time">{{ c.timeAgo }}</div><div class="conv-item__unread" *ngIf="c.unread"></div></div>
+          </div>
+        </div>
+        <div class="chat-panel" *ngIf="selected()">
+          <div class="chat-panel__header">
+            <div class="chat-panel__avatar" [style.background]="selectedColor">{{ selected()!.initials }}</div>
+            <div><div class="chat-panel__name">{{ selected()!.from }}</div><div class="chat-panel__role">{{ selected()!.role }}</div></div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-msg" *ngFor="let m of selected()!.messages" [class.chat-msg--mine]="m.mine">
+              <div class="chat-msg__bubble">{{ m.text }}</div>
+              <div class="chat-msg__time">{{ m.time }}</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" type="text" placeholder="Type a message..." [(ngModel)]="newMsg" (keyup.enter)="send()">
+            <button class="send-btn" (click)="send()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

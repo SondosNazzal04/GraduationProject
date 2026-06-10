@@ -1,0 +1,8 @@
+.grade-kpi { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px; }
+.subj-bars { display:flex;flex-direction:column;gap:12px; }
+.subj-bar-row { display:grid;grid-template-columns:120px 1fr 46px;align-items:center;gap:12px;
+  &__label { font-size:13px;font-weight:600;color:#555; }
+  &__val   { font-size:13px;font-weight:700;text-align:right; }
+}
+.grade-badge { padding:3px 10px;border-radius:20px;font-size:13px;font-weight:700; }
+@media(max-width:700px){ .grade-kpi{grid-template-columns:repeat(2,1fr);} }

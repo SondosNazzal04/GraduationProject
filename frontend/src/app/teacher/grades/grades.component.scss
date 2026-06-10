@@ -1,0 +1,173 @@
+$blue:#1565C0; $pink:#f06292; $bg:#f5f6fa; $white:#fff; $radius:16px;
+
+.layout { display:flex; min-height:100vh; background:$bg; font-family:'Segoe UI',Arial,sans-serif;
+  &__main { flex:1; margin-left:148px; display:flex; flex-direction:column; } }
+.page-body { padding:28px 32px; flex:1; }
+.page-header { margin-bottom:20px;
+  &__title { font-size:22px; font-weight:700; color:#1a1a2e; margin:0 0 4px; }
+  &__sub { font-size:13px; color:#888; margin:0; }
+}
+
+.toast {
+  display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px;
+  background:#dcfce7; color:#166534; font-size:13px; font-weight:600; margin-bottom:16px;
+}
+
+.controls-row {
+  display:flex; align-items:flex-end; gap:16px; margin-bottom:20px; flex-wrap:wrap;
+}
+.control-group {
+  display:flex; flex-direction:column; gap:6px;
+  label.control-label { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#555; }
+  select, input { padding:8px 12px; border:1px solid #e0e0e0; border-radius:10px; font-size:13px; color:#333; background:$white; outline:none; font-family:inherit;
+    &:focus { border-color:$blue; } }
+}
+.class-avg-badge {
+  background:#e3f2fd; color:$blue; border-radius:10px; padding:8px 16px; font-size:13px;
+  strong { font-size:16px; }
+}
+
+.grades-layout { display:grid; grid-template-columns:220px 1fr; gap:20px; }
+
+// Student panel
+.student-panel {
+  background:$white; border-radius:$radius; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); height:fit-content;
+  &__heading { font-size:11px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; padding:0 4px; }
+}
+
+.student-item {
+  display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px;
+  cursor:pointer; transition:background 0.15s; margin-bottom:3px;
+  &:hover { background:#f0f4ff; }
+  &--active { background:#e3f2fd; }
+
+  &__avatar {
+    width:36px; height:36px; border-radius:50%; background:$pink; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;
+  }
+  &__info { flex:1; }
+  &__name  { font-size:12px; font-weight:600; color:#1a1a2e; }
+  &__class { font-size:10px; color:#999; }
+  &__avg   { font-size:13px; font-weight:700; }
+}
+
+// Grade detail
+.grade-detail {
+  display:flex; flex-direction:column; gap:14px;
+
+  &__header {
+    display:flex; align-items:center; justify-content:space-between; background:$white;
+    border-radius:$radius; padding:16px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  }
+  &__student { display:flex; align-items:center; gap:12px; }
+  &__avatar {
+    width:46px; height:46px; border-radius:50%; background:$pink; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700;
+  }
+  &__name  { font-size:15px; font-weight:700; color:#1a1a2e; }
+  &__class { font-size:12px; color:#888; }
+}
+
+.add-grade-btn {
+  display:flex; align-items:center; gap:6px; padding:9px 18px; background:$blue; color:#fff;
+  border:none; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+  transition:background 0.15s;
+  &:hover { background:#0d47a1; }
+}
+
+.grade-stats {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+}
+.grade-stat-card {
+  background:$white; border-radius:$radius; padding:16px; text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  &__val { font-size:24px; font-weight:700; color:#1a1a2e; }
+  &__lbl { font-size:11px; color:#888; margin-top:2px; }
+}
+
+// Form
+.grade-form {
+  background:$white; border-radius:$radius; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  border-left:4px solid $blue;
+  &__title {
+    display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#1a1a2e;
+    margin-bottom:16px;
+  }
+  &__fields {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:16px;
+  }
+  &__actions { display:flex; gap:10px; justify-content:flex-end; }
+}
+
+.field-group {
+  display:flex; flex-direction:column; gap:5px;
+  label { font-size:11px; font-weight:600; color:#555; }
+  input, select {
+    padding:8px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:13px;
+    color:#333; background:$white; outline:none; font-family:inherit;
+    &:focus { border-color:$blue; }
+  }
+}
+
+.btn-cancel {
+  padding:8px 18px; background:#f0f0f0; border:none; border-radius:8px; font-size:13px;
+  font-weight:600; color:#555; cursor:pointer; font-family:inherit;
+  &:hover { background:#e0e0e0; }
+}
+.btn-save {
+  padding:8px 20px; background:$blue; border:none; border-radius:8px; font-size:13px;
+  font-weight:600; color:#fff; cursor:pointer; font-family:inherit;
+  &:hover { background:#0d47a1; }
+}
+
+// Table
+.grades-table-wrap {
+  background:$white; border-radius:$radius; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:auto;
+}
+.grades-table {
+  width:100%; border-collapse:collapse;
+  th {
+    background:#f8f9fb; padding:11px 14px; font-size:11px; font-weight:700; color:#888;
+    text-transform:uppercase; letter-spacing:.4px; text-align:left; white-space:nowrap;
+  }
+  td { padding:12px 14px; font-size:13px; color:#333; border-bottom:1px solid #f5f5f5; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#fafbff; }
+}
+.td-title { font-weight:600; color:#1a1a2e; }
+.td-date  { color:#aaa; font-size:12px; white-space:nowrap; }
+.td-empty { text-align:center; color:#bbb; padding:30px !important; font-size:13px; }
+
+.type-badge {
+  padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; text-transform:capitalize;
+  &--exam       { background:#e3f2fd; color:$blue; }
+  &--assignment { background:#fce4ec; color:#c2185b; }
+  &--quiz       { background:#fff3e0; color:#e65100; }
+}
+
+.score-pill {
+  padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;
+}
+
+.status-label { font-size:12px; font-weight:600; }
+
+.delete-btn {
+  background:none; border:none; cursor:pointer; color:#ccc; padding:4px;
+  border-radius:6px; transition:all 0.15s;
+  &:hover { background:#fee2e2; color:#ef4444; }
+}
+
+.no-selection {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:80px 20px; color:#bbb;
+  p { font-size:14px; margin-top:14px; }
+}
+
+@media(max-width:900px) {
+  .grades-layout { grid-template-columns:1fr; }
+  .grade-stats { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:600px) {
+  .layout__main { margin-left:0; }
+  .page-body { padding:16px; }
+}

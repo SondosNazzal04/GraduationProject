@@ -1,0 +1,176 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Dashboard" [venturePoints]="prof.venturePoints" [level]="prof.level"></app-student-topbar>
+    <div class="p-body">
+
+      <!-- Welcome -->
+      <div class="welcome-bar">
+        <div class="welcome-bar__left">
+          <div class="welcome-bar__avatar">{{ prof.initials }}</div>
+          <div>
+            <h2 class="welcome-bar__title">Welcome back, {{ prof.name.split(' ')[0] }}! 🎯</h2>
+            <p class="welcome-bar__sub">{{ prof.gradeLevel }} · {{ prof.className }} · Rank #{{ prof.rank }}</p>
+          </div>
+        </div>
+        <div class="welcome-bar__streak">
+          <span class="welcome-bar__streak-icon">🔥</span>
+          <span class="welcome-bar__streak-val">{{ prof.streak }}</span>
+          <span class="welcome-bar__streak-lbl">Day Streak</span>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="scard scard--blue">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="scard__val" [style.color]="gc(prof.gpa*25)">{{ prof.gpa }}</div>
+          <div class="scard__lbl">Current GPA</div>
+        </div>
+        <div class="scard scard--green">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="scard__val">{{ prof.attendancePct }}%</div>
+          <div class="scard__lbl">Attendance</div>
+        </div>
+        <div class="scard scard--purple">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+          <div class="scard__val">{{ prof.venturePoints | number }}</div>
+          <div class="scard__lbl">Venture Points</div>
+        </div>
+        <div class="scard scard--amber">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="scard__val">{{ prof.streak }}</div>
+          <div class="scard__lbl">Day Streak</div>
+        </div>
+        <div class="scard scard--pink">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="scard__val">{{ prof.completedActivities }}</div>
+          <div class="scard__lbl">Activities Done</div>
+        </div>
+        <div class="scard scard--green">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+          <div class="scard__val">{{ prof.badgesEarned }}</div>
+          <div class="scard__lbl">Badges Earned</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="charts-row">
+        <!-- Academic Progress (subject bars) -->
+        <div class="p-card chart-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Academic Progress</div>
+          <div class="chart-body">
+            <div class="subj-row" *ngFor="let s of ps.subjectProgress">
+              <span class="subj-row__name">{{ s.subject }}</span>
+              <div class="prog-track" style="flex:1"><div class="prog-fill" [style.width.%]="s.progress" [style.background]="gc(s.progress)"></div></div>
+              <span class="subj-row__val" [style.color]="gc(s.progress)">{{ s.progress }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GPA + VP trend bars -->
+        <div class="p-card chart-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> GPA Trend</div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let v of ps.gpaTrend; let i=index">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ v }}</span>
+                  <div class="bar-chart__bar" [style.height.px]="barH(v,4)" style="background:#1565C0;max-width:28px"></div>
+                </div>
+                <div class="bar-chart__label">M{{ i+1 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance trend -->
+        <div class="p-card chart-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Attendance Trend</div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let v of ps.attendanceTrend; let i=index">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ v }}%</span>
+                  <div class="bar-chart__bar" [style.height.px]="barH(v,100)" [style.background]="gc(v)" style="max-width:28px"></div>
+                </div>
+                <div class="bar-chart__label">M{{ i+1 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom 4-col row -->
+      <div class="quad-row">
+
+        <!-- Upcoming Assignments -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Upcoming Assignments <a class="see-all" routerLink="/student/assignments">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let a of assignments()">
+              <div class="mini-item__dot" style="background:#fee2e2;color:#ef4444">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="mini-item__body">
+                <div class="mini-item__title">{{ a.name }}</div>
+                <div class="mini-item__sub">{{ a.subject }} · Due {{ a.dueDate }}</div>
+              </div>
+              <span class="chip" [ngClass]="statusClass(a.status)" style="font-size:10px">{{ a.status }}</span>
+            </div>
+            <div class="empty-state" *ngIf="assignments().length===0" style="padding:20px"><p>No pending assignments</p></div>
+          </div>
+        </div>
+
+        <!-- Recent Achievements -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg> Recent Achievements <a class="see-all" routerLink="/student/achievements">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let a of achievements()">
+              <div class="mini-item__emoji">{{ a.icon }}</div>
+              <div class="mini-item__body">
+                <div class="mini-item__title">{{ a.title }}</div>
+                <div class="mini-item__sub">+{{ a.xpReward }} XP · {{ a.dateEarned | date:'mediumDate' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Notifications <a class="see-all" routerLink="/student/notifications">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let n of notifications()">
+              <div class="mini-item__dot"
+                   [style.background]="n.type==='academic'?'#e3f2fd':n.type==='reward'?'#f3e8ff':n.type==='message'?'#dcfce7':'#fef3c7'"
+                   [style.color]="n.type==='academic'?'#1565C0':n.type==='reward'?'#9333ea':n.type==='message'?'#166534':'#92400e'">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+              </div>
+              <div class="mini-item__body">
+                <div class="mini-item__title">{{ n.title }}</div>
+                <div class="mini-item__sub">{{ n.date }}</div>
+              </div>
+              <div class="mini-item__unread-dot" *ngIf="!n.read"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Challenges -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Daily Challenges <a class="see-all" routerLink="/student/challenges">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let c of dailyChallenges">
+              <div class="mini-item__emoji">{{ c.icon }}</div>
+              <div class="mini-item__body">
+                <div class="mini-item__title" [style.text-decoration]="c.done?'line-through':''">{{ c.title }}</div>
+                <div class="mini-item__sub">+{{ c.points }} VP</div>
+              </div>
+              <span class="chip" [class.chip--green]="c.done" [class.chip--amber]="!c.done" style="font-size:10px">{{ c.done ? 'Done' : 'Todo' }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

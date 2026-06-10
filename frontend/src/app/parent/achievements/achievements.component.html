@@ -1,0 +1,43 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Achievements" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Achievements</h1><p class="p-heading__sub">Badges, awards and challenges earned by your children</p></div>
+      <div class="filter-row">
+        <div class="child-tabs" style="margin-bottom:0">
+          <span class="child-tabs__lbl">Child:</span>
+          <button class="child-tab-btn" [class.active]="selectedChild()==='all'" (click)="selectedChild.set('all')">All</button>
+          <button *ngFor="let c of children()" class="child-tab-btn" [class.active]="selectedChild()===c.id" (click)="selectedChild.set(c.id)">{{ c.firstName }}</button>
+        </div>
+        <div class="type-tabs">
+          <button *ngFor="let t of types" class="child-tab-btn" [class.active]="selectedType()===t" (click)="selectedType.set(t)">{{ t === 'all' ? 'All' : (t | titlecase) }}</button>
+        </div>
+      </div>
+      <div class="achieve-grid">
+        <div class="ach-card" *ngFor="let a of filtered()" [class.ach-card--earned]="a.earnedDate">
+          <div class="ach-card__top">
+            <div class="ach-card__emoji">{{ a.icon }}</div>
+            <div class="ach-card__type-badge" [style.background]="typeBg(a.type)" [style.color]="typeColor(a.type)">{{ a.type | titlecase }}</div>
+          </div>
+          <div class="ach-card__title">{{ a.title }}</div>
+          <div class="ach-card__desc">{{ a.description }}</div>
+          <div class="ach-card__progress">
+            <div class="ach-card__prog-row">
+              <span class="ach-card__prog-lbl">Progress</span>
+              <span class="ach-card__prog-val">{{ a.progress }}/{{ a.maxProgress }}</span>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill" [style.width.%]="pct(a)" [style.background]="typeColor(a.type)"></div>
+            </div>
+          </div>
+          <div class="ach-card__footer">
+            <span class="chip chip--green" *ngIf="a.earnedDate">✓ Earned {{ a.earnedDate | date:'mediumDate' }}</span>
+            <span class="chip chip--amber" *ngIf="!a.earnedDate">In Progress {{ pct(a) }}%</span>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="filtered().length===0"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg><p>No achievements found</p></div>
+      </div>
+    </div>
+  </div>
+</div>

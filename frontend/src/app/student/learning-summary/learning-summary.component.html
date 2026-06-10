@@ -1,0 +1,69 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Learning Summary" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Learning Summary</h1><p class="p-heading__sub">Advanced analytics of your academic performance</p></div>
+      <!-- Overview KPIs -->
+      <div class="ls-kpi">
+        <div class="scard scard--blue"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="scard__val">{{ ps.profile().gpa }}</div><div class="scard__lbl">GPA</div></div>
+        <div class="scard scard--green"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="scard__val">{{ ps.profile().attendancePct }}%</div><div class="scard__lbl">Attendance</div></div>
+        <div class="scard scard--purple"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="scard__val">{{ ps.profile().completedActivities }}</div><div class="scard__lbl">Total Activities</div></div>
+        <div class="scard scard--amber"><div class="scard__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="scard__val">{{ completionRate }}%</div><div class="scard__lbl">Completion Rate</div></div>
+      </div>
+      <!-- Charts -->
+      <div class="ls-charts">
+        <!-- Subject performance -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Subject Performance</div>
+          <div class="p-card__body">
+            <div class="subj-row" *ngFor="let s of ps.subjectProgress">
+              <span class="subj-row__name">{{ s.subject }}</span>
+              <div class="prog-track" style="flex:1"><div class="prog-fill" [style.width.%]="s.progress" [style.background]="gc(s.progress)"></div></div>
+              <span style="font-size:12px;font-weight:700;width:36px;text-align:right" [style.color]="gc(s.progress)">{{ s.progress }}%</span>
+            </div>
+          </div>
+        </div>
+        <!-- Monthly progress bar chart -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Monthly Progress</div>
+          <div class="p-card__body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let v of monthlyProgress; let i=index">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ v }}%</span>
+                  <div class="bar-chart__bar" [style.height.px]="barH(v,100)" [style.background]="gc(v)" style="max-width:26px"></div>
+                </div>
+                <div class="bar-chart__label">M{{ i+1 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Quiz results -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg> Quiz Results</div>
+          <div class="p-card__body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let v of quizResults; let i=index">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ v }}%</span>
+                  <div class="bar-chart__bar" [style.height.px]="barH(v,100)" style="background:#9333ea;max-width:26px"></div>
+                </div>
+                <div class="bar-chart__label">Q{{ i+1 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Progress bars -->
+      <div class="p-card" style="margin-top:18px">
+        <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Progress Overview</div>
+        <div class="p-card__body">
+          <div class="big-prog-row"><span class="big-prog-row__lbl">Learning Completion</span><div class="prog-track" style="flex:1;height:14px"><div class="prog-fill" [style.width.%]="completionRate" style="background:#1565C0"></div></div><span class="big-prog-row__val" style="color:#1565C0">{{ completionRate }}%</span></div>
+          <div class="big-prog-row"><span class="big-prog-row__lbl">Semester Progress</span><div class="prog-track" style="flex:1;height:14px"><div class="prog-fill" [style.width.%]="semesterProg" style="background:#9333ea"></div></div><span class="big-prog-row__val" style="color:#9333ea">{{ semesterProg }}%</span></div>
+          <div class="big-prog-row"><span class="big-prog-row__lbl">Assignment Success</span><div class="prog-track" style="flex:1;height:14px"><div class="prog-fill" [style.width.%]="assignSuccess" style="background:#22c55e"></div></div><span class="big-prog-row__val" style="color:#22c55e">{{ assignSuccess }}%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

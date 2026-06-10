@@ -1,0 +1,56 @@
+.s-topbar {
+  height: 62px; background: #fff; border-bottom: 1px solid #e8eaf0;
+  display: flex; align-items: center; gap: 14px; padding: 0 28px;
+  position: sticky; top: 0; z-index: 50;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+
+  &__title { font-size: 17px; font-weight: 700; color: #1a1a2e; white-space: nowrap; min-width: 100px; }
+
+  &__search {
+    flex: 1; max-width: 320px; display: flex; align-items: center; gap: 8px;
+    background: #f5f6fa; border: 1px solid #e8eaf0; border-radius: 10px; padding: 8px 13px;
+    input { border: none; outline: none; background: transparent; font-size: 13px; color: #333; width: 100%; font-family: inherit; &::placeholder { color: #bbb; } }
+  }
+
+  &__right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+  &__vp {
+    display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+    background: #f3e8ff; border-radius: 20px; font-size: 13px; font-weight: 700; color: #6b21a8;
+  }
+
+  &__level {
+    padding: 5px 12px; background: linear-gradient(135deg, #1565C0, #7c3aed);
+    border-radius: 20px; font-size: 12px; font-weight: 700; color: #fff;
+  }
+
+  &__icon-btn {
+    width: 38px; height: 38px; border-radius: 10px; background: #f5f6fa;
+    border: 1px solid #e8eaf0; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s; position: relative;
+    &:hover { background: #e8f0ff; }
+  }
+
+  &__badge {
+    position: absolute; top: -4px; right: -4px; width: 17px; height: 17px;
+    border-radius: 50%; background: #ef4444; color: #fff; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
+  }
+
+  &__user {
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 5px;
+    border-radius: 10px; border: 1px solid #e8eaf0; background: #f5f6fa; cursor: pointer;
+    &:hover { background: #e8f0ff; }
+  }
+
+  &__avatar {
+    width: 34px; height: 34px; border-radius: 8px; background: #f06292;
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+
+  &__user-info { display: flex; flex-direction: column; }
+  &__username  { font-size: 13px; font-weight: 600; color: #1a1a2e; line-height: 1.2; }
+  &__role      { font-size: 10.5px; color: #999; }
+}

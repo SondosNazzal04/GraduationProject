@@ -1,0 +1,82 @@
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Settings" userName="Omar Rami"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading"><h1 class="p-heading__title">Settings</h1><p class="p-heading__sub">Manage your account preferences</p></div>
+
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <button *ngFor="let t of tabs" class="settings-nav__item" [class.active]="activeTab()===t.id" (click)="activeTab.set(t.id)">{{ t.label }}</button>
+        </div>
+
+        <div class="settings-content p-card">
+          <div class="save-toast" *ngIf="saved()">✓ Settings saved successfully!</div>
+
+          <!-- Profile -->
+          <ng-container *ngIf="activeTab()==='profile'">
+            <div class="settings-section-title">Profile Information</div>
+            <div class="form-grid">
+              <div class="form-group"><label>First Name</label><input type="text" [(ngModel)]="profile.firstName"></div>
+              <div class="form-group"><label>Last Name</label><input type="text" [(ngModel)]="profile.lastName"></div>
+              <div class="form-group"><label>Email Address</label><input type="email" [(ngModel)]="profile.email"></div>
+              <div class="form-group"><label>Phone Number</label><input type="tel" [(ngModel)]="profile.phone"></div>
+            </div>
+            <button class="btn-primary" (click)="saveProfile()">Save Changes</button>
+          </ng-container>
+
+          <!-- Password -->
+          <ng-container *ngIf="activeTab()==='password'">
+            <div class="settings-section-title">Change Password</div>
+            <div class="form-grid form-grid--single">
+              <div class="form-group"><label>Current Password</label><input type="password" [(ngModel)]="password.current" placeholder="Enter current password"></div>
+              <div class="form-group"><label>New Password</label><input type="password" [(ngModel)]="password.newPass" placeholder="Enter new password"></div>
+              <div class="form-group"><label>Confirm Password</label><input type="password" [(ngModel)]="password.confirm" placeholder="Confirm new password"></div>
+            </div>
+            <button class="btn-primary" (click)="saveProfile()">Update Password</button>
+          </ng-container>
+
+          <!-- Notifications -->
+          <ng-container *ngIf="activeTab()==='notifications'">
+            <div class="settings-section-title">Notification Preferences</div>
+            <div class="notif-list">
+              <div class="notif-row" *ngFor="let k of notifKeys">
+                <div class="notif-row__info">
+                  <div class="notif-row__label">{{ k | titlecase }} Notifications</div>
+                  <div class="notif-row__sub">Receive alerts about {{ k }}</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [checked]="getNotif(k)" (change)="setNotif(k, $any($event.target).checked)">
+                  <span class="toggle__slider"></span>
+                </label>
+              </div>
+            </div>
+            <button class="btn-primary" (click)="saveProfile()" style="margin-top:16px">Save Preferences</button>
+          </ng-container>
+
+          <!-- Language -->
+          <ng-container *ngIf="activeTab()==='language'">
+            <div class="settings-section-title">Language Settings</div>
+            <div class="lang-options">
+              <div class="lang-opt" [class.active]="language()==='en'" (click)="language.set('en')">🇺🇸 English</div>
+              <div class="lang-opt" [class.active]="language()==='ar'" (click)="language.set('ar')">🇸🇦 Arabic</div>
+              <div class="lang-opt" [class.active]="language()==='fr'" (click)="language.set('fr')">🇫🇷 French</div>
+            </div>
+            <button class="btn-primary" (click)="saveProfile()" style="margin-top:20px">Save Language</button>
+          </ng-container>
+
+          <!-- Security -->
+          <ng-container *ngIf="activeTab()==='security'">
+            <div class="settings-section-title">Security Settings</div>
+            <div class="security-items">
+              <div class="security-item"><div><div class="security-item__label">Two-Factor Authentication</div><div class="security-item__sub">Add an extra layer of security</div></div><button class="btn-outline" style="font-size:12px">Enable</button></div>
+              <div class="security-item"><div><div class="security-item__label">Active Sessions</div><div class="security-item__sub">Manage your active login sessions</div></div><button class="btn-ghost" style="font-size:12px">View Sessions</button></div>
+              <div class="security-item"><div><div class="security-item__label">Login History</div><div class="security-item__sub">See recent login activity</div></div><button class="btn-ghost" style="font-size:12px">View History</button></div>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

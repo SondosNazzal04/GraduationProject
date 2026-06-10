@@ -1,0 +1,19 @@
+.filter-row { display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;align-items:center; }
+.type-tabs  { display:flex;gap:6px;flex-wrap:wrap; }
+.achieve-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px; }
+.ach-card {
+  background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  border:2px solid transparent;transition:all .15s;
+  &--earned { border-color:#22c55e20; }
+  &:hover   { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.10); }
+  &__top    { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+  &__emoji  { font-size:32px;line-height:1; }
+  &__type-badge { padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+  &__title  { font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:5px; }
+  &__desc   { font-size:12px;color:#888;line-height:1.5;margin-bottom:14px; }
+  &__progress { margin-bottom:12px; }
+  &__prog-row { display:flex;justify-content:space-between;margin-bottom:6px; }
+  &__prog-lbl { font-size:11px;color:#aaa; }
+  &__prog-val { font-size:11px;font-weight:700;color:#555; }
+  &__footer { margin-top:2px; }
+}

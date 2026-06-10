@@ -1,0 +1,73 @@
+<div class="layout">
+  <app-student-sidebar></app-student-sidebar>
+
+  <div class="layout__main">
+    <app-topbar pageTitle="My Classes" userName="Sara Ahmad"></app-topbar>
+
+    <div class="page-body">
+
+      <!-- Classes grid — 3 columns exactly like screenshot -->
+      <div class="classes-grid">
+        <div class="class-card" *ngFor="let cls of classes">
+
+          <!-- Card header: icon + name + teacher + "A" badge -->
+          <div class="class-card__header">
+            <div class="class-card__icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="class-card__title-block">
+              <div class="class-card__subject">{{ cls.subjectName }}</div>
+              <div class="class-card__teacher">{{ cls.teacherName }}</div>
+            </div>
+            <div class="class-card__badge">A</div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="class-card__progress-row">
+            <span class="class-card__progress-label">Course Progress</span>
+            <span class="class-card__progress-pct">{{ cls.courseProgress }}%</span>
+          </div>
+          <div class="class-card__progress-track">
+            <div class="class-card__progress-fill"
+                 [style.width.%]="cls.courseProgress"
+                 [style.background]="getProgressColor(cls.courseProgress)">
+            </div>
+          </div>
+
+          <!-- Next session + due tasks -->
+          <div class="class-card__meta">
+            <div class="class-card__session">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>{{ cls.nextSession }}</span>
+            </div>
+            <span class="class-card__due" *ngIf="cls.dueTasks > 0">
+              {{ cls.dueTasks }} due
+            </span>
+          </div>
+
+          <!-- Recent Grades -->
+          <div class="class-card__grades-section">
+            <div class="class-card__grades-label">Recent Grades</div>
+            <div class="class-card__grades-row">
+              <span class="grade-chip"
+                    *ngFor="let g of cls.recentGrades"
+                    [style.background]="getGradeColor(g) + '22'"
+                    [style.color]="getGradeColor(g)">
+                {{ g }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

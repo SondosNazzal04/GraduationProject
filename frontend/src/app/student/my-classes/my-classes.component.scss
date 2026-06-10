@@ -1,0 +1,197 @@
+// =============================================
+// Student — My Classes  (matches screenshot)
+// =============================================
+
+$blue:     #1565C0;
+$bg:       #f0f4f8;        // light grey-blue page bg from screenshot
+$white:    #ffffff;
+$radius:   14px;
+$font:     'Segoe UI', Arial, sans-serif;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: $bg;
+  font-family: $font;
+
+  &__main {
+    flex: 1;
+    margin-left: 168px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+}
+
+.page-body {
+  padding: 32px 36px;
+  flex: 1;
+}
+
+// 3-column grid — matches screenshot layout
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+// Individual class card
+.class-card {
+  background: $white;
+  border-radius: $radius;
+  padding: 18px 18px 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.10);
+  }
+
+  // ── Header row ──────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #fff7ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__title-block {
+    flex: 1;
+  }
+
+  &__subject {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.2;
+  }
+
+  &__teacher {
+    font-size: 12px;
+    color: #888;
+    margin-top: 1px;
+  }
+
+  &__badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fff7ed;
+    border: 1.5px solid #f59e0b;
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  // ── Progress ─────────────────────────────
+  &__progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__progress-label {
+    font-size: 11.5px;
+    color: #888;
+  }
+
+  &__progress-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  &__progress-track {
+    height: 7px;
+    background: #e8eaf0;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+  }
+
+  // ── Meta row (time + due) ─────────────────
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__session {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  &__due {
+    font-size: 11px;
+    font-weight: 600;
+    background: #fff7ed;
+    color: #f59e0b;
+    padding: 2px 9px;
+    border-radius: 20px;
+  }
+
+  // ── Recent Grades ─────────────────────────
+  &__grades-section {
+    border-top: 1px solid #f5f5f5;
+    padding-top: 10px;
+  }
+
+  &__grades-label {
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+
+  &__grades-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+}
+
+// Grade chip
+.grade-chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+// ── Responsive ───────────────────────────────
+@media (max-width: 1024px) {
+  .classes-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .layout__main { margin-left: 0; }
+  .page-body { padding: 16px; }
+  .classes-grid { grid-template-columns: 1fr; }
+}
