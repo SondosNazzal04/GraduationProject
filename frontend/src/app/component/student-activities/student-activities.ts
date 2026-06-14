@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ActivityService } from '../../activity/services/activity';
+import { StudentPortalService } from '../../services/student-portal.service';
 
 @Component({
   selector: 'app-student-activities',
@@ -12,6 +13,7 @@ import { ActivityService } from '../../activity/services/activity';
 })
 export class StudentActivitiesComponent {
   service = inject(ActivityService);
+  studentService = inject(StudentPortalService);
 
   // ★ بيقرأ من localStorage مباشرة ★
   hasSubmitted(activityId: string): boolean {

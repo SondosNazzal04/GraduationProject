@@ -44,12 +44,12 @@ export class CreateActivityComponent implements OnInit {
     // ★ ابني الفورم أول شي ★
     this.form = this.fb.group({
       title:       ['', Validators.required],
-      description: [''],
+      description: ['No description provided', Validators.required],
       type:        ['quiz', Validators.required],
       classId:     [''],
       dueDate:     [''],
       timeLimit:   [null],
-      questions:   this.fb.array([], Validators.required),
+      questions:   this.fb.array([], [Validators.required, Validators.minLength(1)]),
     });
 
     void this.loadClasses();
@@ -122,6 +122,7 @@ export class CreateActivityComponent implements OnInit {
 
   addQuestion(): void {
     this.questions.push(this.fb.group({
+      id:            [crypto.randomUUID()],
       text:          ['', Validators.required],
       type:          ['mcq'],
       options:       this.fb.array([this.newOption(), this.newOption()]),
@@ -161,7 +162,13 @@ export class CreateActivityComponent implements OnInit {
   removeOption(qi: number, oi: number): void { this.optionsFor(qi).removeAt(oi); }
 
   submit(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid || this.questions.length === 0) { 
+      this.form.markAllAsTouched(); 
+      if (this.questions.length === 0) {
+        alert('Please add at least one question.');
+      }
+      return; 
+    }
 
     if (this.isEditMode && this.editActivity) {
       const updated: Activity = {

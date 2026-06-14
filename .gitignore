@@ -10,6 +10,7 @@ node_modules/
 .pnp
 .pnp.js
 eduventure-bes/node_modules
+eduventure-student-full-portal
 
 # Compiled output
 /dist

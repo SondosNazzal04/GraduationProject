@@ -117,6 +117,7 @@
               <label>Your name</label>
               <input class="name-input" formControlName="studentName"
                      placeholder="Enter your full name"
+                     readonly
                      [attr.disabled]="timerExpired ? true : null" />
               <div class="field-error"
                    *ngIf="form.get('studentName')?.invalid && form.get('studentName')?.touched">

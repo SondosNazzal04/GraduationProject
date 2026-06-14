@@ -123,19 +123,33 @@ export class ActivityService {
     updated.totalGrade = updated.questions.reduce((s, q) => s + (q.grade ?? 0), 0);
     updated.totalPoints = updated.questions.reduce((s, q) => s + (q.points ?? 0), 0);
 
-    this.activities.update((list) => {
-      const newList = list.map((a) => (a.id === updated.id ? updated : a));
-      this.save('activities', newList);
-      return newList;
-    });
+    void (async () => {
+      try {
+        await firstValueFrom(this.http.put(`${this.baseUrl}/activities/${updated.id}`, updated));
+      } catch (e) {
+        console.warn('updateActivity backend failed, falling back to local', e);
+      }
+      this.activities.update((list) => {
+        const newList = list.map((a) => (a.id === updated.id ? updated : a));
+        this.save('activities', newList);
+        return newList;
+      });
+    })();
   }
 
   deleteActivity(id: string): void {
-    this.activities.update((list) => {
-      const updated = list.filter((a) => a.id !== id);
-      this.save('activities', updated);
-      return updated;
-    });
+    void (async () => {
+      try {
+        await firstValueFrom(this.http.delete(`${this.baseUrl}/activities/${id}`));
+      } catch (e) {
+        console.warn('deleteActivity backend failed, falling back to local', e);
+      }
+      this.activities.update((list) => {
+        const updated = list.filter((a) => a.id !== id);
+        this.save('activities', updated);
+        return updated;
+      });
+    })();
   }
 
   getActivity(id: string): Activity | undefined {
@@ -183,88 +197,78 @@ export class ActivityService {
 
   // ── Submit ────────────────────────────────────────────────────────────────
 
-  submitActivity(data: {
+  async submitActivity(data: {
     activityId: string;
     studentName: string;
     answers: StudentAnswer[];
-  }): Submission {
-    // submit to backend if possible, fallback to local evaluation
-    void (async () => {
-      try {
-        const json = await firstValueFrom<any>(
-          this.http.post(
-            `${this.baseUrl}/activities/${encodeURIComponent(data.activityId)}/submissions`,
-            { answers: data.answers, studentName: data.studentName },
-          ),
-        );
-        if (json) {
-          const item = json.item || json;
-          this.submissions.update((list) => {
-            const updated = [...list, item];
-            this.save('submissions', updated);
-            return updated;
-          });
+  }): Promise<Submission> {
+    try {
+      const json = await firstValueFrom<any>(
+        this.http.post(
+          `${this.baseUrl}/activities/${encodeURIComponent(data.activityId)}/submissions`,
+          { answers: data.answers, studentName: data.studentName },
+        ),
+      );
+      if (json) {
+        const item = json.item || json;
+        this.submissions.update((list) => {
+          const updated = [...list, item];
+          this.save('submissions', updated);
+          return updated;
+        });
 
-          // update wallet locally
-          try {
-            const walletJson = await firstValueFrom<any>(
-              this.http.get(`${this.baseUrl}/student/me/wallet`),
-            );
-            const wallet = {
-              studentName: walletJson.uid || 'me',
-              totalPoints: Number(walletJson.pointsBalance || 0),
-              history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
-            } as StudentWallet;
-            this.wallets.update(() => [wallet]);
-            this.save('wallets', [wallet]);
-          } catch {}
+        // update wallet locally
+        try {
+          const walletJson = await firstValueFrom<any>(
+            this.http.get(`${this.baseUrl}/student/me/wallet`),
+          );
+          const wallet = {
+            studentName: walletJson.uid || 'me',
+            totalPoints: Number(walletJson.pointsBalance || 0),
+            history: Array.isArray(walletJson.transactions) ? walletJson.transactions : [],
+          } as StudentWallet;
+          this.wallets.update(() => [wallet]);
+          this.save('wallets', [wallet]);
+        } catch {}
 
-          return;
-        }
-      } catch (e) {
-        console.warn('submitActivity backend failed, falling back to local', e);
+        return item as Submission;
       }
+    } catch (e) {
+      console.warn('submitActivity backend failed, falling back to local', e);
+    }
 
-      // fallback local evaluation
-      const activity = this.getActivity(data.activityId);
-      if (!activity) throw new Error('Activity not found');
+    // fallback local evaluation
+    const activity = this.getActivity(data.activityId);
+    if (!activity) throw new Error('Activity not found');
 
-      const { gradedAnswers, totalCorrect, gradeScore, gradePercentage, earnedPoints } =
-        this.evaluate(activity, data.answers);
+    const { gradedAnswers, totalCorrect, gradeScore, gradePercentage, earnedPoints } =
+      this.evaluate(activity, data.answers);
 
-      const submission: Submission = {
-        id: crypto.randomUUID(),
-        activityId: data.activityId,
-        studentName: data.studentName,
-        answers: gradedAnswers,
-        totalCorrect,
-        totalQuestions: activity.questions.length,
-        gradeScore,
-        gradePercentage: activity.type === 'quiz' ? gradePercentage : undefined,
-        earnedPoints,
-        totalPoints: activity.totalPoints,
-        submittedAt: new Date(),
-        grade: undefined,
-      };
-
-      this.submissions.update((list) => {
-        const updated = [...list, submission];
-        this.save('submissions', updated);
-        return updated;
-      });
-
-      // Update student wallet
-      this.addPointsToWallet(data.studentName, earnedPoints, activity);
-    })();
-
-    // return a placeholder; consumers should observe submissions$ for results
-    return {
-      id: 'pending',
+    const submission: Submission = {
+      id: crypto.randomUUID(),
       activityId: data.activityId,
       studentName: data.studentName,
-      answers: data.answers,
+      answers: gradedAnswers,
+      totalCorrect,
+      totalQuestions: activity.questions.length,
+      gradeScore,
+      gradePercentage: activity.type === 'quiz' ? gradePercentage : undefined,
+      earnedPoints,
+      totalPoints: activity.totalPoints,
       submittedAt: new Date(),
-    } as Submission;
+      grade: undefined,
+    };
+
+    this.submissions.update((list) => {
+      const updated = [...list, submission];
+      this.save('submissions', updated);
+      return updated;
+    });
+
+    // Update student wallet
+    this.addPointsToWallet(data.studentName, earnedPoints, activity);
+
+    return submission;
   }
 
   getSubmissionsForActivity(activityId: string): Submission[] {

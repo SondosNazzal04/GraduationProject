@@ -11,9 +11,11 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
 /** Milliseconds before an API call is considered timed out */
 const REQUEST_TIMEOUT = 10_000;
 
+import { Notifications } from '../../shared/components/notifications/notifications';
+
 @Component({
   selector: 'app-admin-venture-shop',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, Notifications],
   templateUrl: './admin-venture-shop.html',
   styleUrl: './admin-venture-shop.css',
 })

@@ -1,0 +1,221 @@
+.notifications-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 1000;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color, #333);
+}
+
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 120%;
+  right: -10px;
+  width: 320px;
+  max-height: 400px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  transform-origin: top right;
+}
+
+.slide-down {
+  animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.dropdown-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.mark-all-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mark-all-btn:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dropdown-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+/* Custom Scrollbar */
+.dropdown-body::-webkit-scrollbar {
+  width: 6px;
+}
+.dropdown-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+.dropdown-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.notification-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.notification-item.unread {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.icon-wrapper {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  color: white;
+}
+
+.icon-wrapper.message { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.icon-wrapper.grade { background: linear-gradient(135deg, #10b981, #34d399); }
+.icon-wrapper.purchase { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.icon-wrapper.system { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+.notif-content {
+  flex-grow: 1;
+}
+
+.notif-title {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.notif-desc {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.notif-time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
