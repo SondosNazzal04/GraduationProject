@@ -7,12 +7,15 @@ import { firstValueFrom, timeout } from 'rxjs';
 import { ShopItem } from '../../models/shop-item.model';
 import { Toast } from '../../models/toast.model';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
-
-import { Notifications } from '../../shared/components/notifications/notifications';
+import { StudentPortalService } from '../../services/student-portal.service';
+import { StudentSidebarComponent } from '../../shared/student-sidebar/student-sidebar.component';
+import { StudentTopbarComponent } from '../../shared/student-topbar/student-topbar.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-venture-shop',
-  imports: [CommonModule, RouterModule, Notifications],
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './venture-shop.html',
   styleUrl: './venture-shop.css',
 })
@@ -21,18 +24,11 @@ export class VentureShop implements OnInit {
   private firestore = inject(Firestore);
   private baseUrl = `${getApiBaseUrl()}/api`;
   private cdr = inject(ChangeDetectorRef);
+  ps = inject(StudentPortalService);
 
-
-  // constructor() {
-  //   this.listenToShopItems();
-  //   void this.loadWallet();
-  // }
-
-  ngOnInit(): void {
-    // Fire off your background tasks here instead
-    void this.loadShopItems();
-    void this.loadWallet();
-  }
+  cat = 'all';
+  avail = 'all';
+  cats = ['all', 'digital', 'badges', 'physical'];
 
   studentName = 'Sara Ahmad';
   studentPoints = 0;
@@ -40,15 +36,45 @@ export class VentureShop implements OnInit {
   toast: Toast | null = null;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
+  ngOnInit(): void {
+    void this.loadShopItems();
+    void this.loadWallet();
+  }
+
+  get filtered() {
+    return this.shopItems.filter(item => {
+      const active = item.active !== false;
+      const category = (item as any).category || 'digital';
+      
+      if (this.cat !== 'all' && category !== this.cat) return false;
+      if (this.avail === 'available' && !active) return false;
+      return true;
+    });
+  }
+
+  isRedeemed(id: string | number): boolean {
+    // Basic placeholder check
+    return false;
+  }
+
+  canAfford(cost: number): boolean {
+    return this.studentPoints >= cost;
+  }
+
   showToast(message: string, type: 'success' | 'error'): void {
     if (this.toastTimer) clearTimeout(this.toastTimer);
     this.toast = { message, type };
-    this.toastTimer = setTimeout(() => (this.toast = null), 3500);
+    this.cdr.detectChanges();
+    this.toastTimer = setTimeout(() => {
+      this.toast = null;
+      this.cdr.detectChanges();
+    }, 3500);
   }
 
   dismissToast(): void {
     this.toast = null;
     if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.cdr.detectChanges();
   }
 
   shopItems: ShopItem[] = [];
@@ -77,6 +103,8 @@ export class VentureShop implements OnInit {
       this.studentPoints = Number(json.pointsBalance || 0);
     } catch (e) {
       console.warn('Failed to load wallet', e);
+    } finally {
+      this.cdr.detectChanges();
     }
   }
 
@@ -109,9 +137,9 @@ export class VentureShop implements OnInit {
         } else {
           this.showToast(`Not enough points to purchase "${item.name}".`, 'error');
         }
+      } finally {
+        this.cdr.detectChanges();
       }
     })();
   }
-
-
 }

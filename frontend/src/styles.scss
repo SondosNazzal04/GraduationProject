@@ -1,0 +1,215 @@
+// =============================================
+// EduVenture — Global Design System
+// =============================================
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+  background: #f5f6fa;
+  color: #1a1a2e;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+
+// ── Design tokens ──────────────────────────
+:root {
+  --blue:        #1565C0;
+  --blue-light:  #e3f2fd;
+  --pink:        #f06292;
+  --pink-light:  #fce4ec;
+  --teal:        #b2ebf2;
+  --teal-hover:  #80deea;
+  --green:       #22c55e;
+  --green-light: #dcfce7;
+  --amber:       #f59e0b;
+  --amber-light: #fef3c7;
+  --red:         #ef4444;
+  --red-light:   #fee2e2;
+  --purple:      #9333ea;
+  --purple-light:#f3e8ff;
+  --sidebar-w:   210px;
+  --topbar-h:    62px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+}
+
+// ── Common layout ───────────────────────────
+.p-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f6fa;
+  font-family: inherit;
+}
+
+.p-layout__main {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.p-body {
+  padding: 28px 32px;
+  flex: 1;
+}
+
+// ── Page heading ────────────────────────────
+.p-heading { margin-bottom: 24px; }
+.p-heading__title { font-size: 22px; font-weight: 700; color: #1a1a2e; margin: 0 0 4px; }
+.p-heading__sub   { font-size: 13.5px; color: #888; margin: 0; }
+
+// ── Card ────────────────────────────────────
+.p-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.p-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.p-card__body { padding: 20px; }
+
+// ── Stat card ──────────────────────────────
+.stat-card {
+  background: var(--teal);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+  transition: background 0.15s;
+  &:hover { background: var(--teal-hover); }
+}
+
+.stat-card__icon-wrap {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,0,0,0.10);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.stat-card__value { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+.stat-card__label { font-size: 11.5px; color: #555; font-weight: 500; }
+
+// ── Colored stat card variants ───────────────
+.scard { border-radius: var(--radius-md); padding: 20px 18px; box-shadow: var(--shadow-sm); }
+.scard__icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.scard__val  { font-size: 28px; font-weight: 800; color: #1a1a2e; }
+.scard__lbl  { font-size: 12px; color: #888; margin-top: 3px; }
+.scard--blue   { background: var(--blue-light);   .scard__icon { background: rgba(21,101,192,0.15); color: var(--blue);   } }
+.scard--green  { background: var(--green-light);  .scard__icon { background: rgba(34,197,94,0.15);  color: #166534;       } }
+.scard--amber  { background: var(--amber-light);  .scard__icon { background: rgba(245,158,11,0.15); color: #92400e;       } }
+.scard--pink   { background: var(--pink-light);   .scard__icon { background: rgba(240,98,146,0.15); color: #c2185b;       } }
+.scard--purple { background: var(--purple-light); .scard__icon { background: rgba(147,51,234,0.15); color: var(--purple); } }
+.scard--red    { background: var(--red-light);    .scard__icon { background: rgba(239,68,68,0.15);  color: #991b1b;       } }
+
+// ── Table ───────────────────────────────────
+.p-table { width: 100%; border-collapse: collapse; }
+.p-table th {
+  background: #f8f9fb; padding: 11px 16px; font-size: 11px; font-weight: 700;
+  color: #888; text-transform: uppercase; letter-spacing: .5px; text-align: left;
+}
+.p-table td { padding: 13px 16px; font-size: 13px; color: #333; border-bottom: 1px solid #f5f5f5; }
+.p-table tr:last-child td { border-bottom: none; }
+.p-table tr:hover td { background: #fafbff; }
+
+// ── Badge / chip ────────────────────────────
+.chip { padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+.chip--green  { background: var(--green-light);  color: #166534; }
+.chip--red    { background: var(--red-light);    color: #991b1b; }
+.chip--amber  { background: var(--amber-light);  color: #92400e; }
+.chip--blue   { background: var(--blue-light);   color: var(--blue); }
+.chip--purple { background: var(--purple-light); color: var(--purple); }
+
+// ── Progress bar ───────────────────────────
+.prog-track { height: 8px; background: #f0f0f0; border-radius: 20px; overflow: hidden; }
+.prog-fill  { height: 100%; border-radius: 20px; transition: width .4s; }
+
+// ── Btn ─────────────────────────────────────
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px; background: var(--blue); color: #fff;
+  border: none; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s;
+  &:hover { background: #0d47a1; }
+}
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; background: #fff; color: var(--blue);
+  border: 1.5px solid var(--blue); border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s;
+  &:hover { background: var(--blue-light); }
+}
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; background: #f5f6fa; color: #555;
+  border: 1px solid #e8eaf0; border-radius: var(--radius-sm); font-size: 12.5px;
+  font-weight: 500; cursor: pointer; font-family: inherit; transition: all .15s;
+  &:hover { background: #e8f0ff; color: var(--blue); }
+}
+
+// ── Filter row ──────────────────────────────
+.filter-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex; flex-direction: column; gap: 4px;
+  label { font-size: 11px; font-weight: 600; color: #888; }
+  select, input {
+    padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: var(--radius-sm);
+    font-size: 13px; color: #333; background: #fff; outline: none; font-family: inherit;
+    &:focus { border-color: var(--blue); }
+  }
+}
+
+// ── Child selector tabs ─────────────────────
+.child-tabs {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border-radius: var(--radius-md); padding: 10px 16px;
+  box-shadow: var(--shadow-sm); margin-bottom: 22px; flex-wrap: wrap;
+}
+.child-tabs__lbl { font-size: 13px; font-weight: 600; color: #888; }
+.child-tab-btn {
+  padding: 7px 20px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 13px; font-weight: 500; color: #555;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+  &:hover { border-color: var(--blue); color: var(--blue); }
+  &.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+}
+
+// ── Empty state ─────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 60px 20px; color: #ccc;
+  p { font-size: 14px; margin-top: 12px; }
+}
+
+// ── Responsive ─────────────────────────────
+@media (max-width: 768px) {
+  .p-layout__main { margin-left: 0; }
+  .p-body { padding: 16px; }
+}

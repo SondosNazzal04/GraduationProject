@@ -1,90 +1,97 @@
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><span class="logo-letter">E</span></div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Student portal</span>
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Dashboard" [studentName]="prof.name" [venturePoints]="prof.venturePoints" [level]="prof.level"></app-student-topbar>
+    <div class="p-body">
+
+      <!-- Welcome -->
+      <div class="welcome-bar">
+        <div class="welcome-bar__left">
+          <div class="welcome-bar__avatar">{{ prof.initials }}</div>
+          <div>
+            <h2 class="welcome-bar__title">Welcome back, {{ prof.name.split(' ')[0] }}! 🎯</h2>
+            <p class="welcome-bar__sub">{{ prof.gradeLevel }} · {{ prof.className }} · Rank #{{ prof.rank }}</p>
+          </div>
+        </div>
+        <div class="welcome-bar__streak">
+          <span class="welcome-bar__streak-icon">🔥</span>
+          <span class="welcome-bar__streak-val">{{ prof.streak }}</span>
+          <span class="welcome-bar__streak-lbl">Day Streak</span>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="scard scard--blue">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="scard__val" [style.color]="prof.gpa === '_' ? 'inherit' : gc($any(prof.gpa)*25)">{{ prof.gpa }}</div>
+          <div class="scard__lbl">Current GPA</div>
+        </div>
+        <div class="scard scard--green">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="scard__val">{{ prof.attendancePct }}%</div>
+          <div class="scard__lbl">Attendance</div>
+        </div>
+        <div class="scard scard--purple">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+          <div class="scard__val">{{ prof.venturePoints | number }}</div>
+          <div class="scard__lbl">Venture Points</div>
+        </div>
+        <div class="scard scard--amber">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="scard__val">{{ prof.streak }}</div>
+          <div class="scard__lbl">Day Streak</div>
+        </div>
+        <div class="scard scard--pink">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="scard__val">{{ prof.completedActivities }}</div>
+          <div class="scard__lbl">Activities Done</div>
+        </div>
+        <div class="scard scard--green">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+          <div class="scard__val">{{ prof.badgesEarned }}</div>
+          <div class="scard__lbl">Badges Earned</div>
+        </div>
+      </div>
+
+      <!-- Charts row removed to reduce clutter -->
+
+      <!-- Bottom 4-col row -->
+      <div class="quad-row">
+
+        <!-- Upcoming Assignments -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Upcoming Assignments <a class="see-all" routerLink="/student-assignments">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let a of assignments()">
+              <div class="mini-item__dot" style="background:#fee2e2;color:#ef4444">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="mini-item__body">
+                <div class="mini-item__title">{{ a.name }}</div>
+                <div class="mini-item__sub">{{ a.subject }} · Due {{ a.dueDate }}</div>
+              </div>
+              <span class="chip" [ngClass]="statusClass(a.status)" style="font-size:10px">{{ a.status }}</span>
+            </div>
+            <div class="empty-state" *ngIf="assignments().length===0" style="padding:20px"><p>No pending assignments</p></div>
+          </div>
+        </div>
+
+        <!-- Recent Achievements -->
+        <div class="p-card">
+          <div class="p-card__header"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg> Recent Achievements <a class="see-all" routerLink="/student-achievements">All →</a></div>
+          <div class="mini-list">
+            <div class="mini-item" *ngFor="let a of achievements()">
+              <div class="mini-item__emoji">{{ a.icon }}</div>
+              <div class="mini-item__body">
+                <div class="mini-item__title">{{ a.title }}</div>
+                <div class="mini-item__sub">+{{ a.xpReward }} XP · {{ a.dateEarned | date:'mediumDate' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-  </aside>
-
-  <main class="main-content">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Welcome back</p>
-        <h1 class="page-title">{{ profile?.email || 'Student' }}</h1>
-        <p class="page-subtitle">Here's your learning overview.</p>
-      </div>
-    </header>
-
-    @if (loading) {
-      <div class="loading-state">
-        <span class="material-icons spinning">sync</span>
-        <p>Loading your dashboard…</p>
-      </div>
-    }
-
-    @if (error) {
-      <div class="banner banner--error">⚠ {{ error }}</div>
-    }
-
-    @if (!loading && !error && profile) {
-      <div class="stats-row">
-        <div class="stat-card stat-card--points">
-          <span class="material-icons stat-icon">stars</span>
-          <div>
-            <p class="stat-label">VenturePoints</p>
-            <p class="stat-value">{{ profile.pointsBalance || 0 }}</p>
-          </div>
-        </div>
-        <div class="stat-card stat-card--classes">
-          <span class="material-icons stat-icon">class</span>
-          <div>
-            <p class="stat-label">Enrolled Classes</p>
-            <p class="stat-value">{{ classes.length }}</p>
-          </div>
-        </div>
-        <div class="stat-card stat-card--attendance">
-          <span class="material-icons stat-icon">event_available</span>
-          <div>
-            <p class="stat-label">Attendance Rate</p>
-            <p class="stat-value">{{ getAttendanceRate() }}%</p>
-          </div>
-        </div>
-      </div>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>My Classes</h2>
-          <span class="panel-chip">{{ classes.length }} enrolled</span>
-        </div>
-
-        @if (!classes.length) {
-          <p class="muted">No classes assigned yet.</p>
-        }
-
-        <div class="class-grid">
-          @for (cls of classes; track cls.id) {
-            <article class="class-card">
-              <div class="class-top">
-                <h3>{{ cls.name }}</h3>
-                <span class="grade-badge">{{ cls.gradeLevel || 'N/A' }}</span>
-              </div>
-              <p class="class-code">{{ cls.code || 'No code' }}</p>
-              <p class="class-description">{{ cls.description || 'No description.' }}</p>
-            </article>
-          }
-        </div>
-      </section>
-    }
-  </main>
+  </div>
 </div>

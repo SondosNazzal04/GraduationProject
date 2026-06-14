@@ -1,0 +1,38 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="My Classes" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+
+    <div class="p-body">
+
+      <!-- Classes grid — 3 columns exactly like screenshot -->
+      <div class="classes-grid">
+        <div class="class-card" *ngFor="let cls of classes" (click)="viewClass(cls)" style="cursor: pointer;">
+
+          <!-- Card header: icon + name -->
+          <div class="class-card__header">
+            <div class="class-card__icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <div class="class-card__title-block">
+              <div class="class-card__subject">{{ cls.name }}</div>
+              <div class="class-card__teacher">{{ cls.code }} • {{ cls.gradeLevel }}</div>
+            </div>
+          </div>
+
+          <div class="class-card__meta" style="margin-top: 10px; flex: 1;">
+            <div class="class-card__session" style="font-size: 13px; color: #555;">
+              {{ cls.description || 'No description provided.' }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

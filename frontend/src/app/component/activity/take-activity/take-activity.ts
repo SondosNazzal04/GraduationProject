@@ -6,11 +6,16 @@ import { ActivityService } from '../../../activity/services/activity';
 import { Activity, Submission } from '../../../models/activity';
 import { StudentPortalService } from '../../../services/student-portal.service';
 import { AuthService } from '../../../shared/services/auth/auth';
+import { StudentSidebarComponent } from '../../../shared/student-sidebar/student-sidebar.component';
+import { StudentTopbarComponent } from '../../../shared/student-topbar/student-topbar.component';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { getApiBaseUrl } from '../../../firebase.runtime-config';
 
 @Component({
   selector: 'app-take-activity',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './take-activity.html',
   styleUrls: ['./take-activity.css'],
 })
@@ -36,10 +41,28 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
   timerExpired    = false;
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
+  private http = inject(HttpClient);
+  private baseUrl = `${getApiBaseUrl()}/api`;
+  realProfile: any = null;
+
   get timerMinutes(): number { return Math.floor(this.timeRemaining / 60); }
   get timerSeconds(): number { return this.timeRemaining % 60; }
   get timerWarning(): boolean { return this.timeRemaining <= 60 && this.timeRemaining > 0; }
   get timerDanger():  boolean { return this.timeRemaining <= 30 && this.timeRemaining > 0; }
+
+  get prof() {
+    const mock = this.studentService.profile();
+    if (this.realProfile) {
+      const fName = this.realProfile.firstName || '_';
+      const lName = this.realProfile.lastName || '_';
+      return {
+        ...mock,
+        name: `${fName} ${lName}`,
+        venturePoints: this.realProfile.pointsBalance,
+      };
+    }
+    return mock;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -74,6 +97,9 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
     });
     this.form = this.fb.group(controls);
 
+    // Fetch real profile async without blocking
+    this.fetchRealProfile();
+
     // جلب الاسم الحقيقي من السيرفر
     this.authService.getStudentProfile().then((profile: any) => {
       if (profile) {
@@ -81,6 +107,12 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
         this.form.patchValue({ studentName: realName });
       }
     }).catch(e => console.warn('Failed to fetch real student profile', e));
+  }
+
+  private async fetchRealProfile() {
+    try {
+      this.realProfile = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me`));
+    } catch (e) { console.error(e); }
   }
 
   ngOnDestroy(): void {

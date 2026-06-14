@@ -1,32 +1,11 @@
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><span class="logo-letter">E</span></div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Student portal</span>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-          @if (item.label === 'Messages' && totalUnread > 0) {
-            <span class="nav-badge">{{ totalUnread }}</span>
-          }
-        </a>
-      }
-    </nav>
-  </aside>
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
 
-  <main class="main-content">
-    <header class="topbar">
-      <p class="eyebrow">Student portal</p>
-      <h1 class="page-title">Messages</h1>
-    </header>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
 
-    <div class="messaging-layout">
+    <div class="p-body">
+      <div class="messaging-layout">
       <!-- Inbox -->
       <aside class="inbox-panel">
         <div class="inbox-header">
@@ -162,6 +141,7 @@
           </div>
         }
       </section>
+      </div>
     </div>
-  </main>
+  </div>
 </div>

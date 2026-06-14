@@ -20,6 +20,7 @@ eduventure-student-full-portal
 .next/
 out/
 .angular/
+temp_ui
 
 # Environment variables (NEVER commit these)
 .env

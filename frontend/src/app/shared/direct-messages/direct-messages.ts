@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChatService, Message } from '../services/chat/chat.service';
+import { StudentSidebarComponent } from '../student-sidebar/student-sidebar.component';
+import { StudentTopbarComponent } from '../student-topbar/student-topbar.component';
+import { StudentPortalService } from '../../services/student-portal.service';
 
 interface Contact {
   uid: string;
@@ -20,7 +23,7 @@ interface Contact {
 @Component({
   selector: 'app-direct-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.css',
 })
@@ -29,16 +32,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
 
   private chatService = inject(ChatService);
   private cdr = inject(ChangeDetectorRef);
-
-  navItems = [
-    { label: 'Dashboard',  icon: 'dashboard',           route: '/student-dashboard' },
-    { label: 'Activities', icon: 'assignment',          route: '/studentactivities' },
-    { label: 'My Classes', icon: 'class',               route: '/my-classes' },
-    { label: 'Attendance', icon: 'event_available',     route: '/attendance' },
-    { label: 'Grades',     icon: 'grade',               route: '/gradebook' },
-    { label: 'Shop',       icon: 'storefront',          route: '/venture-shop' },
-    { label: 'Messages',   icon: 'chat_bubble_outline', route: '/student-messages' },
-  ];
+  ps = inject(StudentPortalService);
 
   contacts: Contact[] = [];
   messages: Message[] = [];

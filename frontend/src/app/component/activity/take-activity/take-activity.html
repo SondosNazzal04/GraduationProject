@@ -1,3 +1,9 @@
+<div class="p-layout">
+  <app-student-sidebar></app-student-sidebar>
+  <div class="p-layout__main">
+    <app-student-topbar pageTitle="Take Activity" [studentName]="prof.name" [venturePoints]="prof.venturePoints" [level]="prof.level"></app-student-topbar>
+    <div class="p-body">
+
 <!-- Past Due -->
 <div *ngIf="isPastDue" class="lock-screen">
   <div class="lock-box">
@@ -207,3 +213,7 @@
     </div>
   </div>
 </ng-template>
+
+    </div>
+  </div>
+</div>

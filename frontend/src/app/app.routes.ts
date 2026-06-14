@@ -24,6 +24,7 @@ import { ParentDashboard } from './parents/parent-dashboard/parent-dashboard';
 import { ParentChildren } from './parents/parent-children/parent-children';
 import { ChangePassword } from './features/auth/login/change-password/change-password';
 import { StudentDashboard } from './component/student-dashboard/student-dashboard';
+import { StudentClassesComponent } from './component/student-classes/student-classes';
 import { AdminDashboard } from './component/admin-dashboard/admin-dashboard';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
@@ -61,11 +62,17 @@ export const routes: Routes = [
     data: { roles: ['student'] },
   },
   {
-  path: 'student-messages',
-  component: DirectMessages,
-  canActivate: [authGuard, roleGuard],
-  data: { roles: ['student'] },
-},
+    path: 'student-messages',
+    component: DirectMessages,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['student'] },
+  },
+  {
+    path: 'student-classes',
+    component: StudentClassesComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['student'] },
+  },
 
   // ── Teacher routes ─────────────────────────────────────────────
   {
