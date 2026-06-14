@@ -8,9 +8,11 @@ import { ShopItem } from '../../models/shop-item.model';
 import { Toast } from '../../models/toast.model';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
 
+import { Notifications } from '../../shared/components/notifications/notifications';
+
 @Component({
   selector: 'app-venture-shop',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Notifications],
   templateUrl: './venture-shop.html',
   styleUrl: './venture-shop.css',
 })

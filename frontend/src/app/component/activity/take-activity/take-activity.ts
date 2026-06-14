@@ -4,6 +4,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity, Submission } from '../../../models/activity';
+import { StudentPortalService } from '../../../services/student-portal.service';
+import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
   selector: 'app-take-activity',
@@ -17,6 +19,8 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
   private router  = inject(Router);
   private fb      = inject(FormBuilder);
   private ngZone  = inject(NgZone);
+  private studentService = inject(StudentPortalService);
+  private authService = inject(AuthService);
   service         = inject(ActivityService);
 
   activity: Activity | undefined;
@@ -61,14 +65,22 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // بناء الفورم
+    // بناء الفورم مبدئيا مع اسم مقلد
     const controls: Record<string, any> = {
-      studentName: ['', Validators.required],
+      studentName: [this.studentService.profile().name, Validators.required],
     };
     this.activity.questions.forEach(q => {
       controls[q.id] = ['', Validators.required];
     });
     this.form = this.fb.group(controls);
+
+    // جلب الاسم الحقيقي من السيرفر
+    this.authService.getStudentProfile().then((profile: any) => {
+      if (profile) {
+        const realName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || profile.email || 'Unknown';
+        this.form.patchValue({ studentName: realName });
+      }
+    }).catch(e => console.warn('Failed to fetch real student profile', e));
   }
 
   ngOnDestroy(): void {
@@ -128,7 +140,7 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
     this.doSubmit();
   }
 
-  private doSubmit(): void {
+  private async doSubmit(): Promise<void> {
     if (!this.activity) return;
     this.stopTimer();
 
@@ -148,7 +160,8 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
 
     localStorage.setItem('lastStudentName', this.form.value.studentName || '');
 
-    this.result = this.service.submitActivity({
+    // انتظار النتيجة الحقيقية من السيرفر
+    this.result = await this.service.submitActivity({
       activityId:  this.activity.id,
       studentName: this.form.value.studentName || 'Unknown',
       answers,

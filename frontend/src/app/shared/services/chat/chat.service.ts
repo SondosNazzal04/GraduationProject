@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, addDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-
+import { NotificationService } from '../notifications/notification.service';
 export interface Message {
   id?: string;
   senderId: string;
@@ -25,6 +25,7 @@ export interface Chat {
 export class ChatService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
+  private notificationService = inject(NotificationService);
 
   get currentUserId(): string | null {
     return this.auth.currentUser?.uid || null;
@@ -112,6 +113,14 @@ export class ChatService {
       receiverId,
       content,
       timestamp: now
+    });
+
+    // Send a notification to the receiver
+    await this.notificationService.sendNotification(receiverId, {
+      title: 'New Message',
+      message: content.length > 50 ? content.substring(0, 50) + '...' : content,
+      type: 'message',
+      relatedId: chatId
     });
   }
 }
