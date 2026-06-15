@@ -1,0 +1,132 @@
+<div class="dashboard-bg d-flex">
+  <nav class="sidebar py-4 px-3">
+    <div class="sidebar-header mb-4">
+      <div class="fw-bold fs-4 d-flex align-items-center">
+        <span class="me-2">
+          <svg width="26" height="26" viewBox="0 0 16 16"
+            aria-label="EduVenture logo">
+            <circle cx="8" cy="8" r="8" fill="#3a86ff"></circle>
+            <text x="8" y="12" text-anchor="middle" font-size="10"
+              fill="#fff">EV</text>
+          </svg>
+        </span>
+        EduVenture
+      </div>
+      <div class="text-muted small ms-1">Teacher Portal</div>
+    </div>
+
+    <ul class="nav flex-column">
+      <li class="nav-item mb-1"><a class="nav-link"
+          routerLink="/teacher-dashboard" routerLinkActive="active"><i
+            class="bi bi-grid"></i>
+          Dashboard</a></li>
+      <li class="nav-item mb-1"><a class="nav-link"
+          routerLink="/teacherclasses" routerLinkActive="active">My
+          Classes</a></li>
+      <li class="nav-item mb-1"><a class="nav-link"
+          routerLink="/teacherstudent"
+          routerLinkActive="active">Students</a></li>
+      <li class="nav-item mb-1"><a class="nav-link"
+          routerLink="/teacherattendance"
+          routerLinkActive="active">Attendance</a></li>
+      <li class="nav-item mb-1"><a class="nav-link"
+          routerLink="/gradebook" routerLinkActive="active">Gradebook</a></li>
+      <li class="nav-item"><a class="nav-link"
+          routerLink="/activities" routerLinkActive="active">Activities</a></li>
+    </ul>
+
+    <div class="signout mt-auto">
+      <a routerLink="/login" class="text-muted small d-block py-3 px-2"><i
+          class="bi bi-box-arrow-right"></i> Sign Out</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-main flex-grow-1">
+    <div
+      class="dashboard-header d-flex align-items-center justify-content-between p-3 mb-3">
+      <h3 class="fw-bold m-0">Teacher Dashboard</h3>
+      <div class="d-flex align-items-center gap-3">
+        <div class="input-group dashboard-search me-2">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search...">
+        </div>
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile"
+          width="38" height="38" class="rounded-circle border">
+        <span class="ms-2">Mr. Smith</span>
+      </div>
+    </div>
+    <div class="dashboard-content p-3">
+      <div class="row mb-3 g-3">
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">My Classes</div>
+              <div class="dashboard-card-value fs-3 fw-bold">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Total
+                Students</div>
+              <div class="dashboard-card-value fs-3 fw-bold">93</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Pending
+                Reviews</div>
+              <div class="dashboard-card-value fs-3 fw-bold">12</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-body">
+              <div class="dashboard-card-title text-muted mb-2">Avg
+                Attendance</div>
+              <div class="dashboard-card-value fs-3 fw-bold">94%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card dashboard-section mb-3">
+        <div class="card-header bg-white fw-semibold py-2">
+          Recent Submissions
+          <a href="#"
+            class="float-end small text-decoration-none text-primary">View All
+            <i class="bi bi-chevron-right"></i></a>
+        </div>
+        <div class="card-body py-2">
+          @if (!recentSubmissions().length) {
+          <p class="text-muted mb-0">No submissions yet.</p>
+          }
+
+          @for (item of recentSubmissions(); track item.id) {
+          <div class="recent-sub-row d-flex align-items-center mb-3">
+            <div class="recent-avatar me-3">{{ item.initials }}</div>
+            <div>
+              <div class="fw-semibold">{{ item.studentName }}</div>
+              <div class="text-muted small">{{ item.activityTitle }}</div>
+            </div>
+            <div class="ms-auto text-end">
+              <div class="text-muted small">{{ item.submittedAtLabel }}</div>
+              <span class="badge" [class.bg-warning]="item.status === 'pending'"
+                [class.text-dark]="item.status === 'pending'"
+                [class.bg-success]="item.status === 'graded'">{{ item.status
+                }}</span>
+              <button class="btn btn-outline-primary btn-sm ms-2">Grade</button>
+            </div>
+          </div>
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
