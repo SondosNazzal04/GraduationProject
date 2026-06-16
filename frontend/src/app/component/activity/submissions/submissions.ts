@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity, Submission } from '../../../models/activity';
-import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/topbar/topbar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
 

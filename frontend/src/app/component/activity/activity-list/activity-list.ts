@@ -36,7 +36,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ActivityService } from '../../../activity/services/activity';
-import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/topbar/topbar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
 

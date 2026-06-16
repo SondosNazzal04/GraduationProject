@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../services/teacher.service';
 import { ClassRoom, GradeRecord, StudentGradeSummary, ActivityType } from '../../models/teacher.model';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../shared/topbar/topbar.component';
 import { AuthService } from '../../shared/services/auth/auth';
 

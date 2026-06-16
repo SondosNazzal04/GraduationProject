@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivityService } from '../../../activity/services/activity';
-import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({

@@ -8,7 +8,12 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   height: calc(100vh - 160px);
+  max-height: calc(100vh - 160px);
+  min-height: 0;
 }
+
+
+
 
 .inbox-panel {
   width: 300px;
@@ -18,6 +23,7 @@
   flex-direction: column;
   background: #ffffff;
   overflow: hidden;
+  min-height: 0;
 }
 
 .inbox-header {
@@ -70,7 +76,7 @@
 
 .inbox-loading { display: flex; justify-content: center; padding: 24px; color: #1565C0; }
 
-.contact-list { flex: 1; overflow-y: auto; }
+.contact-list { flex: 1; overflow-y: auto; min-height: 0; }
 .contact-list::-webkit-scrollbar { width: 4px; }
 .contact-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
@@ -142,7 +148,7 @@
 
 .chat-panel {
   flex: 1; display: flex; flex-direction: column;
-  min-width: 0; background: #ffffff; overflow: hidden;
+  min-width: 0; min-height: 0; background: #ffffff; overflow: hidden;
 }
 
 .chat-empty {
@@ -184,7 +190,7 @@
 .role-pill--student { background: #d1fae5; color: #059669; }
 
 .messages-area {
-  flex: 1; overflow-y: auto;
+  flex: 1; overflow-y: auto; min-height: 0;
   padding: 20px;
   display: flex; flex-direction: column; gap: 4px;
 }

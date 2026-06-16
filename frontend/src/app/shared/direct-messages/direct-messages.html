@@ -1,18 +1,18 @@
-<div [class.layout]="role === 'teacher'" [class.p-layout]="role !== 'teacher'">
+<div class="p-layout">
   @if (role === 'teacher') {
     <app-sidebar></app-sidebar>
   } @else {
     <app-student-sidebar></app-student-sidebar>
   }
 
-  <div [class.layout__main]="role === 'teacher'" [class.p-layout__main]="role !== 'teacher'">
+  <div class="p-layout__main">
     @if (role === 'teacher') {
       <app-topbar pageTitle="Messages" [userName]="teacherName" [showSearch]="false"></app-topbar>
     } @else {
       <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
     }
 
-    <div [class.page-body]="role === 'teacher'" [class.p-body]="role !== 'teacher'">
+    <div class="p-body">
       <div class="messaging-layout">
       <!-- Inbox -->
       <aside class="inbox-panel">

@@ -17,8 +17,8 @@ export class SidebarComponent {
     { label: 'Attendance', icon: 'attendance', route: '/attendance', active: true },
     { label: 'Gradebook', icon: 'grades', route: '/gradebook', active: true },
     { label: 'Activities', icon: 'activities', route: '/activities', active: true },
-    { label: 'Messages', icon: 'messages', route: '/teacher-messages', active: false },
-    { label: 'Notifications', icon: 'notifications', route: '/teacher-messages', active: false },
+    { label: 'Messages', icon: 'messages', route: '/teacher-messages', active: true },
+    { label: 'Notifications', icon: 'notifications', route: '/teacher-messages', active: true },
   ];
 
   onSignOut(): void {

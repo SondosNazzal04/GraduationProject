@@ -7,7 +7,7 @@ import { ChatService, Message } from '../services/chat/chat.service';
 import { StudentSidebarComponent } from '../student-sidebar/student-sidebar.component';
 import { StudentTopbarComponent } from '../student-topbar/student-topbar.component';
 import { StudentPortalService } from '../../services/student-portal.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
 import { AuthService } from '../services/auth/auth';
 

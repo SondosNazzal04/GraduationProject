@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity } from '../../../models/activity';
 import { getApiBaseUrl } from '../../../firebase.runtime-config';
-import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/topbar/topbar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
 
