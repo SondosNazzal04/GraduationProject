@@ -121,6 +121,7 @@ export class AuthService{
   }
 
   private teacherProfileCache: any = null;
+  private parentProfileCache: any = null;
 
   async getTeacherProfile(): Promise<any> {
     if (this.teacherProfileCache) {
@@ -131,8 +132,18 @@ export class AuthService{
     return profile;
   }
 
+  async getParentProfile(): Promise<any> {
+    if (this.parentProfileCache) {
+      return this.parentProfileCache;
+    }
+    const profile = await firstValueFrom(this.http.get(`${this.apiBaseUrl}/api/parent/me`));
+    this.parentProfileCache = profile;
+    return profile;
+  }
+
   logout() {
     this.teacherProfileCache = null;
+    this.parentProfileCache = null;
     signOut(this.auth);
   }
 }

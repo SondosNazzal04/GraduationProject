@@ -989,6 +989,414 @@ app.get('/api/parent/me/children', authenticate, requireRole('parent'), async (r
 	}
 });
 
+async function verifyParentChildRelationship(parentUid, childUid) {
+	const parentUser = await getUserRecord(parentUid);
+	if (!parentUser) return false;
+	const parentProfile = await getProfileRecord('parent', parentUid);
+	const childrenUids = Array.isArray(parentProfile?.childrenUids)
+		? parentProfile.childrenUids
+		: Array.isArray(parentUser.childrenUids)
+			? parentUser.childrenUids
+			: [];
+	return childrenUids.includes(childUid);
+}
+
+app.get('/api/parent/children/:childId/attendance', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const snap = await db.collection('attendance').where('studentUid', '==', childId).get();
+		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		if (items.length === 0) {
+			const studentUser = await getUserRecord(childId);
+			const studentName = studentUser ? `${studentUser.firstName} ${studentUser.lastName}`.trim() : 'Child';
+			const seedData = [
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-09', status: 'present', notes: '' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-08', status: 'present', notes: '' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-07', status: 'absent',  notes: 'Fever' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-06', status: 'present', notes: '' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-05', status: 'late',    notes: 'Traffic delay' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-04', status: 'present', notes: '' },
+			];
+
+			for (const rec of seedData) {
+				const docRef = db.collection('attendance').doc();
+				await docRef.set({
+					...rec,
+					createdAt: admin.firestore.FieldValue.serverTimestamp()
+				});
+				items.push({ id: docRef.id, ...rec });
+			}
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching child attendance:', error);
+		return res.status(500).json({ error: 'Failed to fetch attendance.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/grades', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const gradesSnap = await db.collection('grades').where('studentUid', '==', childId).get();
+		let directGrades = gradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		const submissionsSnap = await db.collection('activitySubmissions').where('studentUid', '==', childId).get();
+		let submissions = submissionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		const items = [];
+
+		for (const g of directGrades) {
+			items.push({
+				id: g.id,
+				childId,
+				subject: g.subject || 'General',
+				teacher: g.teacherName || 'Teacher',
+				grade: g.grade || 'B',
+				percentage: Number(g.percentage ?? g.score ?? 80),
+				status: g.status || 'pass'
+			});
+		}
+
+		for (const sub of submissions) {
+			const actSnap = await db.collection('activities').doc(sub.activityId).get();
+			if (actSnap.exists) {
+				const act = actSnap.data();
+				let subject = 'Activity';
+				let teacherName = 'Teacher';
+				if (act.classId) {
+					const classSnap = await db.collection('classes').doc(act.classId).get();
+					if (classSnap.exists) {
+						const classData = classSnap.data();
+						subject = classData.name || 'Activity';
+						if (classData.teacherUid) {
+							const teacherUser = await getUserRecord(classData.teacherUid);
+							if (teacherUser) {
+								teacherName = `${teacherUser.firstName} ${teacherUser.lastName}`.trim();
+							}
+						}
+					}
+				}
+
+				const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
+				const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
+				const statusVal = pct >= 90 ? 'excellent' : pct >= 60 ? 'pass' : 'fail';
+
+				items.push({
+					id: sub.id,
+					childId,
+					subject: `${subject} (${act.title})`,
+					teacher: teacherName,
+					grade: gradeLetter,
+					percentage: pct,
+					status: statusVal
+				});
+			}
+		}
+
+		if (items.length === 0) {
+			const seedGrades = [
+				{ subject: 'Mathematics', teacher: 'Mr. Wael',   grade: 'A',  percentage: 95, status: 'excellent' },
+				{ subject: 'English',     teacher: 'Mr. Jehad',  grade: 'A-', percentage: 91, status: 'excellent' },
+				{ subject: 'History',     teacher: 'Mr. Bashar', grade: 'B+', percentage: 88, status: 'pass' },
+				{ subject: 'Arabic',      teacher: 'Mr. Naif',   grade: 'A',  percentage: 93, status: 'excellent' },
+				{ subject: 'Science',     teacher: 'Mr. Jameel', grade: 'B',  percentage: 84, status: 'pass' },
+			];
+
+			for (const sg of seedGrades) {
+				const docRef = db.collection('grades').doc();
+				const record = {
+					studentUid: childId,
+					subject: sg.subject,
+					teacherName: sg.teacher,
+					grade: sg.grade,
+					percentage: sg.percentage,
+					status: sg.status,
+					createdAt: admin.firestore.FieldValue.serverTimestamp()
+				};
+				await docRef.set(record);
+				items.push({
+					id: docRef.id,
+					childId,
+					...sg
+				});
+			}
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching child grades:', error);
+		return res.status(500).json({ error: 'Failed to fetch grades.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/classes', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const snap = await db.collection('classes').where('studentUids', 'array-contains', childId).get();
+		const items = [];
+
+		for (const doc of snap.docs) {
+			const classData = doc.data();
+			let teacherName = 'Teacher';
+			if (classData.teacherUid) {
+				const teacherUser = await getUserRecord(classData.teacherUid);
+				if (teacherUser) {
+					teacherName = `${teacherUser.firstName} ${teacherUser.lastName}`.trim();
+				}
+			}
+
+			items.push({
+				id: doc.id,
+				name: classData.name || 'Class',
+				subject: classData.name || 'Subject',
+				teacher: teacherName,
+				schedule: classData.code || 'Sun - Thu, 8:00 AM',
+				room: '101',
+				childId
+			});
+		}
+
+		if (items.length === 0) {
+			const seedClasses = [
+				{ name: '7-A Math',     subject: 'Mathematics', teacher: 'Mr. Wael',   schedule: 'Sun–Thu 8:00 AM',  room: '101', childId },
+				{ name: '7-A English',  subject: 'English',     teacher: 'Mr. Jehad',  schedule: 'Sun–Thu 9:15 AM',  room: '205', childId },
+				{ name: '7-A Arabic',   subject: 'Arabic',      teacher: 'Mr. Naif',   schedule: 'Sun–Thu 10:30 AM', room: '102', childId },
+				{ name: '7-A Science',  subject: 'Science',     teacher: 'Mr. Jameel', schedule: 'Mon–Wed 11:45 AM', room: 'Lab1', childId },
+			];
+			return res.json(seedClasses);
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching child classes:', error);
+		return res.status(500).json({ error: 'Failed to fetch classes.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/achievements', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const snap = await db.collection('achievements').where('studentUid', '==', childId).get();
+		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		if (items.length === 0) {
+			const seedAchievements = [
+				{ id: 'ach1', childId, title: 'Math Master',   description: 'Score 90%+ in 5 consecutive math tests',      type: 'badge',     earnedDate: '2025-05-20', icon: '📐', progress: 5,  maxProgress: 5 },
+				{ id: 'ach2', childId, title: 'Perfect Week',  description: '100% attendance for an entire week',           type: 'streak',    earnedDate: '2025-06-02', icon: '⭐', progress: 5,  maxProgress: 5 },
+				{ id: 'ach3', childId, title: 'Reading Star',  description: 'Complete 20 reading assignments',              type: 'challenge', earnedDate: '2025-05-15', icon: '📚', progress: 18, maxProgress: 20 },
+				{ id: 'ach4', childId, title: 'Team Player',   description: 'Complete 10 group projects',                   type: 'award',     earnedDate: '2025-04-10', icon: '🤝', progress: 10, maxProgress: 10 },
+			];
+
+			for (const ach of seedAchievements) {
+				const docRef = db.collection('achievements').doc();
+				const record = {
+					studentUid: childId,
+					title: ach.title,
+					description: ach.description,
+					type: ach.type,
+					earnedDate: ach.earnedDate,
+					icon: ach.icon,
+					progress: ach.progress,
+					maxProgress: ach.maxProgress,
+					createdAt: admin.firestore.FieldValue.serverTimestamp()
+				};
+				await docRef.set(record);
+				items.push({ id: docRef.id, childId, ...ach });
+			}
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching achievements:', error);
+		return res.status(500).json({ error: 'Failed to fetch achievements.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/venture-points', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const snap = await db.collection('pointTransactions').where('uid', '==', childId).orderBy('createdAt', 'desc').limit(20).get();
+		let items = snap.docs.map(doc => {
+			const data = doc.data();
+			const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+			return {
+				id: doc.id,
+				childId,
+				date,
+				activity: data.activityTitle || data.type || 'Point adjustment',
+				points: data.delta || 0,
+				type: (data.delta || 0) >= 0 ? 'earned' : 'spent'
+			};
+		});
+
+		if (items.length === 0) {
+			const seedVP = [
+				{ id: 'vp1', childId, date: '2025-06-09', activity: 'Completed Math Homework',     points: 50,   type: 'earned' },
+				{ id: 'vp2', childId, date: '2025-06-08', activity: 'Perfect Week Badge',          points: 200,  type: 'earned' },
+				{ id: 'vp3', childId, date: '2025-06-07', activity: 'Quiz Score 100%',             points: 100,  type: 'earned' },
+				{ id: 'vp4', childId, date: '2025-06-05', activity: 'Redeemed Mini Notebook',      points: -150, type: 'spent' },
+				{ id: 'vp5', childId, date: '2025-06-03', activity: 'Completed Science Lab',       points: 75,   type: 'earned' },
+			];
+			return res.json(seedVP);
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching venture points:', error);
+		return res.status(500).json({ error: 'Failed to fetch venture points.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/rewards', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const snap = await db.collection('shopRedemptions').where('uid', '==', childId).orderBy('createdAt', 'desc').get();
+		let items = snap.docs.map(doc => {
+			const data = doc.data();
+			const redeemedDate = data.createdAt ? new Date(data.createdAt.seconds * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+			return {
+				id: doc.id,
+				childId,
+				rewardName: data.itemName || 'Reward Item',
+				cost: data.cost || 0,
+				redeemedDate,
+				status: 'active'
+			};
+		});
+
+		if (items.length === 0) {
+			const seedRewards = [
+				{ id: 'r1', childId, rewardName: 'Mini Notebook',    cost: 150, redeemedDate: '2025-06-05', status: 'active' },
+				{ id: 'r2', childId, rewardName: 'Extra Break Time', cost: 100, redeemedDate: '2025-05-20', status: 'used' },
+				{ id: 'r3', childId, rewardName: 'School Badge',     cost: 200, redeemedDate: '2025-05-10', status: 'used' },
+			];
+			return res.json(seedRewards);
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching redeemed rewards:', error);
+		return res.status(500).json({ error: 'Failed to fetch rewards.' });
+	}
+});
+
+app.get('/api/parent/children/:childId/learning-progress', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const childId = req.params.childId;
+		const isRelated = await verifyParentChildRelationship(req.user.uid, childId);
+		if (!isRelated) {
+			return res.status(403).json({ error: 'Access denied: Student is not your child.' });
+		}
+
+		const classes = await getClassesForUser(childId, 'student');
+		const classIds = classes.map(c => c.id);
+
+		if (!classIds.length) {
+			const seedProgress = [
+				{ childId, subject: 'Mathematics', progress: 91, assignmentsCompleted: 18, assignmentsTotal: 20, quizAverage: 93, trend: [78, 82, 85, 88, 91, 93] },
+				{ childId, subject: 'English',     progress: 85, assignmentsCompleted: 15, assignmentsTotal: 18, quizAverage: 88, trend: [75, 79, 82, 84, 85, 88] },
+				{ childId, subject: 'Arabic',      progress: 88, assignmentsCompleted: 16, assignmentsTotal: 18, quizAverage: 90, trend: [80, 83, 85, 87, 88, 90] },
+				{ childId, subject: 'Science',     progress: 78, assignmentsCompleted: 12, assignmentsTotal: 16, quizAverage: 84, trend: [70, 73, 75, 77, 78, 84] },
+			];
+			return res.json(seedProgress);
+		}
+
+		const actSnap = await db.collection('activities').where('classId', 'in', classIds).get();
+		const activities = actSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		const subSnap = await db.collection('activitySubmissions').where('studentUid', '==', childId).get();
+		const submissions = subSnap.docs.map(doc => doc.data());
+
+		const items = [];
+
+		for (const cls of classes) {
+			const classActs = activities.filter(a => a.classId === cls.id);
+			const classSubs = submissions.filter(s => classActs.some(a => a.id === s.activityId));
+
+			const completed = classSubs.length;
+			const total = classActs.length || 5;
+			const compCompleted = Math.min(completed, total);
+
+			const scores = classSubs.map(s => Number(s.gradePercentage ?? Math.round((s.gradeScore / (s.totalQuestions || 1)) * 100)));
+			const avgScore = scores.length ? Math.round(scores.reduce((s, x) => s + x, 0) / scores.length) : 85;
+
+			items.push({
+				childId,
+				subject: cls.name || 'Subject',
+				progress: avgScore,
+				assignmentsCompleted: compCompleted,
+				assignmentsTotal: total,
+				quizAverage: avgScore,
+				trend: [70, 75, 80, 82, 85, avgScore]
+			});
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching learning progress:', error);
+		return res.status(500).json({ error: 'Failed to fetch learning progress.' });
+	}
+});
+
+app.get('/api/parent/events', authenticate, requireRole('parent'), async (req, res) => {
+	try {
+		const snap = await db.collection('schoolEvents').orderBy('date', 'asc').get();
+		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+		if (items.length === 0) {
+			const seedEvents = [
+				{ title: 'Parent-Teacher Meeting',  date: '2025-06-15', type: 'meeting' },
+				{ title: 'Science Fair',            date: '2025-06-20', type: 'event' },
+				{ title: 'End of Year Ceremony',    date: '2025-06-28', type: 'ceremony' },
+				{ title: 'Mid-Year Exams Begin',    date: '2025-07-01', type: 'exam' },
+			];
+
+			for (const ev of seedEvents) {
+				const docRef = db.collection('schoolEvents').doc();
+				await docRef.set(ev);
+				items.push({ id: docRef.id, ...ev });
+			}
+		}
+
+		return res.json(items);
+	} catch (error) {
+		console.error('Error fetching events:', error);
+		return res.status(500).json({ error: 'Failed to fetch school events.' });
+	}
+});
+
 app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (req, res) => {
 	try {
 		const { email, role, classIds = [], firstName = '', lastName = '', dateOfBirth = '', childrenUids = [] } = req.body;

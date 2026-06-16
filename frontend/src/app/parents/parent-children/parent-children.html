@@ -1,84 +1,197 @@
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><span class="logo-letter">E</span></div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Parent portal</span>
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+
+  <div class="p-layout__main">
+    <app-topbar pageTitle="My Children" [userName]="parentName()"></app-topbar>
+
+    <div class="p-body">
+      <!-- Page heading -->
+      <div class="p-heading">
+        <h1 class="p-heading__title">My Children</h1>
+        <p class="p-heading__sub">View detailed information about each of your children</p>
+      </div>
+
+      <!-- Loading / Error states -->
+      <div *ngIf="loading" style="text-align:center; padding: 40px; color: #888;">
+        Loading children details...
+      </div>
+      <div *ngIf="error" style="text-align:center; padding: 40px; color: #ef4444;">
+        {{ error }}
+      </div>
+
+      <!-- Children list -->
+      <div class="children-list" *ngIf="!loading && !error">
+        <div class="child-card" *ngFor="let child of children()">
+
+          <!-- Left avatar panel -->
+          <div class="child-card__avatar-panel">
+            <div class="child-card__initials-circle">{{ child.initials }}</div>
+            <div class="child-card__name">{{ child.firstName }} {{ child.lastName }}</div>
+            <div class="child-card__grade">{{ child.gradeLevel }}</div>
+            <div class="child-card__stars">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Right stats panel -->
+          <div class="child-card__stats-panel">
+            <!-- Primary stats row -->
+            <div class="stats-row">
+              <!-- VenturePoints -->
+              <div class="stat-card">
+                <div class="stat-card__icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value">{{ child.venturePoints | number }}</div>
+                <div class="stat-card__label">VenturePoints</div>
+              </div>
+
+              <!-- Current Streak -->
+              <div class="stat-card">
+                <div class="stat-card__icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value">{{ child.currentStreak }} Days</div>
+                <div class="stat-card__label">Current Streak</div>
+              </div>
+
+              <!-- Attendance -->
+              <div class="stat-card">
+                <div class="stat-card__icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value">{{ child.attendance.percentage }}%</div>
+                <div class="stat-card__label">Attendance</div>
+                <div class="stat-card__badges">
+                  <span class="badge badge--green">✓ {{ child.attendance.presentDays }}</span>
+                  <span class="badge badge--red">✗ {{ child.attendance.absentDays }}</span>
+                </div>
+              </div>
+
+              <!-- GPA -->
+              <div class="stat-card">
+                <div class="stat-card__icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value">{{ child.grades.overallAverage }}%</div>
+                <div class="stat-card__label">Grades</div>
+              </div>
+
+              <!-- Class -->
+              <div class="stat-card">
+                <div class="stat-card__icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value">{{ child.classInfo.className }}</div>
+                <div class="stat-card__label">Class</div>
+                <div class="stat-card__badges">
+                  <span class="badge badge--orange">{{ child.classInfo.numberOfSubjects }} Subj</span>
+                  <span class="badge badge--grey">{{ child.classInfo.homeroomTeacher }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Summary section -->
+            <div class="summary-section">
+              <div class="summary-section__title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Learning Summary
+              </div>
+              <div class="summary-row">
+                <div class="sum-card">
+                  <div class="sum-card__icon-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="sum-card__val">{{ child.learningSummary.assignmentsCompleted }}</div>
+                  <div class="sum-card__lbl">Completed</div>
+                </div>
+                <div class="sum-card">
+                  <div class="sum-card__icon-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div class="sum-card__val">{{ child.learningSummary.assignmentsPending }}</div>
+                  <div class="sum-card__lbl">Pending</div>
+                </div>
+                <div class="sum-card">
+                  <div class="sum-card__icon-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  </div>
+                  <div class="sum-card__val">{{ child.learningSummary.achievementsEarned }}</div>
+                  <div class="sum-card__lbl">Achievements</div>
+                </div>
+                <div class="sum-card">
+                  <div class="sum-card__icon-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
+                  </div>
+                  <div class="sum-card__val">{{ child.learningSummary.monthlyVenturePoints }}</div>
+                  <div class="sum-card__lbl">Monthly VP</div>
+                </div>
+                <div class="sum-card">
+                  <div class="sum-card__icon-wrap">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+                      <circle cx="12" cy="8" r="6"/>
+                      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                    </svg>
+                  </div>
+                  <div class="sum-card__val">{{ child.achievements.totalBadges }}</div>
+                  <div class="sum-card__lbl">Badges</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Teacher button -->
+            <button class="contact-btn" style="margin-top: 10px;" (click)="onContactTeacher(child.teacherId)">
+              Contact Teacher ({{ child.teacherName }})
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="!loading && !error && children().length === 0">
+        <p>No children registered under this parent profile.</p>
       </div>
     </div>
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-  </aside>
-
-  <main class="main-content">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Parent Portal</p>
-        <h1 class="page-title">My Children</h1>
-        <p class="page-subtitle">Track academic details and VenturePoints for your children.</p>
-      </div>
-    </header>
-
-    @if (loading) {
-      <div class="loading-state" style="text-align: center; padding: 40px;">
-        <span class="material-icons spinning" style="font-size: 40px; animation: spin 2s linear infinite;">sync</span>
-        <p>Loading children details…</p>
-      </div>
-    }
-
-    @if (error) {
-      <div class="banner banner--error" style="background: #fee2e2; color: #991b1b; padding: 14px; border-radius: 12px; margin-bottom: 20px;">⚠ {{ error }}</div>
-    }
-
-    @if (!loading && !error) {
-      <div class="children-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
-        @for (child of children; track child.uid) {
-          <article class="child-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 20px;">
-            <div class="child-card-header" style="display: flex; align-items: center; gap: 16px;">
-              <span class="material-icons avatar-icon" style="font-size: 48px; color: #38bdf8; background: #e0f2fe; padding: 10px; border-radius: 16px;">face</span>
-              <div>
-                <h2 style="margin: 0; font-size: 20px; font-weight: 800;">{{ child.firstName || 'Student' }} {{ child.lastName || '' }}</h2>
-                <p class="child-email" style="margin: 4px 0 0; color: #64748b; font-size: 14px;">{{ child.email || 'No email provided' }}</p>
-              </div>
-            </div>
-            
-            <div class="child-stats" style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-              <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">VenturePoints</span>
-                <span class="stat-val points-val" style="font-weight: 800; color: #e28743; display: flex; align-items: center; gap: 4px;">
-                  <span class="material-icons point-star" style="font-size: 18px; color: #e28743;">stars</span>
-                  {{ child.pointsBalance || 0 }} pts
-                </span>
-              </div>
-              @if (child.dateOfBirth) {
-                <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">Date of Birth</span>
-                  <span class="stat-val" style="font-weight: 700; color: #0f172a;">{{ child.dateOfBirth }}</span>
-                </div>
-              }
-              <div class="child-stat" style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="stat-lbl" style="color: #64748b; font-size: 13px; font-weight: 600;">Student ID</span>
-                <span class="stat-val" style="font-family: monospace; font-size: 12px; color: #64748b;">{{ child.uid }}</span>
-              </div>
-            </div>
-          </article>
-        }
-
-        @if (!children.length) {
-          <div class="empty-state panel" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 22px;">
-            <span class="material-icons empty-icon" style="font-size: 64px; color: #94a3b8; margin-bottom: 16px;">child_care</span>
-            <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #0f172a;">No children linked yet</h3>
-            <p style="color: #64748b; margin: 8px 0 0; font-size: 14px; max-width: 400px; margin-inline: auto;">Please contact the school administrator to link student accounts to your parent portal.</p>
-          </div>
-        }
-      </div>
-    }
-  </main>
+  </div>
 </div>

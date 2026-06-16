@@ -24,14 +24,9 @@ export class ParentSidebarComponent {
     { label: 'Attendance',       icon: 'attendance',  route: '/parent-attendance'       },
     { label: 'Grades',           icon: 'grades',      route: '/parent-grades'           },
     { label: 'Classes',          icon: 'classes',     route: '/parent-classes'          },
-    { label: 'Achievements',     icon: 'achieve',     route: '/parent-achievements'     },
+
     { label: 'Notifications',    icon: 'notif',       route: '/parent-notifications'    },
     { label: 'Messages',         icon: 'messages',    route: '/parent-messages'         },
-    { label: 'Teachers',         icon: 'teachers',    route: '/parent-teachers'         },
-    { label: 'Learning Progress',icon: 'progress',    route: '/parent-learning-progress'},
-    { label: 'Venture Points',   icon: 'vp',          route: '/parent-venture-points'   },
-    { label: 'Rewards History',  icon: 'rewards',     route: '/parent-rewards-history'  },
-    { label: 'Settings',         icon: 'settings',    route: '/parent-settings'         },
   ];
 
   onSignOut(): void { console.log('Sign out'); }

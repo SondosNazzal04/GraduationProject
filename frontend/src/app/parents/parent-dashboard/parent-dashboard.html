@@ -1,81 +1,150 @@
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><span class="logo-letter">E</span></div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Parent portal</span>
+<div class="p-layout">
+  <app-parent-sidebar></app-parent-sidebar>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Dashboard" [userName]="parentName"></app-topbar>
+    <div class="p-body">
+
+      <!-- Welcome -->
+      <div class="welcome-bar">
+        <div>
+          <h2 class="welcome-bar__title">Welcome back, {{ parentName }}! 👋</h2>
+          <p class="welcome-bar__sub">Here's an overview of your children's academic progress.</p>
+        </div>
+        <a class="btn-primary" routerLink="/parent-children">View All Children</a>
+      </div>
+
+      <!-- Top KPI cards -->
+      <div class="kpi-grid">
+        <div class="scard scard--blue">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="9" cy="7" r="4" />
+              <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              <path d="M21 21v-2a4 4 0 0 0-3-3.87" />
+            </svg></div>
+          <div class="scard__val">{{ children().length }}</div>
+          <div class="scard__lbl">Total Children</div>
+        </div>
+        <div class="scard scard--amber">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg></div>
+          <div class="scard__val">{{ avgAttendance }}%</div>
+          <div class="scard__lbl">Avg Attendance</div>
+        </div>
+        <div class="scard scard--purple">
+          <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+            </svg></div>
+          <div class="scard__val">{{ totalVP | number }}</div>
+          <div class="scard__lbl">Total Venture Points</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="charts-row">
+
+        <!-- Attendance trend bar chart -->
+        <div class="p-card chart-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Attendance Trend
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-chart__col" *ngFor="let d of attendanceTrend">
+                <div class="bar-chart__bar-wrap">
+                  <span class="bar-chart__pct">{{ d.pct }}%</span>
+                  <div class="bar-chart__bar" [style.height.px]="barHeight(d.pct)"
+                    [style.background]="d.pct >= 90 ? '#1565C0' : d.pct >= 80 ? '#f59e0b' : '#ef4444'">
+                  </div>
+                </div>
+                <div class="bar-chart__label">{{ d.month }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GPA comparison -->
+        <div class="p-card chart-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            GPA Comparison
+          </div>
+          <div class="chart-body">
+            <div class="gpa-compare" *ngFor="let c of children()">
+              <div class="gpa-compare__header">
+                <div class="gpa-compare__avatar">{{ c.initials }}</div>
+                <span class="gpa-compare__name">{{ c.firstName }}</span>
+                <span class="gpa-compare__val" [style.color]="getGpaColor(c.gpa)">{{ c.gpa }}</span>
+              </div>
+              <div class="prog-track" style="margin-top:6px">
+                <div class="prog-fill" [style.width.%]="(c.gpa/4)*100" [style.background]="getGpaColor(c.gpa)"></div>
+              </div>
+            </div>
+
+            <!-- Academic progress per child -->
+            <div class="academic-prog" *ngFor="let c of children()">
+              <div class="academic-prog__title">{{ c.firstName }} — Academic Progress</div>
+              <div class="prog-track" style="margin-top:6px">
+                <div class="prog-fill" [style.width.%]="c.attendancePct" style="background:#1565C0"></div>
+              </div>
+              <div class="academic-prog__sub">Attendance: {{ c.attendancePct }}% · VP: {{ c.venturePoints | number }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom row: Recent Activity + Events -->
+      <div class="bottom-row">
+
+        <!-- Recent Activity -->
+        <div class="p-card">
+          <div class="p-card__header">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            Recent Activity
+            <a class="see-all" routerLink="/parent-children">See all →</a>
+          </div>
+          <div class="activity-list">
+            <div class="act-item" *ngFor="let a of recentActivity()">
+              <div class="act-item__dot" [style.background]="a.bg" [style.color]="a.color">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline *ngIf="a.icon==='assignment'||a.icon==='grade'" points="20 6 9 17 4 12" />
+                  <polygon *ngIf="a.icon==='badge'"
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  <circle *ngIf="a.icon==='streak'" cx="12" cy="12" r="10" />
+                  <rect *ngIf="a.icon==='attend'" x="3" y="4" width="18" height="18" rx="2" />
+                  <path *ngIf="a.icon==='act_item'"
+                    d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                </svg>
+              </div>
+              <div class="act-item__body">
+                <div class="act-item__text">{{ a.text }}</div>
+                <div class="act-item__meta">{{ a.child }} · {{ a.time }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-  </aside>
-
-  <main class="main-content">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Parent portal</p>
-        <h1 class="page-title">{{ profile?.email || 'Parent' }}</h1>
-        <p class="page-subtitle">Monitor your child's academic progress.</p>
-      </div>
-    </header>
-
-    @if (loading) {
-      <div class="loading-state">
-        <span class="material-icons spinning">sync</span>
-        <p>Loading dashboard…</p>
-      </div>
-    }
-
-    @if (error) {
-      <div class="banner banner--error">⚠ {{ error }}</div>
-    }
-
-    @if (!loading && !error && profile) {
-      <div class="stats-row">
-        <a class="stat-card" routerLink="/parent-attendance">
-          <span class="material-icons stat-icon">event_available</span>
-          <div>
-            <p class="stat-label">Attendance</p>
-            <p class="stat-value">View</p>
-          </div>
-        </a>
-        <a class="stat-card" routerLink="/parent-grades">
-          <span class="material-icons stat-icon">grade</span>
-          <div>
-            <p class="stat-label">Grades</p>
-            <p class="stat-value">View</p>
-          </div>
-        </a>
-        <a class="stat-card" routerLink="/parent-classes">
-          <span class="material-icons stat-icon">class</span>
-          <div>
-            <p class="stat-label">Classes</p>
-            <p class="stat-value">View</p>
-          </div>
-        </a>
-      </div>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>My Children</h2>
-        </div>
-        @if (!profile.classIds.length) {
-          <p class="muted">No children linked yet. Contact the admin.</p>
-        } @else {
-          <div class="tag-row">
-            @for (classId of profile.classIds; track classId) {
-              <span class="tag">{{ className(classId) }}</span>
-            }
-          </div>
-        }
-      </section>
-    }
-  </main>
+  </div>
 </div>
