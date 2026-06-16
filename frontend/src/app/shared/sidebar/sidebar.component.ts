@@ -13,7 +13,7 @@ export class SidebarComponent {
   navItems = [
     { label: 'Dashboard', icon: 'dashboard', route: '/teacher-dashboard', active: true },
     { label: 'My Classes', icon: 'classes', route: '/my-classes', active: true },
-    { label: 'Students', icon: 'students', route: '/teacherstudent', active: true },
+
     { label: 'Attendance', icon: 'attendance', route: '/attendance', active: true },
     { label: 'Gradebook', icon: 'grades', route: '/gradebook', active: true },
     { label: 'Activities', icon: 'activities', route: '/activities', active: true },

@@ -2,12 +2,13 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivityService } from '../../../activity/services/activity';
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
+import { TopbarComponent } from '../../../shared/topbar/topbar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
   selector: 'app-teacher-dachboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacher-dachboard.html',
   styleUrl: './teacher-dachboard.css',
 })

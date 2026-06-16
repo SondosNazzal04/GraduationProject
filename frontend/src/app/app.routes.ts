@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { TeacherDachboard } from './component/teacher/teacher-dachboard/teacher-dachboard';
 import { Teacherclasses } from './component/teacher/teacherclasses/teacherclasses';
-import { Teacherstudent } from './component/teacherstudent/teacherstudent';
+
 import { Teacherattendance } from './component/teacher/teacherattendance/teacherattendance';
 //import { Studentctivities } from './component/student-activities/student-activities';
 //import { TeacherActivity } from './component/teacher-activities/teacher-activities';
@@ -87,12 +87,7 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['teacher'] },
   },
-  {
-    path: 'teacherstudent',
-    component: Teacherstudent,
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['teacher'] },
-  },
+
   {
     path: 'teacherattendance',
     component: Teacherattendance,

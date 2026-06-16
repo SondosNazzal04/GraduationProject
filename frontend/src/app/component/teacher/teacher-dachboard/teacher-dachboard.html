@@ -1,21 +1,13 @@
-<div class="p-layout d-flex">
+<div class="p-layout">
   <app-sidebar></app-sidebar>
 
-  <div class="p-layout__main flex-grow-1">
-    <div
-      class="dashboard-header d-flex align-items-center justify-content-between p-3 mb-3">
-      <h3 class="fw-bold m-0">Teacher Dashboard</h3>
-      <div class="d-flex align-items-center gap-3">
-        <div class="p-layout__search input-group dashboard-search me-2">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search...">
-        </div>
-        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Profile"
-          width="38" height="38" class="rounded-circle border">
-        <span class="ms-2">{{ teacherName() }}</span>
+  <div class="p-layout__main">
+    <app-topbar pageTitle="Teacher Dashboard" [userName]="teacherName()"></app-topbar>
+    <div class="p-body">
+      <div class="p-heading">
+        <h1 class="p-heading__title">Teacher Dashboard</h1>
+        <p class="p-heading__sub">Overview of your classes and students</p>
       </div>
-    </div>
-    <div class="dashboard-content p-3">
       <div class="row mb-3 g-3">
         <div class="col-lg-3 col-6">
           <div class="card dashboard-card h-100">

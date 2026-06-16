@@ -46,22 +46,6 @@
   flex-grow: 1;
 }
 
-.dashboard-header {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.dashboard-search input {
-  border-radius: 8px;
-  min-width: 180px;
-  background: #f4f7fb;
-  border: 1px solid #e5e7eb;
-}
-
-.dashboard-content {
-  background: transparent;
-}
-
 .dashboard-card {
   background: #fff;
   border: 1px solid #e5e7eb;
