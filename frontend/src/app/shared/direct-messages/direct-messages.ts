@@ -11,6 +11,7 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
 import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component';
 import { AdminTopbarComponent } from '../admin-topbar/admin-topbar.component';
+import { ParentSidebarComponent } from '../parent-sidebar/parent-sidebar.component';
 import { AuthService } from '../services/auth/auth';
 
 interface Contact {
@@ -28,7 +29,7 @@ interface Contact {
 @Component({
   selector: 'app-direct-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent, ParentSidebarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.css',
 })
@@ -53,8 +54,9 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   contactsError = '';
   sendError = '';
 
-  role: 'student' | 'teacher' | 'admin' = 'student';
+  role: 'student' | 'teacher' | 'admin' | 'parent' = 'student';
   teacherName = '';
+  parentName = '';
 
   get filteredContacts(): Contact[] {
     if (!this.searchQuery.trim()) return this.contacts;
@@ -79,6 +81,17 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
             this.teacherName = `${firstName} ${lastName}`.trim();
           } else if (profile.email) {
             this.teacherName = profile.email.split('@')[0];
+          }
+        }
+      } else if (this.role === 'parent') {
+        const profile = await this.authService.getParentProfile();
+        if (profile) {
+          const firstName = profile.firstName || '';
+          const lastName = profile.lastName || '';
+          if (firstName || lastName) {
+            this.parentName = `${firstName} ${lastName}`.trim();
+          } else if (profile.email) {
+            this.parentName = profile.email.split('@')[0];
           }
         }
       }

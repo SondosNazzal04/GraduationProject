@@ -200,6 +200,12 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['parent'] },
   },
+  {
+    path: 'parent-messages',
+    component: DirectMessages,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['parent'] },
+  },
 ];
 
 

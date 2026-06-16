@@ -3,6 +3,8 @@
     <app-admin-sidebar></app-admin-sidebar>
   } @else if (role === 'teacher') {
     <app-sidebar></app-sidebar>
+  } @else if (role === 'parent') {
+    <app-parent-sidebar></app-parent-sidebar>
   } @else {
     <app-student-sidebar></app-student-sidebar>
   }
@@ -12,6 +14,8 @@
       <app-admin-topbar pageTitle="Messages"></app-admin-topbar>
     } @else if (role === 'teacher') {
       <app-topbar pageTitle="Messages" [userName]="teacherName" [showSearch]="false"></app-topbar>
+    } @else if (role === 'parent') {
+      <app-topbar pageTitle="Messages" [userName]="parentName" [showSearch]="false"></app-topbar>
     } @else {
       <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
     }

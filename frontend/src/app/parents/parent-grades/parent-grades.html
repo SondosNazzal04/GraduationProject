@@ -59,29 +59,6 @@
         </div>
       </div>
 
-      <!-- Subject performance bars -->
-      <div class="p-card" style="margin-bottom:18px">
-        <div class="p-card__header">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
-            <line x1="18" y1="20" x2="18" y2="10"/>
-            <line x1="12" y1="20" x2="12" y2="4"/>
-            <line x1="6" y1="20" x2="6" y2="14"/>
-          </svg>
-          Subject Performance
-        </div>
-        <div class="p-card__body">
-          <div class="subj-bars">
-            <div class="subj-bar-row" *ngFor="let g of filtered()">
-              <div class="subj-bar-row__label">{{ g.subject }} ({{ getChildName(g.childId) }})</div>
-              <div class="prog-track" style="flex:1">
-                <div class="prog-fill" [style.width.%]="g.percentage" [style.background]="gc(g.percentage)"></div>
-              </div>
-              <div class="subj-bar-row__val" [style.color]="gc(g.percentage)">{{ g.percentage }}%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Table -->
       <div class="p-card">
         <div class="p-card__header">

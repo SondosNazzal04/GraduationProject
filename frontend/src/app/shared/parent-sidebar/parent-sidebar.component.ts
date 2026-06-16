@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth/auth';
 
 interface NavItem {
   label: string;
@@ -29,5 +30,15 @@ export class ParentSidebarComponent {
     { label: 'Messages',         icon: 'messages',    route: '/parent-messages'         },
   ];
 
-  onSignOut(): void { console.log('Sign out'); }
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  async onSignOut(): Promise<void> {
+    try {
+      this.authService.logout();
+      await this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  }
 }

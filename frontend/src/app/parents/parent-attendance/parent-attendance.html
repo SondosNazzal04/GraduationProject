@@ -45,29 +45,6 @@
         </div>
       </div>
 
-      <!-- Monthly bar chart -->
-      <div class="p-card" style="margin-bottom:18px">
-        <div class="p-card__header">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2">
-            <line x1="18" y1="20" x2="18" y2="10"/>
-            <line x1="12" y1="20" x2="12" y2="4"/>
-            <line x1="6" y1="20" x2="6" y2="14"/>
-          </svg>
-          Monthly Attendance Graph
-        </div>
-        <div class="p-card__body">
-          <div class="bar-chart">
-            <div class="bar-chart__col" *ngFor="let c of children()">
-              <div class="bar-chart__bar-wrap">
-                <span class="bar-chart__pct">{{ c.attendancePct }}%</span>
-                <div class="bar-chart__bar" [style.height.px]="(c.attendancePct/100)*80" style="background:#1565C0;max-width:40px"></div>
-              </div>
-              <div class="bar-chart__label">{{ c.firstName }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Table -->
       <div class="p-card">
         <div class="p-card__header">
