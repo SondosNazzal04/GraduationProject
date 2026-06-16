@@ -1,46 +1,9 @@
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <span class="logo-letter">E</span>
-      </div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Admin portal</span>
-      </div>
-    </div>
+<div class="p-layout">
+  <app-admin-sidebar></app-admin-sidebar>
 
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-
-    <div class="sidebar-footer">
-      <hr class="sidebar-divider" />
-      <button class="sign-out-btn">
-        <span class="material-icons">logout</span>
-        <span>Sign Out</span>
-      </button>
-    </div>
-  </aside>
-
-  <div class="main-content">
-    <header class="topbar">
-      <h1 class="page-title">VentureShop</h1>
-      <div class="topbar-actions">
-        <app-notifications></app-notifications>
-        <div class="user-info">
-          <div class="user-avatar">
-            <span class="material-icons">account_circle</span>
-          </div>
-          <span class="user-name">admin user</span>
-        </div>
-      </div>
-    </header>
+  <div class="p-layout__main">
+    <app-admin-topbar pageTitle="VentureShop"></app-admin-topbar>
+    <div class="p-body">
 
     <div class="toolbar">
       <button class="add-btn" (click)="openAddModal()" [disabled]="isSaving">
@@ -65,36 +28,31 @@
 
     <div class="shop-grid">
       @for (item of shopItems; track item.id) {
-        <div class="shop-card">
-          <div class="card-image-wrapper">
-            @if (item.image) {
-              <img [src]="item.image" [alt]="item.name" class="card-image" />
-            } @else {
-              <div class="card-image-placeholder">
-                <span class="avatar-label">AVATAR</span>
-              </div>
-            }
-          </div>
-          <div class="card-body">
-            <h3 class="card-name">{{ item.emoji }} {{ item.name }}</h3>
-            <p class="card-description">{{ item.description }}</p>
-            <div class="card-price">
-              <span class="material-icons coin-small">monetization_on</span>
-              <span class="price-text">{{ item.price | number }} pts</span>
+        <div class="shop-card" [class.shop-card--unavailable]="item.active === false" [class.shop-card--popular]="$any(item).popular">
+          @if ($any(item).popular) {
+            <div class="shop-card__popular-badge">🔥 Popular</div>
+          }
+          <div class="shop-card__emoji">{{ item.emoji || '🎁' }}</div>
+          <div class="shop-card__cat chip chip--blue" style="font-size:10px;align-self:flex-start">{{ $any(item).category || 'Digital' }}</div>
+          <div class="shop-card__name">{{ item.name }}</div>
+          <div class="shop-card__desc">{{ item.description }}</div>
+          <div class="shop-card__footer">
+            <div class="shop-card__cost">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              <span>{{ item.price }} VP</span>
             </div>
-            <div class="card-actions">
-              <button class="edit-btn" (click)="openEditModal(item)" [disabled]="isSaving">
+            <div class="card-actions" style="margin-top:0">
+              <button class="edit-btn" style="font-size:12px;padding:7px 14px" (click)="openEditModal(item)" [disabled]="isSaving">
                 Edit
-                <span class="material-icons">edit</span>
               </button>
-              <button class="remove-btn" (click)="openRemoveConfirm(item)" [disabled]="isSaving">
+              <button class="remove-btn" style="font-size:12px;padding:7px 14px" (click)="openRemoveConfirm(item)" [disabled]="isSaving">
                 Remove
-                <span class="material-icons">cancel</span>
               </button>
             </div>
           </div>
         </div>
       }
+    </div>
     </div>
   </div>
 </div>

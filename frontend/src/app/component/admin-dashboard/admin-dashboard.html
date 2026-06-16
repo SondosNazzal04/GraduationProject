@@ -1,1 +1,93 @@
-<p>admin-dashboard works!</p>
+<div class="p-layout">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <div class="p-layout__main">
+    <app-admin-topbar eyebrow="Overview" pageTitle="Admin Dashboard" pageSubtitle="Real-time insights across your platform"></app-admin-topbar>
+    
+    <div class="p-body">
+      @if (loading) {
+        <div class="loading-state">
+          <span class="material-icons spin">sync</span>
+          <span>Loading dashboard insights...</span>
+        </div>
+      } @else {
+        <!-- Key Metrics -->
+        <div class="stat-grid">
+          
+          <div class="scard scard--blue">
+            <div class="scard__icon">
+              <span class="material-icons">people</span>
+            </div>
+            <div class="scard__val">{{ stats.totalUsers }}</div>
+            <div class="scard__lbl">Total Registered Users</div>
+          </div>
+
+          <div class="scard scard--green">
+            <div class="scard__icon">
+              <span class="material-icons">school</span>
+            </div>
+            <div class="scard__val">{{ stats.students }}</div>
+            <div class="scard__lbl">Active Students</div>
+          </div>
+
+          <div class="scard scard--amber">
+            <div class="scard__icon">
+              <span class="material-icons">co_present</span>
+            </div>
+            <div class="scard__val">{{ stats.teachers }}</div>
+            <div class="scard__lbl">Active Teachers</div>
+          </div>
+
+          <div class="scard scard--purple">
+            <div class="scard__icon">
+              <span class="material-icons">class</span>
+            </div>
+            <div class="scard__val">{{ stats.totalClasses }}</div>
+            <div class="scard__lbl">Total Classes</div>
+          </div>
+
+          <div class="scard scard--pink">
+            <div class="scard__icon">
+              <span class="material-icons">family_restroom</span>
+            </div>
+            <div class="scard__val">{{ stats.parents }}</div>
+            <div class="scard__lbl">Parent Accounts</div>
+          </div>
+
+          <div class="scard scard--red">
+            <div class="scard__icon">
+              <span class="material-icons">storefront</span>
+            </div>
+            <div class="scard__val">{{ stats.shopItems }}</div>
+            <div class="scard__lbl">VentureShop Items</div>
+          </div>
+
+        </div>
+
+        <div class="dashboard-actions">
+          <div class="p-card action-card">
+            <div class="p-card__header">
+              <span class="material-icons action-icon">group_add</span>
+              Manage Users & Classes
+            </div>
+            <div class="p-card__body">
+              <p class="text-muted">Create new students, assign teachers, or configure parent access from the unified user portal.</p>
+              <a href="/admin-users" class="btn-primary mt-2">Go to Users</a>
+            </div>
+          </div>
+
+          <div class="p-card action-card">
+            <div class="p-card__header">
+              <span class="material-icons action-icon text-purple">add_shopping_cart</span>
+              Manage VentureShop
+            </div>
+            <div class="p-card__body">
+              <p class="text-muted">Add new digital or physical rewards for students to purchase with their Venture Points.</p>
+              <a href="/admin-venture-shop" class="btn-outline mt-2">Go to VentureShop</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

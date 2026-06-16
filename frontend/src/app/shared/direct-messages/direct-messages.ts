@@ -9,6 +9,8 @@ import { StudentTopbarComponent } from '../student-topbar/student-topbar.compone
 import { StudentPortalService } from '../../services/student-portal.service';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
+import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component';
+import { AdminTopbarComponent } from '../admin-topbar/admin-topbar.component';
 import { AuthService } from '../services/auth/auth';
 
 interface Contact {
@@ -26,7 +28,7 @@ interface Contact {
 @Component({
   selector: 'app-direct-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.css',
 })

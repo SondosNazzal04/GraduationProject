@@ -1,12 +1,16 @@
 <div class="p-layout">
-  @if (role === 'teacher') {
+  @if (role === 'admin') {
+    <app-admin-sidebar></app-admin-sidebar>
+  } @else if (role === 'teacher') {
     <app-sidebar></app-sidebar>
   } @else {
     <app-student-sidebar></app-student-sidebar>
   }
 
   <div class="p-layout__main">
-    @if (role === 'teacher') {
+    @if (role === 'admin') {
+      <app-admin-topbar pageTitle="Messages"></app-admin-topbar>
+    } @else if (role === 'teacher') {
       <app-topbar pageTitle="Messages" [userName]="teacherName" [showSearch]="false"></app-topbar>
     } @else {
       <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>

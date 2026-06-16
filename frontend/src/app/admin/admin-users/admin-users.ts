@@ -283,6 +283,8 @@ import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
 import { AuthService } from '../../shared/services/auth/auth';
+import { AdminSidebarComponent } from '../../shared/admin-sidebar/admin-sidebar.component';
+import { AdminTopbarComponent } from '../../shared/admin-topbar/admin-topbar.component';
 
 type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
 
@@ -312,7 +314,7 @@ interface SchoolClass {
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css',
 })

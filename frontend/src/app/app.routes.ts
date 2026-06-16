@@ -25,7 +25,7 @@ import { ParentChildren } from './parents/parent-children/parent-children';
 import { ChangePassword } from './features/auth/login/change-password/change-password';
 import { StudentDashboard } from './component/student-dashboard/student-dashboard';
 import { StudentClassesComponent } from './component/student-classes/student-classes';
-import { AdminDashboard } from './component/admin-dashboard/admin-dashboard';
+import { AdminDashboardComponent } from './component/admin-dashboard/admin-dashboard';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { DirectMessages } from './shared/direct-messages/direct-messages';
@@ -146,7 +146,7 @@ export const routes: Routes = [
   // ── Admin routes ───────────────────────────────────────────────
   {
     path: 'admin-dashboard',
-    component: AdminDashboard,
+    component: AdminDashboardComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
   },
@@ -159,6 +159,12 @@ export const routes: Routes = [
   {
     path: 'admin-venture-shop',
     component: AdminVentureShop,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
+  },
+  {
+    path: 'admin-messages',
+    component: DirectMessages,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
   },

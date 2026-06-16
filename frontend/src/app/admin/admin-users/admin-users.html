@@ -171,33 +171,12 @@
     </section>
   </main>
 </div> -->
-<div class="page-wrapper">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><span class="logo-letter">E</span></div>
-      <div class="logo-text">
-        <span class="logo-title">EduVenture</span>
-        <span class="logo-subtitle">Admin portal</span>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      @for (item of navItems; track item.route) {
-        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
-          <span class="material-icons nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-  </aside>
+<div class="p-layout">
+  <app-admin-sidebar></app-admin-sidebar>
 
-  <main class="main-content">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Admin management</p>
-        <h1 class="page-title">Users and classes</h1>
-        <p class="page-subtitle">Create accounts, build classes, and attach students or teachers.</p>
-      </div>
-    </header>
+  <div class="p-layout__main">
+    <app-admin-topbar eyebrow="Admin management" pageTitle="Users and classes" pageSubtitle="Create accounts, build classes, and attach students or teachers."></app-admin-topbar>
+    <div class="p-body">
 
     @if (message) {
       <div class="banner banner--success">
@@ -531,5 +510,6 @@
         </div>
       </div>
     }
-  </main>
+    </div>
+  </div>
 </div>

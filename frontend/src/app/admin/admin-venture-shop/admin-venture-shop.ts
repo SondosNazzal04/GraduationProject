@@ -7,6 +7,8 @@ import { inject, ChangeDetectorRef } from '@angular/core';
 import { firstValueFrom, timeout } from 'rxjs';
 import { ShopItem } from '../../models/shop-item.model';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
+import { AdminSidebarComponent } from '../../shared/admin-sidebar/admin-sidebar.component';
+import { AdminTopbarComponent } from '../../shared/admin-topbar/admin-topbar.component';
 
 /** Milliseconds before an API call is considered timed out */
 const REQUEST_TIMEOUT = 10_000;
@@ -15,7 +17,7 @@ import { Notifications } from '../../shared/components/notifications/notificatio
 
 @Component({
   selector: 'app-admin-venture-shop',
-  imports: [CommonModule, RouterModule, FormsModule, Notifications],
+  imports: [CommonModule, RouterModule, FormsModule, Notifications, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './admin-venture-shop.html',
   styleUrl: './admin-venture-shop.css',
 })
