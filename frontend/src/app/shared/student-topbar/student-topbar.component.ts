@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../services/notifications/notification.service';
+import { Auth } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 @Component({
   selector: 'app-student-topbar',
@@ -14,7 +16,9 @@ import { NotificationService } from '../services/notifications/notification.serv
 })
 export class StudentTopbarComponent implements OnInit, OnDestroy {
   private notifService = inject(NotificationService);
+  private auth = inject(Auth);
   private notifSub?: Subscription;
+  private authUnsubscribe?: () => void;
 
   @Input() pageTitle = '';
   @Input() studentName = 'Sara Ahmad';
@@ -25,16 +29,27 @@ export class StudentTopbarComponent implements OnInit, OnDestroy {
   searchQuery = '';
 
   ngOnInit() {
-    const uid = this.notifService.currentUserId;
-    if (uid) {
-      this.notifSub = this.notifService.getNotifications(uid).subscribe(notifications => {
-        this.notifCount = notifications.filter(n => !n.isRead).length;
-      });
-    }
+    this.authUnsubscribe = onAuthStateChanged(this.auth, (user) => {
+      if (this.notifSub) {
+        this.notifSub.unsubscribe();
+      }
+      if (user) {
+        this.notifSub = this.notifService.getNotifications(user.uid).subscribe(notifications => {
+          this.notifCount = notifications.filter(n => !n.isRead).length;
+        });
+      } else {
+        this.notifCount = 0;
+      }
+    });
   }
 
   ngOnDestroy() {
-    if (this.notifSub) this.notifSub.unsubscribe();
+    if (this.notifSub) {
+      this.notifSub.unsubscribe();
+    }
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+    }
   }
 
   get initials(): string {

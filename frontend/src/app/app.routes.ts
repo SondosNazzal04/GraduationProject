@@ -29,6 +29,7 @@ import { AdminDashboardComponent } from './component/admin-dashboard/admin-dashb
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { DirectMessages } from './shared/direct-messages/direct-messages';
+import { Notification } from './features/notification/notification';
 
 export const routes: Routes = [
   // ── Public routes ──────────────────────────────────────────────
@@ -70,6 +71,12 @@ export const routes: Routes = [
   {
     path: 'student-classes',
     component: StudentClassesComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['student'] },
+  },
+  {
+    path: '',
+    component: Notification,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['student'] },
   },
@@ -142,6 +149,12 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['teacher'] },
   },
+  {
+    path: 'teacher-notifications',
+    component: Notification,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['teacher'] },
+  },
 
   // ── Admin routes ───────────────────────────────────────────────
   {
@@ -165,6 +178,12 @@ export const routes: Routes = [
   {
     path: 'admin-messages',
     component: DirectMessages,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
+  },
+  {
+    path: 'admin-notifications',
+    component: Notification,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
   },
@@ -203,6 +222,12 @@ export const routes: Routes = [
   {
     path: 'parent-messages',
     component: DirectMessages,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['parent'] },
+  },
+  {
+    path: 'parent-notifications',
+    component: Notification,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['parent'] },
   },

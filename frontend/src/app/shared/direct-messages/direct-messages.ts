@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, ElementRef, ViewChild, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChatService, Message } from '../services/chat/chat.service';
 import { StudentSidebarComponent } from '../student-sidebar/student-sidebar.component';
@@ -13,9 +13,25 @@ import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component'
 import { AdminTopbarComponent } from '../admin-topbar/admin-topbar.component';
 import { ParentSidebarComponent } from '../parent-sidebar/parent-sidebar.component';
 import { AuthService } from '../services/auth/auth';
+import { Auth } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+
+function waitForCurrentUser(auth: Auth): Promise<any> {
+  return new Promise((resolve) => {
+    if (auth.currentUser) {
+      resolve(auth.currentUser);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
 
 interface Contact {
   uid: string;
+  email?: string;
   name: string;
   role: 'teacher' | 'admin' | 'student';
   lastMessage?: string;
@@ -32,13 +48,15 @@ interface Contact {
   imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent, ParentSidebarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.css',
-})
+  })
 export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;
 
   private chatService = inject(ChatService);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private auth = inject(Auth);
   ps = inject(StudentPortalService);
 
   contacts: Contact[] = [];
@@ -51,6 +69,8 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   searchQuery = '';
   private shouldScrollToBottom = false;
   private messagesSub?: Subscription;
+  private routeSub?: Subscription;
+  private contactChatsSubs: Subscription[] = [];
   contactsError = '';
   sendError = '';
 
@@ -59,9 +79,29 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   parentName = '';
 
   get filteredContacts(): Contact[] {
-    if (!this.searchQuery.trim()) return this.contacts;
-    const q = this.searchQuery.toLowerCase();
-    return this.contacts.filter(c => c.name.toLowerCase().includes(q));
+    let list = this.contacts;
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      list = list.filter(c => c.name.toLowerCase().includes(q));
+    }
+    
+    // Deduplicate contacts with the same email or name, keeping the one with the most recent lastMessageTime
+    const uniqueMap = new Map<string, Contact>();
+    list.forEach(c => {
+      const emailKey = c.email || c.name;
+      const existing = uniqueMap.get(emailKey);
+      if (!existing) {
+        uniqueMap.set(emailKey, c);
+      } else {
+        const existingTime = existing.lastMessageTime ? new Date(existing.lastMessageTime).getTime() : 0;
+        const newTime = c.lastMessageTime ? new Date(c.lastMessageTime).getTime() : 0;
+        if (newTime > existingTime) {
+          uniqueMap.set(emailKey, c);
+        }
+      }
+    });
+    
+    return Array.from(uniqueMap.values());
   }
 
   get totalUnread(): number {
@@ -69,6 +109,8 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async ngOnInit(): Promise<void> {
+    await waitForCurrentUser(this.auth);
+
     try {
       const userRole = await this.authService.getCurrentUserRole();
       this.role = (userRole as any) || 'student';
@@ -100,7 +142,23 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     await this.loadContacts();
-    if (this.contacts.length > 0) await this.selectContact(this.contacts[0]);
+
+    this.listenToContactChats();
+    
+    this.routeSub = this.route.queryParams.subscribe(async (params) => {
+      const contactId = params['contactId'];
+      if (contactId && this.contacts.length > 0) {
+        const targetContact = this.contacts.find(c => c.uid === contactId);
+        if (targetContact) {
+          await this.selectContact(targetContact);
+          return;
+        }
+      }
+      const displayed = this.filteredContacts;
+      if (displayed.length > 0 && !this.selectedContact) {
+        await this.selectContact(displayed[0]);
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -114,6 +172,49 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     if (this.messagesSub) {
       this.messagesSub.unsubscribe();
     }
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
+    this.contactChatsSubs.forEach(s => s.unsubscribe());
+  }
+
+  private listenToContactChats(): void {
+    this.contactChatsSubs.forEach(s => s.unsubscribe());
+    this.contactChatsSubs = [];
+
+    const currentUserId = this.chatService.currentUserId || 'me';
+
+    this.contacts.forEach(contact => {
+      const chatId = this.chatService.getChatId(currentUserId, contact.uid);
+      const sub = this.chatService.getChat(chatId).subscribe({
+        next: (chat) => {
+          if (chat) {
+            contact.lastMessage = chat.lastMessage;
+            contact.lastMessageTime = chat.lastMessageTime;
+          } else {
+            contact.lastMessage = '';
+            contact.lastMessageTime = '';
+          }
+          this.sortContacts();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.warn(`Permission or other error reading chat ${chatId}:`, err);
+        }
+      });
+      this.contactChatsSubs.push(sub);
+    });
+  }
+
+  private sortContacts(): void {
+    this.contacts.sort((a, b) => {
+      if (a.lastMessageTime && b.lastMessageTime) {
+        return new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime();
+      }
+      if (a.lastMessageTime) return -1;
+      if (b.lastMessageTime) return 1;
+      return a.name.localeCompare(b.name);
+    });
   }
 
   private async loadContacts(): Promise<void> {
@@ -121,7 +222,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     try {
       const users = await this.chatService.getUsers();
       const currentUserId = this.chatService.currentUserId;
-      
+
       this.contacts = users
         .filter(u => u.uid !== currentUserId)
         .map(u => {
@@ -129,6 +230,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
           const initials = name.substring(0, 2).toUpperCase();
           return {
             uid: u.uid,
+            email: u.email || '',
             name: name,
             role: u.role || 'student',
             avatarInitials: initials,
@@ -137,7 +239,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
             unreadCount: 0
           };
         });
-        
+
       this.contactsError = '';
     } catch (error: any) {
       console.error('Error fetching contacts:', error);
@@ -154,7 +256,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     contact.unreadCount = 0;
     this.loadingMessages = true;
     this.messages = [];
-    
+
     if (this.messagesSub) {
       this.messagesSub.unsubscribe();
     }
@@ -188,10 +290,10 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
       await this.chatService.sendMessage(this.selectedContact.uid, content);
       this.newMessage = '';
       this.shouldScrollToBottom = true;
-      
+
       if (this.selectedContact) {
         this.selectedContact.lastMessage = content;
-        this.selectedContact.lastMessageTime = 'Just now';
+        this.selectedContact.lastMessageTime = new Date().toISOString();
       }
     } catch (error: any) {
       console.error('Failed to send message:', error);
@@ -219,6 +321,24 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     const diff = today.getDate() - date.getDate();
     if (diff === 0) return 'Today';
     if (diff === 1) return 'Yesterday';
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+
+  formatLastMessageTime(timestamp: string | undefined): string {
+    if (!timestamp) return '';
+    if (timestamp === 'Just now') return 'Just now';
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return timestamp;
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    if (isToday) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+    if (isYesterday) return 'Yesterday';
+    
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 

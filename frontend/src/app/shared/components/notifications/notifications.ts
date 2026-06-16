@@ -4,6 +4,9 @@ import { NotificationService } from '../../services/notifications/notification.s
 import { Notification } from '../../../models/notification.model';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth/auth';
+import { Auth } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 @Component({
   selector: 'app-notifications',
@@ -15,25 +18,38 @@ import { Router } from '@angular/router';
 export class Notifications implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private auth = inject(Auth);
 
   notifications: Notification[] = [];
   unreadCount = 0;
   isOpen = false;
   private sub?: Subscription;
+  private authUnsubscribe?: () => void;
 
   ngOnInit() {
-    const userId = this.notificationService.currentUserId;
-    if (userId) {
-      this.sub = this.notificationService.getNotifications(userId).subscribe(notifs => {
-        this.notifications = notifs;
-        this.unreadCount = notifs.filter(n => !n.isRead).length;
-      });
-    }
+    this.authUnsubscribe = onAuthStateChanged(this.auth, (user) => {
+      if (this.sub) {
+        this.sub.unsubscribe();
+      }
+      if (user) {
+        this.sub = this.notificationService.getNotifications(user.uid).subscribe(notifs => {
+          this.notifications = notifs;
+          this.unreadCount = notifs.filter(n => !n.isRead).length;
+        });
+      } else {
+        this.notifications = [];
+        this.unreadCount = 0;
+      }
+    });
   }
 
   ngOnDestroy() {
     if (this.sub) {
       this.sub.unsubscribe();
+    }
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
     }
   }
 
@@ -57,18 +73,38 @@ export class Notifications implements OnInit, OnDestroy {
     }
   }
 
-  onNotificationClick(notif: Notification) {
-    this.markAsRead(notif);
+  async onNotificationClick(notif: Notification) {
+    await this.markAsRead(notif);
     this.closeDropdown();
-    // Example routing based on type
-    if (notif.type === 'message') {
-      // route to messages
-      // We could try to read relatedId or just route to the common message portal
-      // Actually we'll need role checking or we just let them figure it out
-      // For now we'll route to student-messages if they are student, etc. but let's just emit event or do simple routing
-      if (window.location.pathname.includes('student')) {
-        this.router.navigate(['/student-messages']);
+    
+    try {
+      const role = await this.authService.getCurrentUserRole();
+      let route = '';
+      let queryParams: any = {};
+      
+      if (notif.type === 'message') {
+        if (role === 'student') route = '/student-messages';
+        else if (role === 'teacher') route = '/teacher-messages';
+        else if (role === 'parent') route = '/parent-messages';
+        else if (role === 'admin') route = '/admin-messages';
+        
+        if (notif.relatedId) {
+          queryParams = { contactId: notif.relatedId };
+        }
+      } else if (notif.type === 'grade') {
+        if (role === 'student') route = '/studentactivities';
+        else if (role === 'parent') route = '/parent-grades';
+        else if (role === 'teacher') route = '/gradebook';
+      } else if (notif.type === 'purchase') {
+        if (role === 'student') route = '/venture-shop';
+        else if (role === 'admin') route = '/admin-venture-shop';
       }
+
+      if (route) {
+        await this.router.navigate([route], { queryParams });
+      }
+    } catch (err) {
+      console.error('Failed to handle notification click navigation:', err);
     }
   }
 }

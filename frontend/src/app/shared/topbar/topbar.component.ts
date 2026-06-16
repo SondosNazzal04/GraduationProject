@@ -1,7 +1,11 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { NotificationService } from '../services/notifications/notification.service';
+import { Auth } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 @Component({
   selector: 'app-topbar',
@@ -10,8 +14,12 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })
-export class TopbarComponent implements OnInit {
+export class TopbarComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private notifService = inject(NotificationService);
+  private auth = inject(Auth);
+  private notifSub?: Subscription;
+  private authUnsubscribe?: () => void;
 
   @Input() pageTitle: string = '';
   @Input() userName: string = 'Mr. Smith';
@@ -21,6 +29,7 @@ export class TopbarComponent implements OnInit {
   @Input() notificationsRoute?: string;
   
   searchQuery = '';
+  notifCount = 0;
 
   ngOnInit() {
     const url = this.router.url;
@@ -31,7 +40,29 @@ export class TopbarComponent implements OnInit {
     } else {
       if (!this.roleName) this.roleName = 'Teacher';
       if (!this.messagesRoute) this.messagesRoute = '/teacher-messages';
-      if (!this.notificationsRoute) this.notificationsRoute = '/teacher-messages';
+      if (!this.notificationsRoute) this.notificationsRoute = '/teacher-notifications';
+    }
+
+    this.authUnsubscribe = onAuthStateChanged(this.auth, (user) => {
+      if (this.notifSub) {
+        this.notifSub.unsubscribe();
+      }
+      if (user) {
+        this.notifSub = this.notifService.getNotifications(user.uid).subscribe(notifications => {
+          this.notifCount = notifications.filter(n => !n.isRead).length;
+        });
+      } else {
+        this.notifCount = 0;
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.notifSub) {
+      this.notifSub.unsubscribe();
+    }
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
     }
   }
 }

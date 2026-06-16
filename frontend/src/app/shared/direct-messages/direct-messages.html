@@ -56,7 +56,7 @@
                   <div class="contact-info">
                     <div class="contact-row">
                       <span class="contact-name">{{ contact.name }}</span>
-                      <span class="contact-time">{{ contact.lastMessageTime || '' }}</span>
+                      <span class="contact-time">{{ formatLastMessageTime(contact.lastMessageTime) }}</span>
                     </div>
                     <div class="contact-row">
                       <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>

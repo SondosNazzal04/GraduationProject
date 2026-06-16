@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, addDoc, getDoc, getDocs, Timestamp } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, addDoc, getDoc, getDocs, Timestamp, where } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { NotificationService } from '../notifications/notification.service';
@@ -45,7 +45,7 @@ export class ChatService {
           const data = docSnap.data();
           let ts = data['timestamp'];
           let timestampStr = '';
-          
+
           if (ts && typeof ts.toDate === 'function') {
             timestampStr = ts.toDate().toISOString();
           } else if (ts) {
@@ -70,6 +70,71 @@ export class ChatService {
     });
   }
 
+  getChats(userId: string): Observable<Chat[]> {
+    return new Observable<Chat[]>((observer) => {
+      const chatsRef = collection(this.firestore, 'chats');
+      const q = query(chatsRef, where('participants', 'array-contains', userId));
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const chats: Chat[] = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          let ts = data['lastMessageTime'];
+          let timestampStr = '';
+
+          if (ts && typeof ts.toDate === 'function') {
+            timestampStr = ts.toDate().toISOString();
+          } else if (ts) {
+            timestampStr = new Date(ts).toISOString();
+          }
+
+          return {
+            id: docSnap.id,
+            participants: data['participants'] || [],
+            lastMessage: data['lastMessage'] || '',
+            lastMessageTime: timestampStr || new Date().toISOString()
+          } as Chat;
+        });
+        observer.next(chats);
+      }, (error) => {
+        observer.error(error);
+      });
+
+      return () => unsubscribe();
+    });
+  }
+
+  getChat(chatId: string): Observable<Chat | null> {
+    return new Observable<Chat | null>((observer) => {
+      const chatRef = doc(this.firestore, `chats/${chatId}`);
+      const unsubscribe = onSnapshot(chatRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          let ts = data['lastMessageTime'];
+          let timestampStr = '';
+
+          if (ts && typeof ts.toDate === 'function') {
+            timestampStr = ts.toDate().toISOString();
+          } else if (ts) {
+            timestampStr = new Date(ts).toISOString();
+          }
+
+          observer.next({
+            id: docSnap.id,
+            participants: data['participants'] || [],
+            lastMessage: data['lastMessage'] || '',
+            lastMessageTime: timestampStr || new Date().toISOString()
+          });
+        } else {
+          observer.next(null);
+        }
+      }, (error) => {
+        observer.error(error);
+      });
+
+      return () => unsubscribe();
+    });
+  }
+
   async getUsers(): Promise<any[]> {
     const usersRef = collection(this.firestore, 'users');
     const snap = await getDocs(usersRef);
@@ -82,7 +147,7 @@ export class ChatService {
       console.warn('User not authenticated, using dummy ID for sending message (for testing)');
       // For testing with mock users when not logged in
     }
-    
+
     // Fallback to 'me' if not authenticated so testing still works if no auth
     const actualSenderId = senderId || 'me';
 
@@ -92,7 +157,7 @@ export class ChatService {
 
     const chatSnap = await getDoc(chatRef);
     const now = serverTimestamp();
-    
+
     if (!chatSnap.exists()) {
       await setDoc(chatRef, {
         participants: [actualSenderId, receiverId],
@@ -115,12 +180,27 @@ export class ChatService {
       timestamp: now
     });
 
+    // Fetch sender's name for notifications
+    let senderName = 'Someone';
+    try {
+      if (actualSenderId !== 'me') {
+        const senderDocRef = doc(this.firestore, `users/${actualSenderId}`);
+        const senderDoc = await getDoc(senderDocRef);
+        if (senderDoc.exists()) {
+          const data = senderDoc.data();
+          senderName = `${data['firstName'] || ''} ${data['lastName'] || ''}`.trim() || data['email'] || 'Someone';
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching sender profile for notification', e);
+    }
+
     // Send a notification to the receiver
     await this.notificationService.sendNotification(receiverId, {
-      title: 'New Message',
+      title: `Message from ${senderName}`,
       message: content.length > 50 ? content.substring(0, 50) + '...' : content,
       type: 'message',
-      relatedId: chatId
+      relatedId: actualSenderId
     });
   }
 }
