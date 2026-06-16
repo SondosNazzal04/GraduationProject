@@ -57,8 +57,26 @@ export class ActivityListComponent implements OnInit {
     this.loadProfile();
   }
 
-  submissionCount(activityId: string): number {
+  getSubmissionCount(activityId: string): number {
     return this.service.getSubmissionsForActivity(activityId).length;
+  }
+
+  trackById(index: number, activity: any): string {
+    return activity.id;
+  }
+
+  formatDate(value: any): Date | null {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    // Firestore Timestamp object
+    if (typeof value === 'object' && typeof value._seconds === 'number') {
+      return new Date(value._seconds * 1000);
+    }
+    if (typeof value === 'object' && typeof value.seconds === 'number') {
+      return new Date(value.seconds * 1000);
+    }
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
   }
 
   deleteActivity(id: string): void {
