@@ -55,10 +55,25 @@ export class ActivityService {
       if (Array.isArray(json.items)) {
         this.activities.set(json.items);
         this.save('activities', json.items);
+
+        // Load recent submissions for each activity
+        try {
+          const promises = json.items.map((act: any) =>
+            firstValueFrom<any>(
+              this.http.get(`${this.baseUrl}/activities/${encodeURIComponent(act.id)}/submissions`)
+            )
+              .then((res) => res.items || [])
+              .catch(() => [])
+          );
+          const results = await Promise.all(promises);
+          const allSubmissions = results.flat();
+          this.submissions.set(allSubmissions);
+          this.save('submissions', allSubmissions);
+        } catch (subErr) {
+          console.warn('Failed to fetch activity submissions', subErr);
+        }
       }
 
-      // load recent submissions if any
-      // Note: listing all submissions requires activityId; we keep local submissions unless user asks to view per-activity.
       const walletJson = await firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/wallet`));
       const wallet = {
         studentName: walletJson.uid || 'me',

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { TeacherDachboard } from './component/teacher-dachboard/teacher-dachboard';
+import { TeacherDachboard } from './component/teacher/teacher-dachboard/teacher-dachboard';
 import { Teacherclasses } from './component/teacher/teacherclasses/teacherclasses';
 import { Teacherstudent } from './component/teacherstudent/teacherstudent';
 import { Teacherattendance } from './component/teacher/teacherattendance/teacherattendance';
@@ -125,19 +125,25 @@ export const routes: Routes = [
   },
   {
     path: 'my-classes',
-    component: MyClassesComponent,
+    component: Teacherclasses,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['teacher'] },
   },
   {
     path: 'attendance',
-    component: AttendanceComponent,
+    component: Teacherattendance,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['teacher'] },
   },
   {
     path: 'gradebook',
     component: GradebookComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['teacher'] },
+  },
+  {
+    path: 'teacher-messages',
+    component: DirectMessages,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['teacher'] },
   },

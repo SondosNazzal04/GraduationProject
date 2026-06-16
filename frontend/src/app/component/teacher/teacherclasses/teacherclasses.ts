@@ -1,38 +1,57 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TeacherService } from '../../../services/teacher.service';
+import { ClassRoom } from '../../../models/teacher.model';
+import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../../../shared/topbar/topbar.component';
+import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
   selector: 'app-teacherclasses',
-  imports: [],
-   standalone: true,
+  standalone: true,
+  imports: [CommonModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacherclasses.html',
-  styleUrl: './teacherclasses.css',
+  styleUrls: ['./teacherclasses.scss']
 })
-export class Teacherclasses {
+export class Teacherclasses implements OnInit {
+  classes: ClassRoom[] = [];
+  selectedClass: ClassRoom | null = null;
+  teacherName = 'Mr. Smith';
 
- classes = [
-    {
-      name: "Math 101",
-      students: 28,
-      time: "8:00 AM",
-      grade: "10th",
-    },
-    {
-      name: "Math 102",
-      students: 25,
-      time: "9:30 AM",
-      grade: "10th",
-    },
-    {
-      name: "Algebra Advanced",
-      students: 22,
-      time: "11:00 AM",
-      grade: "11th",
-    },
-    {
-      name: "Calculus",
-      students: 18,
-      time: "1:30 PM",
-      grade: "12th",
-    }
-  ];
+  constructor(
+    private teacherService: TeacherService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadProfile();
+    this.teacherService.getClasses().subscribe(c => {
+      this.classes = c;
+      if (c.length) this.selectedClass = c[0];
+    });
+  }
+
+  selectClass(c: ClassRoom): void {
+    this.selectedClass = c;
+  }
+
+  getStudentsForClass(classId: string) {
+    return this.teacherService.getStudentsByClass(classId);
+  }
+
+  private loadProfile(): void {
+    this.authService.getTeacherProfile().then(profile => {
+      if (profile) {
+        const firstName = profile.firstName || '';
+        const lastName = profile.lastName || '';
+        if (firstName || lastName) {
+          this.teacherName = `${firstName} ${lastName}`.trim();
+        } else if (profile.email) {
+          this.teacherName = profile.email.split('@')[0];
+        }
+      }
+    }).catch(err => {
+      console.warn('Failed to load teacher profile', err);
+    });
+  }
 }

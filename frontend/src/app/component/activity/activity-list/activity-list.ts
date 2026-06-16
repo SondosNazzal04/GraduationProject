@@ -32,20 +32,30 @@
 //     return this.service.getSubmissionsForActivity(activityId).length;
 //   }
 // }
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ActivityService } from '../../../activity/services/activity';
+import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../../../shared/topbar/topbar.component';
+import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
   selector: 'app-activity-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SidebarComponent, TopbarComponent],
   templateUrl: './activity-list.html',
-  styleUrls: ['./activity-list.css'],
+  styleUrls: ['./activity-list.scss'],
 })
-export class ActivityListComponent {
+export class ActivityListComponent implements OnInit {
   service = inject(ActivityService);
+  private authService = inject(AuthService);
+
+  teacherName = 'Mr. Smith';
+
+  ngOnInit(): void {
+    this.loadProfile();
+  }
 
   submissionCount(activityId: string): number {
     return this.service.getSubmissionsForActivity(activityId).length;
@@ -53,5 +63,21 @@ export class ActivityListComponent {
 
   deleteActivity(id: string): void {
     this.service.deleteActivity(id);
+  }
+
+  private loadProfile(): void {
+    this.authService.getTeacherProfile().then(profile => {
+      if (profile) {
+        const firstName = profile.firstName || '';
+        const lastName = profile.lastName || '';
+        if (firstName || lastName) {
+          this.teacherName = `${firstName} ${lastName}`.trim();
+        } else if (profile.email) {
+          this.teacherName = profile.email.split('@')[0];
+        }
+      }
+    }).catch(err => {
+      console.warn('Failed to load teacher profile', err);
+    });
   }
 }

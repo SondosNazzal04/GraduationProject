@@ -1,188 +1,191 @@
-<div class="container-fluid px-4 py-4">
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <div class="layout__main">
+    <app-topbar [pageTitle]="isEditMode ? 'Edit Activity' : 'Create Activity'" [userName]="teacherName"></app-topbar>
+    <div class="page-body">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h5 class="fw-semibold mb-1">
-        {{ isEditMode ? 'Edit Activity' : 'Create Activity' }}
-      </h5>
-      <p class="text-muted small mb-0">
-        {{ isEditMode ? 'Update the activity details below' : 'Fill in the details to create a new activity' }}
-      </p>
-    </div>
-    <a routerLink="/activities" class="btn btn-outline-secondary btn-sm">← Back</a>
-  </div>
-
-  <div class="activities-card p-4" *ngIf="form">
-    <form [formGroup]="form" (ngSubmit)="submit()">
-
-      <!-- Title -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Title</label>
-        <input class="form-control" formControlName="title" placeholder="Activity title" />
-        <div class="text-danger small mt-1"
-             *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
-          Title is required
+      <div class="page-header">
+        <div>
+          <h1 class="page-header__title">{{ isEditMode ? 'Edit Activity' : 'Create Activity' }}</h1>
+          <p class="page-header__sub">{{ isEditMode ? 'Update the activity details below' : 'Fill in the details to create a new activity' }}</p>
         </div>
+        <a routerLink="/activities" class="save-btn" style="background:#6b7280; font-size:12px; padding:6px 14px; text-decoration:none;">← Back</a>
       </div>
 
-      <!-- Description -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Description</label>
-        <textarea class="form-control" formControlName="description" rows="3"></textarea>
-      </div>
+      <div class="activities-card p-4" *ngIf="form">
+        <form [formGroup]="form" (ngSubmit)="submit()">
 
-      <!-- Type -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Activity type</label>
-        <select class="form-select" formControlName="type">
-          <option value="quiz">Quiz</option>
-          <option value="assignment">Assignment</option>
-        </select>
-      </div>
-
-      <!-- Class -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Class</label>
-        <select class="form-select" formControlName="classId">
-          <option value="">Unassigned</option>
-          <option *ngFor="let cls of classes" [value]="cls.id">
-            {{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}
-          </option>
-        </select>
-        <div class="form-text">Pick the class that should see this quiz or assignment.</div>
-      </div>
-
-      <!-- ★ Due Date + Time Limit ★ -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <label class="form-label fw-semibold">
-            Due date
-            <span class="text-muted fw-normal small">(optional)</span>
-          </label>
-          <input type="date" class="form-control" formControlName="dueDate" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label fw-semibold">
-            Time limit
-            <span class="text-muted fw-normal small">(optional)</span>
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control"
-                   formControlName="timeLimit"
-                   min="1" placeholder="e.g. 30" />
-            <span class="input-group-text">minutes</span>
-          </div>
-          <div class="form-text">Leave empty for no time limit</div>
-        </div>
-      </div>
-
-      <!-- Questions -->
-      <div formArrayName="questions">
-        <div *ngFor="let q of questions.controls; let qi = index"
-             [formGroupName]="qi" class="question-card p-3 mb-3 rounded">
-
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="fw-semibold small">Question {{ qi + 1 }}</span>
-            <button type="button" class="btn btn-sm btn-link text-danger p-0"
-                    (click)="removeQuestion(qi)">Remove</button>
-          </div>
-
-          <div class="mb-2">
-            <input class="form-control form-control-sm"
-                   formControlName="text" placeholder="Enter question…" />
-          </div>
-
+          <!-- Title -->
           <div class="mb-3">
-            <select class="form-select form-select-sm"
-                    formControlName="type" (change)="onTypeChange(qi)">
-              <option value="mcq">Multiple choice</option>
-              <option value="true-false">True / False</option>
-              <option value="fill-blank">Fill in the blank</option>
+            <label class="form-label fw-semibold">Title</label>
+            <input class="form-control" formControlName="title" placeholder="Activity title" />
+            <div class="text-danger small mt-1"
+                 *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
+              Title is required
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" formControlName="description" rows="3"></textarea>
+          </div>
+
+          <!-- Type -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Activity type</label>
+            <select class="form-select" formControlName="type">
+              <option value="quiz">Quiz</option>
+              <option value="assignment">Assignment</option>
             </select>
           </div>
 
-          <!-- Grade + Points -->
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label small fw-semibold">
-                 Grade points
-                <span class="text-muted fw-normal">(academic)</span>
+          <!-- Class -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Class</label>
+            <select class="form-select" formControlName="classId">
+              <option value="">Unassigned</option>
+              <option *ngFor="let cls of classes" [value]="cls.id">
+                {{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}
+              </option>
+            </select>
+            <div class="form-text">Pick the class that should see this quiz or assignment.</div>
+          </div>
+
+          <!-- ★ Due Date + Time Limit ★ -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Due date
+                <span class="text-muted fw-normal small">(optional)</span>
               </label>
-              <div class="input-group input-group-sm">
-                <input type="number" class="form-control"
-                       formControlName="grade" min="0" placeholder="10" />
-                <span class="input-group-text">pts</span>
-              </div>
+              <input type="date" class="form-control" formControlName="dueDate" />
             </div>
-            <div class="col-6">
-              <label class="form-label small fw-semibold">
-                  points
-                <span class="text-muted fw-normal">(gamification)</span>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Time limit
+                <span class="text-muted fw-normal small">(optional)</span>
               </label>
-              <div class="input-group input-group-sm">
+              <div class="input-group">
                 <input type="number" class="form-control"
-                       formControlName="points" min="0" placeholder="50" />
-                <span class="input-group-text"></span>
+                       formControlName="timeLimit"
+                       min="1" placeholder="e.g. 30" />
+                <span class="input-group-text">minutes</span>
               </div>
+              <div class="form-text">Leave empty for no time limit</div>
             </div>
           </div>
 
-          <!-- MCQ -->
-          <ng-container *ngIf="q.get('type')?.value === 'mcq'">
-            <div formArrayName="options">
-              <div *ngFor="let opt of optionsFor(qi).controls; let oi = index"
-                   [formGroupName]="oi"
-                   class="d-flex align-items-center gap-2 mb-2">
+          <!-- Questions -->
+          <div formArrayName="questions">
+            <div *ngFor="let q of questions.controls; let qi = index"
+                 [formGroupName]="qi" class="question-card p-3 mb-3 rounded" style="background:#f8f9fc; border:1px solid #eef0f6; padding:1.5rem !important; margin-bottom:1.5rem !important;">
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-semibold small" style="color:#1565C0;">Question {{ qi + 1 }}</span>
+                <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                        (click)="removeQuestion(qi)">Remove</button>
+              </div>
+
+              <div class="mb-2">
                 <input class="form-control form-control-sm"
-                       formControlName="text" placeholder="Option {{ oi + 1 }}" />
-                <button type="button" class="btn btn-sm btn-outline-danger"
-                        (click)="removeOption(qi, oi)"
-                        [disabled]="optionsFor(qi).length <= 2">✕</button>
+                       formControlName="text" placeholder="Enter question…" />
               </div>
+
+              <div class="mb-3">
+                <select class="form-select form-select-sm"
+                       formControlName="type" (change)="onTypeChange(qi)">
+                  <option value="mcq">Multiple choice</option>
+                  <option value="true-false">True / False</option>
+                  <option value="fill-blank">Fill in the blank</option>
+                </select>
+              </div>
+
+              <!-- Grade + Points -->
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">
+                     Grade points
+                    <span class="text-muted fw-normal">(academic)</span>
+                  </label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control"
+                           formControlName="grade" min="0" placeholder="10" />
+                    <span class="input-group-text">pts</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">
+                      points
+                    <span class="text-muted fw-normal">(gamification)</span>
+                  </label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control"
+                           formControlName="points" min="0" placeholder="50" />
+                    <span class="input-group-text"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- MCQ -->
+              <ng-container *ngIf="q.get('type')?.value === 'mcq'">
+                <div formArrayName="options">
+                  <div *ngFor="let opt of optionsFor(qi).controls; let oi = index"
+                       [formGroupName]="oi"
+                       class="d-flex align-items-center gap-2 mb-2">
+                    <input class="form-control form-control-sm"
+                           formControlName="text" placeholder="Option {{ oi + 1 }}" />
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            (click)="removeOption(qi, oi)"
+                            [disabled]="optionsFor(qi).length <= 2">✕</button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+                        (click)="addOption(qi)">+ Add option</button>
+                <div>
+                  <label class="form-label small fw-semibold">Correct answer</label>
+                  <select class="form-select form-select-sm" formControlName="correctAnswer">
+                    <option *ngFor="let opt of optionsFor(qi).controls"
+                            [value]="opt.get('id')?.value">
+                      {{ opt.get('text')?.value || '(empty)' }}
+                    </option>
+                  </select>
+                </div>
+              </ng-container>
+
+              <!-- True / False -->
+              <ng-container *ngIf="q.get('type')?.value === 'true-false'">
+                <label class="form-label small fw-semibold">Correct answer</label>
+                <select class="form-select form-select-sm" formControlName="correctAnswer">
+                  <option value="True">True</option>
+                  <option value="False">False</option>
+                </select>
+              </ng-container>
+
+              <!-- Fill in the blank -->
+              <ng-container *ngIf="q.get('type')?.value === 'fill-blank'">
+                <label class="form-label small fw-semibold">Correct answer</label>
+                <input class="form-control form-control-sm"
+                       formControlName="correctAnswer" placeholder="Expected answer…" />
+              </ng-container>
+
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
-                    (click)="addOption(qi)">+ Add option</button>
-            <div>
-              <label class="form-label small fw-semibold">Correct answer</label>
-              <select class="form-select form-select-sm" formControlName="correctAnswer">
-                <option *ngFor="let opt of optionsFor(qi).controls"
-                        [value]="opt.get('id')?.value">
-                  {{ opt.get('text')?.value || '(empty)' }}
-                </option>
-              </select>
-            </div>
-          </ng-container>
+          </div>
 
-          <!-- True / False -->
-          <ng-container *ngIf="q.get('type')?.value === 'true-false'">
-            <label class="form-label small fw-semibold">Correct answer</label>
-            <select class="form-select form-select-sm" formControlName="correctAnswer">
-              <option value="True">True</option>
-              <option value="False">False</option>
-            </select>
-          </ng-container>
+          <button type="button" class="btn btn-outline-primary btn-sm mb-4"
+                  (click)="addQuestion()">
+            + Add question
+          </button>
 
-          <!-- Fill in the blank -->
-          <ng-container *ngIf="q.get('type')?.value === 'fill-blank'">
-            <label class="form-label small fw-semibold">Correct answer</label>
-            <input class="form-control form-control-sm"
-                   formControlName="correctAnswer" placeholder="Expected answer…" />
-          </ng-container>
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid">
+              {{ isEditMode ? 'Update Activity' : 'Save Activity' }}
+            </button>
+          </div>
 
-        </div>
+        </form>
       </div>
 
-      <button type="button" class="btn btn-outline-primary btn-sm mb-4"
-              (click)="addQuestion()">
-        + Add question
-      </button>
-
-      <div class="d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary px-4" [disabled]="form.invalid">
-          {{ isEditMode ? 'Update Activity' : 'Save Activity' }}
-        </button>
-      </div>
-
-    </form>
+    </div>
   </div>
 </div>

@@ -1,9 +1,9 @@
-import { Component } from "@angular/core";
-import { RouterLink, RouterLinkActive } from "@angular/router";
-import { CommonModule } from "@angular/common";
+import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: "app-sidebar",
+  selector: 'app-sidebar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
@@ -27,7 +27,7 @@ import { CommonModule } from "@angular/common";
       </div>
 
       <nav class="nav">
-        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+        <a class="nav-item" routerLink="/teacher-dashboard" routerLinkActive="active">
           <svg
             class="nav-icon"
             viewBox="0 0 24 24"
@@ -56,20 +56,6 @@ import { CommonModule } from "@angular/common";
             <rect x="3" y="16" width="18" height="4" rx="1" />
           </svg>
           <span>My classes</span>
-        </a>
-
-        <a class="nav-item" routerLink="/students" routerLinkActive="active">
-          <svg
-            class="nav-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-          >
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-          <span>Students</span>
         </a>
 
         <a class="nav-item" routerLink="/attendance" routerLinkActive="active">
@@ -114,7 +100,7 @@ import { CommonModule } from "@angular/common";
           <span>Activities</span>
         </a>
 
-        <a class="nav-item" routerLink="/messages" routerLinkActive="active">
+        <a class="nav-item" routerLink="/teacher-messages" routerLinkActive="active">
           <svg
             class="nav-icon"
             viewBox="0 0 24 24"
@@ -122,18 +108,12 @@ import { CommonModule } from "@angular/common";
             stroke="currentColor"
             stroke-width="1.8"
           >
-            <path
-              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-            />
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span>Messages</span>
         </a>
 
-        <a
-          class="nav-item"
-          routerLink="/notifications"
-          routerLinkActive="active"
-        >
+        <a class="nav-item" routerLink="/teacher-messages" routerLinkActive="active">
           <svg
             class="nav-icon"
             viewBox="0 0 24 24"
@@ -172,6 +152,9 @@ import { CommonModule } from "@angular/common";
       .sidebar {
         width: 200px;
         min-width: 200px;
+        height: calc(100vh - 48px);
+        position: sticky;
+        top: 24px;
         background: #ffffff;
         border-radius: 12px;
         display: flex;
@@ -179,7 +162,6 @@ import { CommonModule } from "@angular/common";
         padding: 16px 0;
         color: #374151;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-        gap: px;
       }
 
       .logo {
@@ -260,8 +242,8 @@ import { CommonModule } from "@angular/common";
 
       .sign-out {
         padding: 14px 14px 0;
-        border-top: 1px solid #080808;
-        margin-top: 210px;
+        border-top: 1px solid #f0f0f0;
+        margin-top: auto;
       }
 
       .sign-out-link {

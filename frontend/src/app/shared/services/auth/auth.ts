@@ -120,7 +120,19 @@ export class AuthService{
     return await firstValueFrom(this.http.get(`${this.apiBaseUrl}/api/student/me`));
   }
 
+  private teacherProfileCache: any = null;
+
+  async getTeacherProfile(): Promise<any> {
+    if (this.teacherProfileCache) {
+      return this.teacherProfileCache;
+    }
+    const profile = await firstValueFrom(this.http.get(`${this.apiBaseUrl}/api/teacher/me`));
+    this.teacherProfileCache = profile;
+    return profile;
+  }
+
   logout() {
+    this.teacherProfileCache = null;
     signOut(this.auth);
   }
 }

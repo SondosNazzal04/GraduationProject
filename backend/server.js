@@ -271,6 +271,11 @@ async function getClassesForUser(uid, role) {
 	} else if (normalizedRole === 'teacher') {
 		const profile = await getProfileRecord('teacher', uid);
 		classIds = normalizeClassIds(profile?.classIds);
+		const querySnap = await db.collection('classes').where('teacherUid', '==', uid).get();
+		for (const docSnap of querySnap.docs) {
+			classIds.push(docSnap.id);
+		}
+		classIds = [...new Set(classIds)];
 	} else if (normalizedRole === 'parent') {
 		const profile = await getProfileRecord('parent', uid);
 		classIds = normalizeClassIds(profile?.classIds);
@@ -866,6 +871,76 @@ app.get('/api/teacher/me/classes', authenticate, requireRole('teacher'), async (
 	} catch (error) {
 		console.error('Error loading teacher classes:', error);
 		return res.status(500).json({ error: 'Failed to load teacher classes' });
+	}
+});
+
+app.get('/api/teacher/me/students', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const teacherClasses = await getClassesForUser(req.user.uid, 'teacher');
+		const classIds = teacherClasses.map(c => c.id);
+		if (!classIds.length) {
+			return res.json({ items: [] });
+		}
+
+		const studentUidsSet = new Set();
+		for (const classId of classIds) {
+			const classSnap = await db.collection('classes').doc(classId).get();
+			if (classSnap.exists) {
+				const classData = classSnap.data();
+				const studentUids = Array.isArray(classData.studentUids) ? classData.studentUids : [];
+				studentUids.forEach(uid => studentUidsSet.add(uid));
+			}
+		}
+
+		const items = [];
+		for (const studentUid of studentUidsSet) {
+			const studentUser = await getUserRecord(studentUid);
+			if (studentUser) {
+				const studentProfile = await getProfileRecord('student', studentUid);
+				items.push(buildUserResponse(studentUser, studentProfile));
+			}
+		}
+
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing teacher students:', error);
+		return res.status(500).json({ error: 'Failed to list teacher students' });
+	}
+});
+
+app.get('/api/teacher/classes/:classId/students', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const classId = req.params.classId;
+		const teacherClasses = await getClassesForUser(req.user.uid, 'teacher');
+		const classIds = teacherClasses.map(c => c.id);
+		if (!classIds.includes(classId)) {
+			return res.status(403).json({ error: 'Forbidden: You do not teach this class' });
+		}
+
+		const classSnap = await db.collection('classes').doc(classId).get();
+		if (!classSnap.exists) {
+			return res.status(404).json({ error: 'Class not found' });
+		}
+
+		const classData = classSnap.data();
+		const studentUids = Array.isArray(classData.studentUids) ? classData.studentUids : [];
+		if (!studentUids.length) {
+			return res.json({ items: [] });
+		}
+
+		const items = [];
+		for (const studentUid of studentUids) {
+			const studentUser = await getUserRecord(studentUid);
+			if (studentUser) {
+				const studentProfile = await getProfileRecord('student', studentUid);
+				items.push(buildUserResponse(studentUser, studentProfile));
+			}
+		}
+
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error listing class students:', error);
+		return res.status(500).json({ error: 'Failed to list class students' });
 	}
 });
 

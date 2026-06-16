@@ -1,125 +1,134 @@
-<div class="container-fluid px-4 py-4" *ngIf="activity; else notFound">
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <div class="layout__main">
+    <app-topbar pageTitle="Submissions" [userName]="teacherName"></app-topbar>
+    <div class="page-body">
 
-  <!-- Header -->
-  <div class="d-flex align-items-center gap-3 mb-4">
-    <a routerLink="/activities" class="btn btn-outline-secondary btn-sm">← Back</a>
-    <div>
-      <h5 class="fw-semibold mb-0">Submissions — {{ activity.title }}</h5>
-      <span class="badge text-capitalize mt-1"
-            [class.bg-primary]="activity.type === 'quiz'"
-            [class.bg-success]="activity.type === 'assignment'">
-        {{ activity.type }}
-      </span>
-    </div>
-  </div>
-
-  <!-- Summary bar -->
-  <div class="row g-3 mb-4" *ngIf="submissions.length > 0">
-    <div class="col-6 col-md-3">
-      <div class="stat-card text-center p-3 rounded">
-        <div class="stat-number">{{ submissions.length }}</div>
-        <div class="stat-label">Submissions</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3" *ngIf="activity.type === 'quiz'">
-      <div class="stat-card text-center p-3 rounded">
-        <div class="stat-number text-primary">{{ averageGrade() }}%</div>
-        <div class="stat-label">Average grade</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Empty state -->
-  <div *ngIf="submissions.length === 0" class="empty-card text-center py-5">
-    <div class="mb-2" style="font-size:2.5rem">📭</div>
-    <p class="text-muted">No submissions yet.</p>
-  </div>
-
-  <!-- Submission rows -->
-  <div class="activities-card p-3">
-    <div *ngFor="let sub of submissions" class="submission-card mb-3 rounded overflow-hidden">
-
-      <!-- Row header — click to expand -->
-      <div class="submission-header d-flex align-items-center justify-content-between px-4 py-3"
-           (click)="toggle(sub.id)" style="cursor:pointer">
-
-        <div class="d-flex align-items-center gap-3">
-          <!-- Avatar -->
-          <div class="student-avatar d-flex align-items-center justify-content-center rounded-circle">
-            {{ sub.studentName.charAt(0).toUpperCase() }}
-          </div>
+      <ng-container *ngIf="activity; else notFound">
+        <!-- Header -->
+        <div class="page-header">
           <div>
-            <div class="fw-semibold">{{ sub.studentName }}</div>
-            <div class="text-muted" style="font-size:0.78rem">
-              {{ sub.submittedAt | date:'MMM d, y, h:mm a' }}
+            <h1 class="page-header__title">Submissions — {{ activity.title }}</h1>
+            <span class="badge text-capitalize mt-1"
+                  [class.bg-primary]="activity.type === 'quiz'"
+                  [class.bg-success]="activity.type === 'assignment'">
+              {{ activity.type }}
+            </span>
+          </div>
+          <a routerLink="/activities" class="save-btn" style="background:#6b7280; font-size:12px; padding:6px 14px; text-decoration:none;">← Back</a>
+        </div>
+
+        <!-- Summary bar -->
+        <div class="row g-3 mb-4" *ngIf="submissions.length > 0">
+          <div class="col-6 col-md-3">
+            <div class="stat-card text-center p-3 rounded" style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+              <div class="stat-number" style="font-size:24px; font-weight:700; color:#1a1a2e;">{{ submissions.length }}</div>
+              <div class="stat-label" style="font-size:11px; color:#888;">Submissions</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3" *ngIf="activity.type === 'quiz'">
+            <div class="stat-card text-center p-3 rounded" style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+              <div class="stat-number text-primary" style="font-size:24px; font-weight:700;">{{ averageGrade() }}%</div>
+              <div class="stat-label" style="font-size:11px; color:#888;">Average grade</div>
             </div>
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-3">
-          <!-- Grade pill (quiz) -->
-          <span *ngIf="activity.type === 'quiz'" class="grade-pill"
-                [class.grade-high]="(sub.gradePercentage ?? 0) >= 70"
-                [class.grade-mid]="(sub.gradePercentage ?? 0) >= 40 && (sub.gradePercentage ?? 0) < 70"
-                [class.grade-low]="(sub.gradePercentage ?? 0) < 40">
-            {{ sub.gradePercentage }}%
-            <span class="text-muted" style="font-size:0.75rem">
-              ({{ sub.totalCorrect }}/{{ sub.totalQuestions }})
-            </span>
-          </span>
-
-          <!-- Assignment pill -->
-          <span *ngIf="activity.type === 'assignment'" class="grade-pill grade-high">
-            ✓ Submitted
-          </span>
-
-          <!-- Points -->
-          <span class="points-pill">
-            ⚡ {{ sub.earnedPoints }} pts
-          </span>
-
-          <!-- Expand icon -->
-          <span class="text-muted">{{ expandedId === sub.id ? '▲' : '▼' }}</span>
+        <!-- Empty state -->
+        <div *ngIf="submissions.length === 0" class="empty-card text-center py-5" style="background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+          <div class="mb-2" style="font-size:2.5rem">📭</div>
+          <p class="text-muted">No submissions yet.</p>
         </div>
-      </div>
 
-      <!-- Expanded answers -->
-      <div *ngIf="expandedId === sub.id" class="answers-section px-4 py-3">
-        <div *ngFor="let ans of sub.answers; let i = index"
-             class="answer-row d-flex align-items-center gap-3 px-3 py-2 mb-2 rounded"
-             [class.answer-correct]="ans.isCorrect === true"
-             [class.answer-incorrect]="ans.isCorrect === false"
-             [class.answer-neutral]="ans.isCorrect === undefined">
+        <!-- Submission rows -->
+        <div class="activities-card p-3" *ngIf="submissions.length > 0">
+          <div *ngFor="let sub of submissions" class="submission-card mb-3 rounded overflow-hidden" style="background:#f8f9fc; border:1px solid #eef0f6;">
 
-          <span class="q-num">Q{{ i + 1 }}</span>
+            <!-- Row header — click to expand -->
+            <div class="submission-header d-flex align-items-center justify-content-between px-4 py-3"
+                 (click)="toggle(sub.id)" style="cursor:pointer">
 
-          <span class="flex-grow-1 text-muted small">
-            {{ getQuestionText(ans.questionId) }}
-          </span>
+              <div class="d-flex align-items-center gap-3">
+                <!-- Avatar -->
+                <div class="student-avatar d-flex align-items-center justify-content-center rounded-circle" style="width:36px; height:36px; background:#1565C0; color:#fff; font-weight:700;">
+                  {{ sub.studentName.charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="fw-semibold" style="color:#1a1a2e;">{{ sub.studentName }}</div>
+                  <div class="text-muted" style="font-size:0.78rem">
+                    {{ sub.submittedAt | date:'MMM d, y, h:mm a' }}
+                  </div>
+                </div>
+              </div>
 
-          <span class="fw-semibold small">{{ ans.answer || '—' }}</span>
+              <div class="d-flex align-items-center gap-3">
+                <!-- Grade pill (quiz) -->
+                <span *ngIf="activity.type === 'quiz'" class="grade-pill"
+                      [class.grade-high]="(sub.gradePercentage ?? 0) >= 70"
+                      [class.grade-mid]="(sub.gradePercentage ?? 0) >= 40 && (sub.gradePercentage ?? 0) < 70"
+                      [class.grade-low]="(sub.gradePercentage ?? 0) < 40"
+                      style="padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size:13px;">
+                  {{ sub.gradePercentage }}%
+                  <span class="text-muted" style="font-size:0.75rem">
+                    ({{ sub.totalCorrect }}/{{ sub.totalQuestions }})
+                  </span>
+                </span>
 
-          <span *ngIf="activity.type === 'quiz'" class="ms-2">
-            <span *ngIf="ans.isCorrect" class="text-success fw-bold">✓</span>
-            <span *ngIf="!ans.isCorrect" class="text-danger fw-bold">✗</span>
-          </span>
+                <!-- Assignment pill -->
+                <span *ngIf="activity.type === 'assignment'" class="grade-pill grade-high" style="padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size:13px; background:#dcfce7; color:#166534;">
+                  ✓ Submitted
+                </span>
 
-          <span *ngIf="activity.type === 'quiz'" class="points-pill-sm">
-            ⚡ {{ ans.earnedPoints ?? 0 }}
-          </span>
+                <!-- Points -->
+                <span class="points-pill" style="font-size:12px; font-weight:600; color:#f59e0b;">
+                  ⚡ {{ sub.earnedPoints }} pts
+                </span>
 
+                <!-- Expand icon -->
+                <span class="text-muted" style="font-size:10px;">{{ expandedId === sub.id ? '▲' : '▼' }}</span>
+              </div>
+            </div>
+
+            <!-- Expanded answers -->
+            <div *ngIf="expandedId === sub.id" class="answers-section px-4 py-3" style="background:#fff; border-top:1px solid #eef0f6;">
+              <div *ngFor="let ans of sub.answers; let i = index"
+                   class="answer-row d-flex align-items-center gap-3 px-3 py-2 mb-2 rounded"
+                   [class.answer-correct]="ans.isCorrect === true"
+                   [class.answer-incorrect]="ans.isCorrect === false"
+                   [class.answer-neutral]="ans.isCorrect === undefined"
+                   style="border:1px solid #f0f0f0;">
+
+                <span class="q-num" style="font-weight:700; color:#1565C0;">Q{{ i + 1 }}</span>
+
+                <span class="flex-grow-1 text-muted small">
+                  {{ getQuestionText(ans.questionId) }}
+                </span>
+
+                <span class="fw-semibold small" style="color:#1a1a2e;">{{ ans.answer || '—' }}</span>
+
+                <span *ngIf="activity.type === 'quiz'" class="ms-2">
+                  <span *ngIf="ans.isCorrect" class="text-success fw-bold">✓</span>
+                  <span *ngIf="!ans.isCorrect" class="text-danger fw-bold">✗</span>
+                </span>
+
+                <span *ngIf="activity.type === 'quiz'" class="points-pill-sm" style="font-size:11px; color:#f59e0b; font-weight:600;">
+                  ⚡ {{ ans.earnedPoints ?? 0 }}
+                </span>
+
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+      </ng-container>
+
+      <ng-template #notFound>
+        <div class="text-center py-5">
+          <p class="text-muted">Activity not found.</p>
+          <a routerLink="/activities" class="save-btn" style="text-decoration:none;">← Back to Activities</a>
+        </div>
+      </ng-template>
 
     </div>
   </div>
-
 </div>
-
-<!-- Not found -->
-<ng-template #notFound>
-  <div class="container-fluid px-4 py-5 text-center">
-    <p class="text-muted">Activity not found.</p>
-    <a routerLink="/activities" class="btn btn-outline-primary btn-sm">← Back</a>
-  </div>
-</ng-template>

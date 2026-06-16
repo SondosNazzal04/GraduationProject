@@ -17,7 +17,7 @@ export class StudentSidebarComponent {
     { label: 'Venture Shop',     icon: 'shop',        route: '/venture-shop',             active: true  },
     { label: 'My Classes',       icon: 'classes',     route: '/student-classes',          active: true  },
     { label: 'Messages',         icon: 'messages',    route: '/student-messages',         active: true  },
-    { label: 'Notifications',    icon: 'notif',       route: '/student-notifications',    active: true  },
+    { label: 'Notifications',    icon: 'notif',       route: '/student-messages',         active: true  },
   ];
   onSignOut(): void { console.log('Sign out'); }
 }

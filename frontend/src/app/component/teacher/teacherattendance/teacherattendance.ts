@@ -1,38 +1,115 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Student {
-  initials: string;
-  name: string;
-  attendance: number;
-  status: 'present' | 'late' | 'absent';
-}
+import { FormsModule } from '@angular/forms';
+import { TeacherService } from '../../../services/teacher.service';
+import { ClassRoom, AttendanceRecord, AttendanceStatus } from '../../../models/teacher.model';
+import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../../../shared/topbar/topbar.component';
+import { AuthService } from '../../../shared/services/auth/auth';
 
 @Component({
   selector: 'app-teacherattendance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacherattendance.html',
-  styleUrls: ['./teacherattendance.css']
+  styleUrls: ['./teacherattendance.scss']
 })
-export class Teacherattendance {
-  date = 'Sunday, December 7, 2025';
-  selectedClass = 'Math 101';
+export class Teacherattendance implements OnInit {
+  classes: ClassRoom[] = [];
+  selectedClassId = 'c1';
+  today = new Date().toISOString().split('T')[0];
+  selectedDate = this.today;
+  records: AttendanceRecord[] = [];
+  savedSuccessfully = false;
+  teacherName = 'Mr. Smith';
 
-  students: Student[] = [
-    { initials: 'AJ', name: 'Alex Johnson', attendance: 95, status: 'present' },
-    { initials: 'EW', name: 'Emma Williams', attendance: 98, status: 'present' },
-    { initials: 'MC', name: 'Michael Chen', attendance: 92, status: 'present' },
-    { initials: 'SM', name: 'Sarah Miller', attendance: 96, status: 'present' },
-    { initials: 'JT', name: 'James Tacd ylor', attendance: 88, status: 'present' }
-  ];
+  constructor(
+    private teacherService: TeacherService,
+    private authService: AuthService
+  ) {}
 
-  setStatus(index: number, status: 'present' | 'late' | 'absent') {
-    this.students[index].status = status;
+  ngOnInit(): void {
+    this.loadProfile();
+    this.teacherService.getClasses().subscribe(c => {
+      this.classes = c;
+      if (c.length && (this.selectedClassId === 'c1' || !c.some(item => item.id === this.selectedClassId))) {
+        this.selectedClassId = c[0].id;
+        this.onClassChange();
+      }
+    });
+    this.teacherService.getAttendance().subscribe(all => {
+      this.initRecords(all);
+    });
   }
 
-  saveAttendance() {
-    console.log('saved', this.students);
-    alert('Attendance saved!');
+  get selectedClass(): ClassRoom | undefined {
+    return this.classes.find(c => c.id === this.selectedClassId);
+  }
+
+  onClassChange(): void {
+    this.teacherService.getAttendance().subscribe(all => this.initRecords(all));
+  }
+
+  onDateChange(): void {
+    this.teacherService.getAttendance().subscribe(all => this.initRecords(all));
+  }
+
+  private initRecords(all: AttendanceRecord[]): void {
+    const students = this.teacherService.getStudentsByClass(this.selectedClassId);
+    const existing = all.filter(r => r.classId === this.selectedClassId && r.date === this.selectedDate);
+    this.records = students.map(s => {
+      const ex = existing.find(r => r.studentId === s.id);
+      return ex ?? {
+        studentId: s.id,
+        studentName: `${s.firstName} ${s.lastName}`,
+        initials: s.initials,
+        date: this.selectedDate,
+        status: 'present' as AttendanceStatus,
+        classId: this.selectedClassId,
+        percentage: 100
+      };
+    });
+  }
+
+  setStatus(record: AttendanceRecord, status: AttendanceStatus): void {
+    record.status = status;
+  }
+
+  get presentCount(): number  { return this.records.filter(r => r.status === 'present').length; }
+  get absentCount(): number   { return this.records.filter(r => r.status === 'absent').length; }
+  get lateCount(): number     { return this.records.filter(r => r.status === 'late').length; }
+  get attendancePct(): number {
+    if (!this.records.length) return 0;
+    return Math.round((this.presentCount / this.records.length) * 100);
+  }
+
+  saveAttendance(): void {
+    this.teacherService.saveAttendance([...this.records]);
+    this.savedSuccessfully = true;
+    setTimeout(() => this.savedSuccessfully = false, 2500);
+  }
+
+  formatDate(d: string): string {
+    return new Date(d).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+
+  markAll(status: AttendanceStatus): void {
+    this.records.forEach(r => r.status = status);
+  }
+
+  private loadProfile(): void {
+    this.authService.getTeacherProfile().then(profile => {
+      if (profile) {
+        const firstName = profile.firstName || '';
+        const lastName = profile.lastName || '';
+        if (firstName || lastName) {
+          this.teacherName = `${firstName} ${lastName}`.trim();
+        } else if (profile.email) {
+          this.teacherName = profile.email.split('@')[0];
+        }
+      }
+    }).catch(err => {
+      console.warn('Failed to load teacher profile', err);
+    });
   }
 }

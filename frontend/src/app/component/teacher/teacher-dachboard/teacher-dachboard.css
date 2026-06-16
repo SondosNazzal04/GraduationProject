@@ -1,6 +1,8 @@
 .dashboard-bg {
   min-height: 100vh;
   background: #f5f8fd;
+  padding: 24px;
+  gap: 24px;
 }
 
 .sidebar {
@@ -27,6 +29,7 @@
 .nav-link.active, .nav-link:hover {
   background: #eaf1fb;
   color: #3a86ff;
+  font-weight: 600;
 }
 
 .signout {

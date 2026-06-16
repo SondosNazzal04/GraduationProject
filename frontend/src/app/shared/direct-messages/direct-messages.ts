@@ -7,6 +7,9 @@ import { ChatService, Message } from '../services/chat/chat.service';
 import { StudentSidebarComponent } from '../student-sidebar/student-sidebar.component';
 import { StudentTopbarComponent } from '../student-topbar/student-topbar.component';
 import { StudentPortalService } from '../../services/student-portal.service';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../topbar/topbar.component';
+import { AuthService } from '../services/auth/auth';
 
 interface Contact {
   uid: string;
@@ -23,7 +26,7 @@ interface Contact {
 @Component({
   selector: 'app-direct-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.css',
 })
@@ -32,6 +35,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
 
   private chatService = inject(ChatService);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
   ps = inject(StudentPortalService);
 
   contacts: Contact[] = [];
@@ -47,7 +51,8 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   contactsError = '';
   sendError = '';
 
-
+  role: 'student' | 'teacher' | 'admin' = 'student';
+  teacherName = '';
 
   get filteredContacts(): Contact[] {
     if (!this.searchQuery.trim()) return this.contacts;
@@ -60,6 +65,25 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async ngOnInit(): Promise<void> {
+    try {
+      const userRole = await this.authService.getCurrentUserRole();
+      this.role = (userRole as any) || 'student';
+      if (this.role === 'teacher') {
+        const profile = await this.authService.getTeacherProfile();
+        if (profile) {
+          const firstName = profile.firstName || '';
+          const lastName = profile.lastName || '';
+          if (firstName || lastName) {
+            this.teacherName = `${firstName} ${lastName}`.trim();
+          } else if (profile.email) {
+            this.teacherName = profile.email.split('@')[0];
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load profile for chat component', err);
+    }
+
     await this.loadContacts();
     if (this.contacts.length > 0) await this.selectContact(this.contacts[0]);
   }

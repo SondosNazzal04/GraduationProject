@@ -7,18 +7,18 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
   navItems = [
-    { label: 'Dashboard',    icon: 'dashboard',    route: '/teacher-dashboard',    active: false },
-    { label: 'My Classes',   icon: 'classes',      route: '/my-classes',      active: true },
-    { label: 'Students',     icon: 'students',     route: '/teacherstudent',     active: true },
-    { label: 'Attendance',   icon: 'attendance',   route: '/attendance',   active: true },
-    { label: 'Gradebook',    icon: 'grades',       route: '/gradebook',       active: true },
-    { label: 'Activities',   icon: 'activities',   route: '/activities',   active: false },
-    { label: 'Messages',     icon: 'messages',     route: '/messages',     active: false },
-    { label: 'Notifications',icon: 'notifications',route: '/notifications',active: false },
+    { label: 'Dashboard', icon: 'dashboard', route: '/teacher-dashboard', active: true },
+    { label: 'My Classes', icon: 'classes', route: '/my-classes', active: true },
+    { label: 'Students', icon: 'students', route: '/teacherstudent', active: true },
+    { label: 'Attendance', icon: 'attendance', route: '/attendance', active: true },
+    { label: 'Gradebook', icon: 'grades', route: '/gradebook', active: true },
+    { label: 'Activities', icon: 'activities', route: '/activities', active: true },
+    { label: 'Messages', icon: 'messages', route: '/teacher-messages', active: false },
+    { label: 'Notifications', icon: 'notifications', route: '/teacher-messages', active: false },
   ];
 
   onSignOut(): void {

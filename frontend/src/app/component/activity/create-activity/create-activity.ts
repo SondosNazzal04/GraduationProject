@@ -8,6 +8,9 @@ import { firstValueFrom } from 'rxjs';
 import { ActivityService } from '../../../activity/services/activity';
 import { Activity } from '../../../models/activity';
 import { getApiBaseUrl } from '../../../firebase.runtime-config';
+import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../../../shared/topbar/topbar.component';
+import { AuthService } from '../../../shared/services/auth/auth';
 
 interface SchoolClass {
   id: string;
@@ -19,8 +22,9 @@ interface SchoolClass {
 @Component({
   selector: 'app-create-activity',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, SidebarComponent, TopbarComponent],
   templateUrl: './create-activity.html',
+  styleUrls: ['./create-activity.scss'],
 })
 export class CreateActivityComponent implements OnInit {
   private fb      = inject(FormBuilder);
@@ -28,11 +32,13 @@ export class CreateActivityComponent implements OnInit {
   private router  = inject(Router);
   private route   = inject(ActivatedRoute);
   private http    = inject(HttpClient);
+  private authService = inject(AuthService);
 
   isEditMode   = false;
   editActivity: Activity | undefined;
   form!: FormGroup;
   classes: SchoolClass[] = [];
+  teacherName = 'Mr. Smith';
 
   get questions(): FormArray { return this.form.get('questions') as FormArray; }
 
@@ -41,6 +47,7 @@ export class CreateActivityComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadProfile();
     // ★ ابني الفورم أول شي ★
     this.form = this.fb.group({
       title:       ['', Validators.required],
@@ -185,5 +192,21 @@ export class CreateActivityComponent implements OnInit {
     }
 
     this.router.navigate(['/activities']);
+  }
+
+  private loadProfile(): void {
+    this.authService.getTeacherProfile().then(profile => {
+      if (profile) {
+        const firstName = profile.firstName || '';
+        const lastName = profile.lastName || '';
+        if (firstName || lastName) {
+          this.teacherName = `${firstName} ${lastName}`.trim();
+        } else if (profile.email) {
+          this.teacherName = profile.email.split('@')[0];
+        }
+      }
+    }).catch(err => {
+      console.warn('Failed to load teacher profile', err);
+    });
   }
 }
