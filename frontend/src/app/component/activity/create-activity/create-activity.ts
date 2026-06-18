@@ -24,7 +24,7 @@ interface SchoolClass {
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink, SidebarComponent, TopbarComponent],
   templateUrl: './create-activity.html',
-  styleUrls: ['./create-activity.scss'],
+  styleUrls: ['./create-activity.css'],
 })
 export class CreateActivityComponent implements OnInit {
   private fb      = inject(FormBuilder);
@@ -210,3 +210,4 @@ export class CreateActivityComponent implements OnInit {
     });
   }
 }
+

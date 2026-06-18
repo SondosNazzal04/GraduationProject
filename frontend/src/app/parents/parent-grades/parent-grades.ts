@@ -11,7 +11,7 @@ import { TopbarComponent } from '../../shared/topbar/topbar.component';
   standalone: true,
   imports: [CommonModule, FormsModule, TitleCasePipe, ParentSidebarComponent, TopbarComponent],
   templateUrl: './parent-grades.html',
-  styleUrls: ['./parent-grades.scss']
+  styleUrls: ['./parent-grades.css']
 })
 export class ParentGrades implements OnInit {
   private ps = inject(ParentService);
@@ -83,3 +83,4 @@ export class ParentGrades implements OnInit {
     return s === 'excellent' ? 'chip--blue' : s === 'pass' ? 'chip--green' : 'chip--red';
   }
 }
+

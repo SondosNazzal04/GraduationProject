@@ -57,11 +57,12 @@ import { FormsModule } from '@angular/forms';
 import { Component, inject } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../../../shared/services/auth/auth';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [FormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

@@ -12,7 +12,7 @@ import { AuthService } from '../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, FormsModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacherstudent.html',
-  styleUrls: ['./teacherstudent.scss']
+  styleUrls: ['./teacherstudent.css']
 })
 export class Teacherstudent implements OnInit {
   students: Student[] = [];
@@ -65,3 +65,4 @@ export class Teacherstudent implements OnInit {
     });
   }
 }
+

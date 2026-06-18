@@ -45,7 +45,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, RouterLink, SidebarComponent, TopbarComponent],
   templateUrl: './activity-list.html',
-  styleUrls: ['./activity-list.scss'],
+  styleUrls: ['./activity-list.css'],
 })
 export class ActivityListComponent implements OnInit {
   service = inject(ActivityService);
@@ -99,3 +99,4 @@ export class ActivityListComponent implements OnInit {
     });
   }
 }
+

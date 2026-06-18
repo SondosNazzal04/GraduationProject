@@ -1,28 +1,94 @@
-<form (ngSubmit)="onSubmit()">
-  <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email" [(ngModel)]="email">
-    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password" [(ngModel)]="password">
-  </div>
-  <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1" name="rememberMe" [(ngModel)]="rememberMe">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="container-fluid vh-100 p-0">
+  <div class="row g-0 h-100">
+    <!-- Left Column: Form -->
+    <div class="col-md-6 bg-white d-flex flex-column position-relative">
+      <!-- Back Link -->
+      <a routerLink="/" class="back-link text-decoration-none text-secondary">
+        <i class="bi bi-chevron-left"></i> back to Landing page
+      </a>
 
-@if (errorMessage) {
-  <div class="alert alert-danger mt-3" role="alert">
-    {{ errorMessage }}
-  </div>
-}
+      <!-- Form Container -->
+      <div class="form-wrapper m-auto w-100 px-4" style="max-width: 450px;">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold mb-2">LOGIN</h2>
+          <p class="text-muted">Enter your email and password</p>
+        </div>
 
-@if (submitted) {
-  <div class="alert alert-success mt-3" role="alert">
-    Login successful for {{ email }}!
+        <form (ngSubmit)="onSubmit()">
+          <!-- Username / Email -->
+          <div class="input-group mb-4 custom-input-group">
+            <span class="input-group-text border-0 bg-transparent ps-4 pe-2">
+              <i class="bi bi-person fs-5"></i>
+            </span>
+            <input type="email" class="form-control border-0 bg-transparent py-3 shadow-none fw-semibold" 
+                   placeholder="Username" name="email" [(ngModel)]="email" required>
+          </div>
+
+          <!-- Password -->
+          <div class="input-group mb-4 custom-input-group">
+            <span class="input-group-text border-0 bg-transparent ps-4 pe-2">
+              <i class="bi bi-lock fs-5"></i>
+            </span>
+            <input type="password" class="form-control border-0 bg-transparent py-3 shadow-none fw-semibold" 
+                   placeholder="Password" name="password" [(ngModel)]="password" required>
+          </div>
+
+          <div class="text-center mt-5">
+            <button type="submit" class="btn btn-login rounded-pill px-5 py-3 fw-bold text-white shadow">
+              Login Now
+            </button>
+          </div>
+        </form>
+
+        @if (errorMessage) {
+          <div class="alert alert-danger mt-4 text-center rounded-4 border-0 shadow-sm" role="alert">
+            {{ errorMessage }}
+          </div>
+        }
+
+        @if (submitted) {
+          <div class="alert alert-success mt-4 text-center rounded-4 border-0 shadow-sm" role="alert">
+            Login successful! Redirecting...
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right Column: Graphic -->
+    <div class="col-md-6 right-pane d-none d-md-flex align-items-center justify-content-center position-relative overflow-hidden">
+      <!-- Decorative background circles/waves -->
+      <div class="bg-waves"></div>
+
+      <!-- Glassmorphism Card -->
+      <div class="glass-card d-flex align-items-center position-relative">
+        <div class="p-5">
+          <h1 class="text-white fw-bold m-0 title-text">
+            Welcome Back<br>To EduVenture!
+          </h1>
+        </div>
+        
+        <!-- Custom Lightbulb SVG matching the design -->
+        <div class="lightbulb-graphic position-absolute">
+          <svg viewBox="0 0 100 100" class="custom-lightbulb" xmlns="http://www.w3.org/2000/svg">
+            <!-- Lightbulb outline -->
+            <path d="M50 20 C35 20, 25 35, 30 48 C33 55, 38 60, 38 68 L62 68 C62 60, 67 55, 70 48 C75 35, 65 20, 50 20 Z" fill="none" stroke="#000" stroke-width="4"/>
+            <!-- Base rings -->
+            <rect x="36" y="68" width="28" height="4" fill="#000" rx="2" />
+            <rect x="38" y="74" width="24" height="4" fill="#000" rx="2" />
+            <!-- Base curve -->
+            <path d="M42 80 Q50 86 58 80" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+            <!-- Inner Pencil Graphic -->
+            <path d="M47 40 L50 32 L53 40 L53 60 L47 60 Z" fill="#2bdca2" />
+            <path d="M50 32 L53 40 L50 40 Z" fill="#20b182" />
+            <!-- Rays -->
+            <line x1="50" y1="12" x2="50" y2="5" stroke="#000" stroke-width="3" stroke-linecap="round" />
+            <line x1="28" y1="20" x2="22" y2="15" stroke="#000" stroke-width="3" stroke-linecap="round" />
+            <line x1="72" y1="20" x2="78" y2="15" stroke="#000" stroke-width="3" stroke-linecap="round" />
+            <line x1="20" y1="40" x2="12" y2="40" stroke="#000" stroke-width="3" stroke-linecap="round" />
+            <line x1="80" y1="40" x2="88" y2="40" stroke="#000" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+    </div>
   </div>
-}
+</div>

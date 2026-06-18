@@ -12,7 +12,7 @@ import { onAuthStateChanged } from 'firebase/auth';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './topbar.component.html',
-  styleUrls: ['./topbar.component.scss']
+  styleUrls: ['./topbar.component.css']
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -66,3 +66,4 @@ export class TopbarComponent implements OnInit, OnDestroy {
     }
   }
 }
+

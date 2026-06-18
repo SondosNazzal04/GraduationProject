@@ -72,7 +72,7 @@ import { AuthService } from '../services/auth/auth';
       </ng-container>
     </ng-template>
   `,
-  styleUrls: ['../sidebar/sidebar.component.scss']
+  styleUrls: ['../sidebar/sidebar.component.css']
 })
 export class AdminSidebarComponent {
   private authService = inject(AuthService);
@@ -95,3 +95,4 @@ export class AdminSidebarComponent {
     }
   }
 }
+

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { LandingComponent } from './pages/landing/landing.component';
 import { TeacherDachboard } from './component/teacher/teacher-dachboard/teacher-dachboard';
 import { Teacherclasses } from './component/teacher/teacherclasses/teacherclasses';
 
@@ -33,7 +34,7 @@ import { Notification } from './features/notification/notification';
 
 export const routes: Routes = [
   // ── Public routes ──────────────────────────────────────────────
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', component: LandingComponent },
   { path: 'login', component: Login },
   { path: 'change-password', component: ChangePassword },
 

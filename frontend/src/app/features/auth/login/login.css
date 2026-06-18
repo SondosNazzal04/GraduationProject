@@ -1,0 +1,116 @@
+/* Layout & Basics */
+.back-link {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  font-size: 0.95rem;
+  transition: color 0.3s;
+  z-index: 10;
+}
+
+.back-link:hover {
+  color: #000 !important;
+}
+
+.form-wrapper h2 {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* Custom Input Fields */
+.custom-input-group {
+  background-color: #f3f2f9; /* Light grey/purple from mockup */
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.custom-input-group:focus-within {
+  box-shadow: 0 0 0 3px rgba(50, 75, 230, 0.2);
+}
+
+.custom-input-group input {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.custom-input-group input::placeholder {
+  color: #888;
+  font-weight: 500;
+}
+
+/* Login Button */
+.btn-login {
+  background: #3449e5; /* Match the solid blue/purple */
+  border: none;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 160px;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 73, 229, 0.4) !important;
+  background: #2b3dc2;
+}
+
+/* Right Pane Styling */
+.right-pane {
+  background-color: #2187f5; /* Match base blue */
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255,255,255,0.08) 0%, transparent 40%);
+}
+
+.bg-waves {
+  position: absolute;
+  top: -50%; left: -50%; right: -50%; bottom: -50%;
+  opacity: 0.05;
+  background: radial-gradient(circle, transparent 20%, #fff 20%, #fff 80%, transparent 80%, transparent) 0 0,
+              radial-gradient(circle, transparent 20%, #fff 20%, #fff 80%, transparent 80%, transparent) 50px 50px;
+  background-size: 100px 100px;
+  /* Simulating a wave-like pattern */
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: rotateWaves 30s linear infinite;
+}
+
+@keyframes rotateWaves {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Glassmorphism Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 28px;
+  width: 85%;
+  max-width: 540px;
+  min-height: 380px;
+  z-index: 2;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.title-text {
+  font-size: 2.8rem;
+  line-height: 1.25;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Custom Lightbulb SVG */
+.lightbulb-graphic {
+  right: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 350px;
+  height: 350px;
+  z-index: 3;
+}
+
+.custom-lightbulb {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
+}

@@ -21,7 +21,8 @@ eduventure-student-full-portal
 out/
 .angular/
 temp_ui
-
+*.zip
+*.png
 # Environment variables (NEVER commit these)
 .env
 .env.local

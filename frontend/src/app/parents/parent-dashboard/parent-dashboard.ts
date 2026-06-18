@@ -28,7 +28,7 @@ interface ParentProfile {
     TopbarComponent
   ],
   templateUrl: './parent-dashboard.html',
-  styleUrls: ['./parent-dashboard.scss'],
+  styleUrls: ['./parent-dashboard.css'],
 })
 export class ParentDashboard implements OnInit {
   private http = inject(HttpClient);

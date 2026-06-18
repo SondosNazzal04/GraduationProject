@@ -1,0 +1,183 @@
+<div class="landing-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <header class="d-flex justify-content-between align-items-center py-4">
+        <div class="logo d-flex align-items-center">
+          <i class="bi bi-lightbulb text-white fs-4 me-2"></i>
+          <span class="fs-4 fw-bold text-white">EduVenture</span>
+        </div>
+        <a routerLink="/login" class="btn btn-light rounded-pill px-4 fw-bold text-primary shadow-sm">Login</a>
+      </header>
+
+      <div class="row align-items-center hero-content pt-4 pb-5">
+        <div class="col-lg-6 text-white text-center text-lg-start">
+          <h1 class="display-4 fw-bold mb-4 hero-title">Master New Skills<br>Through Adventure</h1>
+          <p class="lead mb-4 opacity-75">At EduVenture, earn badges, and turn your<br>goals into quests.</p>
+          <a routerLink="/login" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm me-3">Go to Dashboard</a>
+          <p class="mt-4 small opacity-75">Don't have an account? Contact your administrator.</p>
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0 position-relative">
+          <div class="hero-image-placeholder shadow-lg rounded-4 overflow-hidden bg-white">
+             <!-- Placeholder for the dashboard mockup image -->
+             <img src="https://placehold.co/800x500/f8f9fa/0b66c2?text=EduVenture+Dashboard+Mockup" class="img-fluid" alt="Dashboard Mockup">
+          </div>
+          <!-- Decorative element -->
+          <div class="floating-badge shadow-sm rounded-circle d-flex align-items-center justify-content-center bg-white">
+            <i class="bi bi-bar-chart-fill text-danger"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Curved bottom -->
+    <div class="hero-curve">
+      <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+          <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+          <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Title & Stats Section -->
+  <section class="stats-section py-5 bg-white text-center">
+    <div class="container pt-4">
+      <h2 class="fw-bold mb-3">Gamify Your School's Curriculum.</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">The all-in-one platform where Teachers track progress, Parents stay connected, and Students turn learning into an adventure.</p>
+      
+      <div class="row mt-5">
+        <div class="col-6 col-md-3 mb-4">
+          <h2 class="display-4 fw-bold text-primary mb-0">15K<span class="text-info">+</span></h2>
+          <p class="text-muted fs-5">Students</p>
+        </div>
+        <div class="col-6 col-md-3 mb-4">
+          <h2 class="display-4 fw-bold text-primary mb-0">98<span class="text-info">%</span></h2>
+          <p class="text-muted fs-5">Engagement</p>
+        </div>
+        <div class="col-6 col-md-3 mb-4">
+          <h2 class="display-4 fw-bold text-primary mb-0">50<span class="text-info">+</span></h2>
+          <p class="text-muted fs-5">Schools</p>
+        </div>
+        <div class="col-6 col-md-3 mb-4">
+          <h2 class="display-4 fw-bold text-primary mb-0">120<span class="text-info">+</span></h2>
+          <p class="text-muted fs-5">Teachers</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section py-5 bg-light">
+    <div class="container text-center">
+      <h2 class="fw-bold text-primary mb-3">Frequently Asked Questions</h2>
+      <p class="text-muted mb-5">Everything you need to know about starting your adventure with EduVenture.</p>
+      
+      <div class="row justify-content-center">
+        <div class="col-md-8 text-start">
+          <div class="faq-item d-flex mb-4" *ngFor="let faq of faqs">
+            <div class="me-4 pt-1">
+              <i class="bi bi-lightbulb fs-3 text-dark"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-2">{{ faq.question }}</h5>
+              <p class="text-muted">{{ faq.answer }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section py-5 bg-white">
+    <div class="container text-center pt-5">
+      <h2 class="fw-bold mb-3">Our <span class="text-info">Features</span></h2>
+      <p class="text-muted mb-5">This very extraordinary feature, can make learning activities more efficient</p>
+      
+      <!-- Feature 1 -->
+      <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6 order-2 order-md-1 position-relative">
+           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Analytics+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Analytics">
+           <div class="decoration-circle bg-primary opacity-25 position-absolute" style="width: 100px; height: 100px; border-radius: 50%; bottom: -20px; right: 10%; z-index: -1;"></div>
+        </div>
+        <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
+          <h3 class="fw-bold mb-4">Powerful <span class="text-info">Analytics</span> for Teachers</h3>
+          <ul class="list-unstyled text-muted feature-list">
+            <li class="mb-3 d-flex"><i class="bi bi-grid-fill text-primary me-3 mt-1 fs-5"></i> Track student attendance and activity in real-time.</li>
+            <li class="mb-3 d-flex"><i class="bi bi-file-earmark-text-fill text-warning me-3 mt-1 fs-5"></i> Monitor class performance with automated grade reports.</li>
+            <li class="mb-3 d-flex"><i class="bi bi-people-fill text-secondary me-3 mt-1 fs-5"></i> Identify at-risk students before they fall behind.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6 text-start pe-md-5 mb-4 mb-md-0">
+          <h3 class="fw-bold mb-4">Turn Grades into <br><span class="text-info">Rewards</span></h3>
+          <p class="text-muted">Students earn VenturePoints for every assignment completed and day attended. These points can be redeemed in the VentureShop for real-world rewards set by the school administration.</p>
+        </div>
+        <div class="col-md-6 position-relative">
+           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Rewards+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Rewards">
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6 order-2 order-md-1 position-relative">
+           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Quests+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Quests">
+        </div>
+        <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
+          <h3 class="fw-bold mb-4">Interactive Quests <br>& Challenges</h3>
+          <p class="text-muted">Forget boring paper tests. Students complete Quests (assignments) with instant feedback. Every correct answer earns them XP and VenturePoints.</p>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6 text-start pe-md-5 mb-4 mb-md-0">
+          <h3 class="fw-bold mb-4">Smart Gradebook & <br>Analytics</h3>
+          <p class="text-muted">Teachers can track attendance and grades in real-time. See at a glance which students are 'Leveling Up' and who needs extra support.</p>
+        </div>
+        <div class="col-md-6 position-relative">
+           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Gradebook+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Gradebook">
+        </div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6 order-2 order-md-1 position-relative">
+           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Messages+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Messages">
+        </div>
+        <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
+          <h3 class="fw-bold mb-4">Seamless Parent- <br>Teacher Connection</h3>
+          <p class="text-muted">Keep parents involved in the adventure. Secure messaging and activity logs ensure parents always know how their child is progressing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-section py-5 text-white">
+    <div class="container text-center pt-4">
+      <div class="mb-4 d-flex justify-content-center align-items-center">
+        <div class="bg-primary rounded p-2 me-3 d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+          <i class="bi bi-lightbulb fs-4 text-dark" style="color: #000 !important;"></i>
+        </div>
+        <div class="text-start">
+          <h5 class="fw-bold mb-0">EduVenture</h5>
+          <small class="opacity-75">Gamifying<br>Education</small>
+        </div>
+      </div>
+      
+      <div class="mb-4 d-flex flex-column gap-2 opacity-75 text-center align-items-center">
+        <div class="d-flex align-items-center"><i class="bi bi-envelope me-2"></i> Email: support@eduventure.edu</div>
+        <div class="d-flex align-items-center"><i class="bi bi-telephone me-2"></i> Phone: 0781234567</div>
+        <div class="d-flex align-items-center"><i class="bi bi-geo-alt me-2"></i> Location: Amman, Jordan</div>
+      </div>
+
+      <div class="mt-5 pt-4 border-top border-secondary opacity-50 small">
+        &copy; 2025 EduVenture. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</div>

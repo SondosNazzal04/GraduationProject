@@ -11,7 +11,7 @@ import { TopbarComponent } from '../../shared/topbar/topbar.component';
   standalone: true,
   imports: [CommonModule, FormsModule, ParentSidebarComponent, TopbarComponent],
   templateUrl: './parent-classes.html',
-  styleUrls: ['./parent-classes.scss']
+  styleUrls: ['./parent-classes.css']
 })
 export class ParentClasses implements OnInit {
   private ps = inject(ParentService);
@@ -55,3 +55,4 @@ export class ParentClasses implements OnInit {
     alert(`Messaging ${teacherName} is coming soon!`);
   }
 }
+

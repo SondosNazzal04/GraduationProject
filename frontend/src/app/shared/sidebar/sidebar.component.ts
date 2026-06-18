@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
+  styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent {
   navItems = [
@@ -25,3 +25,4 @@ export class SidebarComponent {
     console.log('Sign out');
   }
 }
+
