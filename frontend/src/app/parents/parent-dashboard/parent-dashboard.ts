@@ -7,7 +7,6 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
 import { ParentSidebarComponent } from '../../shared/parent-sidebar/parent-sidebar.component';
 import { TopbarComponent } from '../../shared/topbar/topbar.component';
 import { ParentService, ParentChild, SchoolEvent } from '../../services/parent.service';
-import { ActivityService } from '../../activity/services/activity';
 
 interface ParentProfile {
   uid: string;
@@ -43,26 +42,38 @@ export class ParentDashboard implements OnInit {
   events = signal<SchoolEvent[]>([]);
   selectedId = signal('');
 
-  recentActivity = signal<any[]>([]);
-  // Dynamically populate recent activity from ActivityService submissions
-  constructor(private activityService: ActivityService) {
-    // Effect to update recent activity when submissions change
-    effect(() => {
-      const subs = this.activityService.submissions$();
-      const recent = subs.slice(-5).reverse().map(s => {
-        const time = this.timeSince(new Date(s.submittedAt));
-        return {
-          icon: 'assignment',
-          color: '#1565C0',
-          bg: '#e3f2fd',
-          text: `Submitted ${s.activityId}`,
-          child: s.studentName,
-          time,
-        };
-      });
-      this.recentActivity.set(recent);
-    });
-  }
+  recentActivity = signal<any[]>([
+    {
+      icon: 'assignment',
+      color: '#1565C0',
+      bg: '#e3f2fd',
+      text: 'Submitted Math Homework',
+      child: 'Child 1',
+      time: '2 hours ago',
+    },
+    {
+      icon: 'grade',
+      color: '#388e3c',
+      bg: '#e8f5e9',
+      text: 'Received Grade A in Science',
+      child: 'Child 2',
+      time: '1 day ago',
+    },
+    {
+      icon: 'attend',
+      color: '#f57c00',
+      bg: '#fff3e0',
+      text: 'Attendance marked Present',
+      child: 'Child 1',
+      time: '2 days ago',
+    },
+  ]);
+
+  attendanceTrend = [
+    { month: 'Jan', pct: 92 }, { month: 'Feb', pct: 95 }, { month: 'Mar', pct: 88 },
+    { month: 'Apr', pct: 97 }, { month: 'May', pct: 98 }, { month: 'Jun', pct: 95 },
+  ];
+  maxTrend = 100;
 
   ngOnInit() {
     this.loadData();
@@ -92,12 +103,6 @@ export class ParentDashboard implements OnInit {
     }
     return 'just now';
   }
-
-  attendanceTrend = [
-    { month: 'Jan', pct: 92 }, { month: 'Feb', pct: 95 }, { month: 'Mar', pct: 88 },
-    { month: 'Apr', pct: 97 }, { month: 'May', pct: 98 }, { month: 'Jun', pct: 95 },
-  ];
-  maxTrend = 100;
 
   private async loadData(): Promise<void> {
     this.loading = true;
@@ -153,4 +158,3 @@ export class ParentDashboard implements OnInit {
 
   barHeight(pct: number): number { return (pct / this.maxTrend) * 80; }
 }
-
