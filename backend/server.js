@@ -514,12 +514,7 @@ app.get('/api/admin/users', authenticate, requireRole('admin'), async (req, res)
 				continue;
 			}
 
-			let profileRecord = null;
-			if (role === 'admin' || role === 'student' || role === 'teacher' || role === 'parent') {
-				profileRecord = await getProfileRecord(role, docSnap.id);
-			}
-
-			users.push(buildUserResponse({ id: docSnap.id, ...data }, profileRecord));
+			users.push(buildUserResponse({ id: docSnap.id, ...data }, null));
 		}
 
 		return res.json({ items: users });
@@ -1018,9 +1013,9 @@ app.get('/api/parent/children/:childId/attendance', authenticate, requireRole('p
 			const seedData = [
 				{ studentUid: childId, childId, childName: studentName, date: '2025-06-09', status: 'present', notes: '' },
 				{ studentUid: childId, childId, childName: studentName, date: '2025-06-08', status: 'present', notes: '' },
-				{ studentUid: childId, childId, childName: studentName, date: '2025-06-07', status: 'absent',  notes: 'Fever' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-07', status: 'absent', notes: 'Fever' },
 				{ studentUid: childId, childId, childName: studentName, date: '2025-06-06', status: 'present', notes: '' },
-				{ studentUid: childId, childId, childName: studentName, date: '2025-06-05', status: 'late',    notes: 'Traffic delay' },
+				{ studentUid: childId, childId, childName: studentName, date: '2025-06-05', status: 'late', notes: 'Traffic delay' },
 				{ studentUid: childId, childId, childName: studentName, date: '2025-06-04', status: 'present', notes: '' },
 			];
 
@@ -1107,11 +1102,11 @@ app.get('/api/parent/children/:childId/grades', authenticate, requireRole('paren
 
 		if (items.length === 0) {
 			const seedGrades = [
-				{ subject: 'Mathematics', teacher: 'Mr. Wael',   grade: 'A',  percentage: 95, status: 'excellent' },
-				{ subject: 'English',     teacher: 'Mr. Jehad',  grade: 'A-', percentage: 91, status: 'excellent' },
-				{ subject: 'History',     teacher: 'Mr. Bashar', grade: 'B+', percentage: 88, status: 'pass' },
-				{ subject: 'Arabic',      teacher: 'Mr. Naif',   grade: 'A',  percentage: 93, status: 'excellent' },
-				{ subject: 'Science',     teacher: 'Mr. Jameel', grade: 'B',  percentage: 84, status: 'pass' },
+				{ subject: 'Mathematics', teacher: 'Mr. Wael', grade: 'A', percentage: 95, status: 'excellent' },
+				{ subject: 'English', teacher: 'Mr. Jehad', grade: 'A-', percentage: 91, status: 'excellent' },
+				{ subject: 'History', teacher: 'Mr. Bashar', grade: 'B+', percentage: 88, status: 'pass' },
+				{ subject: 'Arabic', teacher: 'Mr. Naif', grade: 'A', percentage: 93, status: 'excellent' },
+				{ subject: 'Science', teacher: 'Mr. Jameel', grade: 'B', percentage: 84, status: 'pass' },
 			];
 
 			for (const sg of seedGrades) {
@@ -1175,10 +1170,10 @@ app.get('/api/parent/children/:childId/classes', authenticate, requireRole('pare
 
 		if (items.length === 0) {
 			const seedClasses = [
-				{ name: '7-A Math',     subject: 'Mathematics', teacher: 'Mr. Wael',   schedule: 'Sun–Thu 8:00 AM',  room: '101', childId },
-				{ name: '7-A English',  subject: 'English',     teacher: 'Mr. Jehad',  schedule: 'Sun–Thu 9:15 AM',  room: '205', childId },
-				{ name: '7-A Arabic',   subject: 'Arabic',      teacher: 'Mr. Naif',   schedule: 'Sun–Thu 10:30 AM', room: '102', childId },
-				{ name: '7-A Science',  subject: 'Science',     teacher: 'Mr. Jameel', schedule: 'Mon–Wed 11:45 AM', room: 'Lab1', childId },
+				{ name: '7-A Math', subject: 'Mathematics', teacher: 'Mr. Wael', schedule: 'Sun–Thu 8:00 AM', room: '101', childId },
+				{ name: '7-A English', subject: 'English', teacher: 'Mr. Jehad', schedule: 'Sun–Thu 9:15 AM', room: '205', childId },
+				{ name: '7-A Arabic', subject: 'Arabic', teacher: 'Mr. Naif', schedule: 'Sun–Thu 10:30 AM', room: '102', childId },
+				{ name: '7-A Science', subject: 'Science', teacher: 'Mr. Jameel', schedule: 'Mon–Wed 11:45 AM', room: 'Lab1', childId },
 			];
 			return res.json(seedClasses);
 		}
@@ -1203,10 +1198,10 @@ app.get('/api/parent/children/:childId/achievements', authenticate, requireRole(
 
 		if (items.length === 0) {
 			const seedAchievements = [
-				{ id: 'ach1', childId, title: 'Math Master',   description: 'Score 90%+ in 5 consecutive math tests',      type: 'badge',     earnedDate: '2025-05-20', icon: '📐', progress: 5,  maxProgress: 5 },
-				{ id: 'ach2', childId, title: 'Perfect Week',  description: '100% attendance for an entire week',           type: 'streak',    earnedDate: '2025-06-02', icon: '⭐', progress: 5,  maxProgress: 5 },
-				{ id: 'ach3', childId, title: 'Reading Star',  description: 'Complete 20 reading assignments',              type: 'challenge', earnedDate: '2025-05-15', icon: '📚', progress: 18, maxProgress: 20 },
-				{ id: 'ach4', childId, title: 'Team Player',   description: 'Complete 10 group projects',                   type: 'award',     earnedDate: '2025-04-10', icon: '🤝', progress: 10, maxProgress: 10 },
+				{ id: 'ach1', childId, title: 'Math Master', description: 'Score 90%+ in 5 consecutive math tests', type: 'badge', earnedDate: '2025-05-20', icon: '📐', progress: 5, maxProgress: 5 },
+				{ id: 'ach2', childId, title: 'Perfect Week', description: '100% attendance for an entire week', type: 'streak', earnedDate: '2025-06-02', icon: '⭐', progress: 5, maxProgress: 5 },
+				{ id: 'ach3', childId, title: 'Reading Star', description: 'Complete 20 reading assignments', type: 'challenge', earnedDate: '2025-05-15', icon: '📚', progress: 18, maxProgress: 20 },
+				{ id: 'ach4', childId, title: 'Team Player', description: 'Complete 10 group projects', type: 'award', earnedDate: '2025-04-10', icon: '🤝', progress: 10, maxProgress: 10 },
 			];
 
 			for (const ach of seedAchievements) {
@@ -1258,11 +1253,11 @@ app.get('/api/parent/children/:childId/venture-points', authenticate, requireRol
 
 		if (items.length === 0) {
 			const seedVP = [
-				{ id: 'vp1', childId, date: '2025-06-09', activity: 'Completed Math Homework',     points: 50,   type: 'earned' },
-				{ id: 'vp2', childId, date: '2025-06-08', activity: 'Perfect Week Badge',          points: 200,  type: 'earned' },
-				{ id: 'vp3', childId, date: '2025-06-07', activity: 'Quiz Score 100%',             points: 100,  type: 'earned' },
-				{ id: 'vp4', childId, date: '2025-06-05', activity: 'Redeemed Mini Notebook',      points: -150, type: 'spent' },
-				{ id: 'vp5', childId, date: '2025-06-03', activity: 'Completed Science Lab',       points: 75,   type: 'earned' },
+				{ id: 'vp1', childId, date: '2025-06-09', activity: 'Completed Math Homework', points: 50, type: 'earned' },
+				{ id: 'vp2', childId, date: '2025-06-08', activity: 'Perfect Week Badge', points: 200, type: 'earned' },
+				{ id: 'vp3', childId, date: '2025-06-07', activity: 'Quiz Score 100%', points: 100, type: 'earned' },
+				{ id: 'vp4', childId, date: '2025-06-05', activity: 'Redeemed Mini Notebook', points: -150, type: 'spent' },
+				{ id: 'vp5', childId, date: '2025-06-03', activity: 'Completed Science Lab', points: 75, type: 'earned' },
 			];
 			return res.json(seedVP);
 		}
@@ -1298,9 +1293,9 @@ app.get('/api/parent/children/:childId/rewards', authenticate, requireRole('pare
 
 		if (items.length === 0) {
 			const seedRewards = [
-				{ id: 'r1', childId, rewardName: 'Mini Notebook',    cost: 150, redeemedDate: '2025-06-05', status: 'active' },
+				{ id: 'r1', childId, rewardName: 'Mini Notebook', cost: 150, redeemedDate: '2025-06-05', status: 'active' },
 				{ id: 'r2', childId, rewardName: 'Extra Break Time', cost: 100, redeemedDate: '2025-05-20', status: 'used' },
-				{ id: 'r3', childId, rewardName: 'School Badge',     cost: 200, redeemedDate: '2025-05-10', status: 'used' },
+				{ id: 'r3', childId, rewardName: 'School Badge', cost: 200, redeemedDate: '2025-05-10', status: 'used' },
 			];
 			return res.json(seedRewards);
 		}
@@ -1326,9 +1321,9 @@ app.get('/api/parent/children/:childId/learning-progress', authenticate, require
 		if (!classIds.length) {
 			const seedProgress = [
 				{ childId, subject: 'Mathematics', progress: 91, assignmentsCompleted: 18, assignmentsTotal: 20, quizAverage: 93, trend: [78, 82, 85, 88, 91, 93] },
-				{ childId, subject: 'English',     progress: 85, assignmentsCompleted: 15, assignmentsTotal: 18, quizAverage: 88, trend: [75, 79, 82, 84, 85, 88] },
-				{ childId, subject: 'Arabic',      progress: 88, assignmentsCompleted: 16, assignmentsTotal: 18, quizAverage: 90, trend: [80, 83, 85, 87, 88, 90] },
-				{ childId, subject: 'Science',     progress: 78, assignmentsCompleted: 12, assignmentsTotal: 16, quizAverage: 84, trend: [70, 73, 75, 77, 78, 84] },
+				{ childId, subject: 'English', progress: 85, assignmentsCompleted: 15, assignmentsTotal: 18, quizAverage: 88, trend: [75, 79, 82, 84, 85, 88] },
+				{ childId, subject: 'Arabic', progress: 88, assignmentsCompleted: 16, assignmentsTotal: 18, quizAverage: 90, trend: [80, 83, 85, 87, 88, 90] },
+				{ childId, subject: 'Science', progress: 78, assignmentsCompleted: 12, assignmentsTotal: 16, quizAverage: 84, trend: [70, 73, 75, 77, 78, 84] },
 			];
 			return res.json(seedProgress);
 		}
@@ -1377,10 +1372,10 @@ app.get('/api/parent/events', authenticate, requireRole('parent'), async (req, r
 
 		if (items.length === 0) {
 			const seedEvents = [
-				{ title: 'Parent-Teacher Meeting',  date: '2025-06-15', type: 'meeting' },
-				{ title: 'Science Fair',            date: '2025-06-20', type: 'event' },
-				{ title: 'End of Year Ceremony',    date: '2025-06-28', type: 'ceremony' },
-				{ title: 'Mid-Year Exams Begin',    date: '2025-07-01', type: 'exam' },
+				{ title: 'Parent-Teacher Meeting', date: '2025-06-15', type: 'meeting' },
+				{ title: 'Science Fair', date: '2025-06-20', type: 'event' },
+				{ title: 'End of Year Ceremony', date: '2025-06-28', type: 'ceremony' },
+				{ title: 'Mid-Year Exams Begin', date: '2025-07-01', type: 'exam' },
 			];
 
 			for (const ev of seedEvents) {
@@ -1413,7 +1408,7 @@ app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (re
 
 		const { userRecord, tempPassword } = await createUser(email, normalizedRole, { classIds, firstName, lastName, dateOfBirth, childrenUids });
 		await admin.auth().setCustomUserClaims(userRecord.uid, { role: normalizedRole });
-		
+
 		if (normalizedRole === 'parent' && childrenUids.length) {
 			for (const studentUid of childrenUids) {
 				await db.collection('users').doc(studentUid).set({ parentUid: userRecord.uid }, { merge: true });
@@ -1716,13 +1711,13 @@ app.delete('/api/shop/items/:itemId', authenticate, requireRole('admin'), async 
 	try {
 		const docRef = db.collection('shopItems').doc(req.params.itemId);
 		const docSnap = await docRef.get();
-		
+
 		if (!docSnap.exists) {
 			return res.status(404).json({ error: 'Shop item not found' });
 		}
 
 		await docRef.delete();
-		
+
 		return res.json({ message: 'Shop item deleted successfully!' });
 	} catch (error) {
 		console.error('Error deleting shop item:', error);

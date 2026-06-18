@@ -171,6 +171,12 @@ export const routes: Routes = [
     data: { roles: ['admin'] },
   },
   {
+    path: 'admin-classes',
+    component: AdminUsersComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
+  },
+  {
     path: 'admin-venture-shop',
     component: AdminVentureShop,
     canActivate: [authGuard, roleGuard],

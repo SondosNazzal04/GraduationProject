@@ -279,7 +279,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { getApiBaseUrl } from '../../firebase.runtime-config';
 import { AuthService } from '../../shared/services/auth/auth';
@@ -321,6 +321,7 @@ interface SchoolClass {
 export class AdminUsersComponent implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private router = inject(Router);
   private baseUrl = `${getApiBaseUrl()}/api`;
 
   users: AdminUser[] = [];
@@ -374,6 +375,11 @@ export class AdminUsersComponent implements OnInit {
   ];
 
   async ngOnInit(): Promise<void> {
+    if (this.router.url.includes('admin-classes')) {
+      this.activeTab = 'classes';
+    } else {
+      this.activeTab = 'users';
+    }
     await this.loadData();
   }
 
@@ -535,6 +541,11 @@ export class AdminUsersComponent implements OnInit {
 
   setTab(tab: 'users' | 'classes'): void {
     this.activeTab = tab;
+    if (tab === 'classes') {
+      this.router.navigate(['/admin-classes']);
+    } else {
+      this.router.navigate(['/admin-users']);
+    }
   }
 
   // ── User Edit / Delete ──────────────────────────────

@@ -58,6 +58,10 @@ import { AuthService } from '../services/auth/auth';
           <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
           <path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/>
         </svg>
+        <svg *ngSwitchCase="'classes'" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
         <svg *ngSwitchCase="'storefront'" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/>
           <path d="M9 22V12h6v10"/>
@@ -81,6 +85,7 @@ export class AdminSidebarComponent {
   navItems = [
     { label: 'Dashboard', icon: 'dashboard', route: '/admin-dashboard' },
     { label: 'Users', icon: 'people', route: '/admin-users' },
+    { label: 'Classes', icon: 'classes', route: '/admin-classes' },
     { label: 'VentureShop', icon: 'storefront', route: '/admin-venture-shop' },
     { label: 'Messages', icon: 'messages', route: '/admin-messages' },
     { label: 'Notifications', icon: 'notifications', route: '/admin-notifications' },

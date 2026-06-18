@@ -175,7 +175,11 @@
   <app-admin-sidebar></app-admin-sidebar>
 
   <div class="p-layout__main">
-    <app-admin-topbar eyebrow="Admin management" pageTitle="Users and classes" pageSubtitle="Create accounts, build classes, and attach students or teachers."></app-admin-topbar>
+    <app-admin-topbar 
+      eyebrow="Admin management" 
+      [pageTitle]="activeTab === 'users' ? 'Users' : 'Classes'" 
+      [pageSubtitle]="activeTab === 'users' ? 'Create accounts and manage user profiles.' : 'Build classes, assign teachers, and manage rosters.'">
+    </app-admin-topbar>
     <div class="p-body">
 
     @if (message) {
@@ -190,15 +194,6 @@
         <button class="banner-dismiss" (click)="error = ''">✕</button>
       </div>
     }
-    <!-- ✅ Tab Navigation -->
-    <div class="tabs-nav">
-      <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="setTab('users')">
-        <span class="material-icons">people</span> Manage Users
-      </button>
-      <button class="tab-btn" [class.active]="activeTab === 'classes'" (click)="setTab('classes')">
-        <span class="material-icons">class</span> Manage Classes
-      </button>
-    </div>
 
     <!-- ── USERS TAB ── -->
     @if (activeTab === 'users') {
