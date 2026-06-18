@@ -347,7 +347,7 @@ export class AdminUsersComponent implements OnInit {
     gradeLevel: '',
     description: '',
     teacherUid: '',
-    studentUidsText: '',
+    studentUids: [] as string[],
   };
 
   userClassDrafts: Record<string, string[]> = {};
@@ -492,10 +492,10 @@ export class AdminUsersComponent implements OnInit {
         gradeLevel: this.createClassForm.gradeLevel.trim(),
         description: this.createClassForm.description.trim(),
         teacherUid: this.createClassForm.teacherUid.trim() || null,
-        studentUids: this.parseList(this.createClassForm.studentUidsText),
+        studentUids: this.createClassForm.studentUids,
       }));
       this.message = 'Class created successfully.';
-      this.createClassForm = { name: '', code: '', gradeLevel: '', description: '', teacherUid: '', studentUidsText: '' };
+      this.createClassForm = { name: '', code: '', gradeLevel: '', description: '', teacherUid: '', studentUids: [] };
       await this.loadData();
     } catch (err) {
       this.error = 'Failed to create class.';
@@ -542,6 +542,7 @@ export class AdminUsersComponent implements OnInit {
   editingUser: {
     uid: string;
     email: string;
+    role: UserRole;
     firstName: string;
     lastName: string;
     dateOfBirth: string;
@@ -553,6 +554,7 @@ export class AdminUsersComponent implements OnInit {
     this.editingUser = {
       uid: user.uid,
       email: user.email || '',
+      role: user.role,
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       dateOfBirth: user.dateOfBirth || '',
@@ -706,6 +708,33 @@ export class AdminUsersComponent implements OnInit {
       this.editingClass.studentUids.splice(idx, 1);
     } else {
       this.editingClass.studentUids.push(studentUid);
+    }
+  }
+
+  toggleCreateUserClass(classId: string): void {
+    const idx = this.createUserForm.classIds.indexOf(classId);
+    if (idx > -1) {
+      this.createUserForm.classIds.splice(idx, 1);
+    } else {
+      this.createUserForm.classIds.push(classId);
+    }
+  }
+
+  toggleCreateUserChild(studentUid: string): void {
+    const idx = this.createUserForm.childrenUids.indexOf(studentUid);
+    if (idx > -1) {
+      this.createUserForm.childrenUids.splice(idx, 1);
+    } else {
+      this.createUserForm.childrenUids.push(studentUid);
+    }
+  }
+
+  toggleCreateClassStudent(studentUid: string): void {
+    const idx = this.createClassForm.studentUids.indexOf(studentUid);
+    if (idx > -1) {
+      this.createClassForm.studentUids.splice(idx, 1);
+    } else {
+      this.createClassForm.studentUids.push(studentUid);
     }
   }
 }

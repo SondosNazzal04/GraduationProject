@@ -234,24 +234,34 @@
             <option value="admin">Admin</option>
           </select>
 
-          @if (createUserForm.role !== 'parent' && createUserForm.role !== 'admin') {
-            <label class="field-label">Assign classes</label>
-            <select class="field-input" multiple [(ngModel)]="createUserForm.classIds">
+          @if (createUserForm.role === 'student' || createUserForm.role === 'teacher') {
+            <label class="field-label" style="margin-top: 16px;">Assign Classes</label>
+            <div class="checkbox-list">
               @for (cls of classes; track cls.id) {
-                <option [value]="cls.id">{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</option>
+                <label class="checkbox-item">
+                  <input type="checkbox" [checked]="createUserForm.classIds.includes(cls.id)" (change)="toggleCreateUserClass(cls.id)" />
+                  <span>{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</span>
+                </label>
               }
-            </select>
+              @if (!classes.length) {
+                <p class="muted">No classes available in the system</p>
+              }
+            </div>
           }
 
           @if (createUserForm.role === 'parent') {
-            <label class="field-label">Link Children (Students)</label>
-            <select class="field-input" multiple [(ngModel)]="createUserForm.childrenUids">
+            <label class="field-label" style="margin-top: 16px;">Link Children (Students)</label>
+            <div class="checkbox-list">
               @for (student of studentsOnly; track student.uid) {
-                <option [value]="student.uid">
-                  {{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}
-                </option>
+                <label class="checkbox-item">
+                  <input type="checkbox" [checked]="createUserForm.childrenUids.includes(student.uid)" (change)="toggleCreateUserChild(student.uid)" />
+                  <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
+                </label>
               }
-            </select>
+              @if (!studentsOnly.length) {
+                <p class="muted">No students available in the system</p>
+              }
+            </div>
           }
 
           <button class="primary-btn" [disabled]="submitting" (click)="createUser()">
@@ -359,8 +369,18 @@
               <option [value]="t.uid">{{ t.firstName ? t.firstName + ' ' + t.lastName : t.email }}</option>
             }
           </select>
-          <label class="field-label">Student UIDs (Comma separated)</label>
-          <textarea class="field-input field-textarea" [(ngModel)]="createClassForm.studentUidsText" placeholder="uid-1, uid-2, uid-3"></textarea>
+          <label class="field-label" style="margin-top: 16px;">Class Roster (Students)</label>
+          <div class="checkbox-list">
+            @for (student of studentsOnly; track student.uid) {
+              <label class="checkbox-item">
+                <input type="checkbox" [checked]="createClassForm.studentUids.includes(student.uid)" (change)="toggleCreateClassStudent(student.uid)" />
+                <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
+              </label>
+            }
+            @if (!studentsOnly.length) {
+              <p class="muted">No students available in the system</p>
+            }
+          </div>
           <button class="primary-btn" (click)="createClass()">Create class</button>
         </article>
       </section>
@@ -421,7 +441,7 @@
             <label class="field-label">Date of Birth</label>
             <input class="field-input" type="date" [(ngModel)]="editingUser.dateOfBirth" />
 
-            @if (editingUser.childrenUids) {
+            @if (editingUser.role === 'parent') {
               <label class="field-label" style="margin-top: 16px;">Linked Children (Students)</label>
               <div class="checkbox-list">
                 @for (student of studentsOnly; track student.uid) {
@@ -436,18 +456,20 @@
               </div>
             }
 
-            <label class="field-label" style="margin-top: 16px;">Assigned Classes</label>
-            <div class="checkbox-list">
-              @for (cls of classes; track cls.id) {
-                <label class="checkbox-item">
-                  <input type="checkbox" [checked]="editingUser.classIds.includes(cls.id)" (change)="toggleEditUserClass(cls.id)" />
-                  <span>{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</span>
-                </label>
-              }
-              @if (!classes.length) {
-                <p class="muted">No classes available in the system</p>
-              }
-            </div>
+            @if (editingUser.role === 'student' || editingUser.role === 'teacher') {
+              <label class="field-label" style="margin-top: 16px;">Assigned Classes</label>
+              <div class="checkbox-list">
+                @for (cls of classes; track cls.id) {
+                  <label class="checkbox-item">
+                    <input type="checkbox" [checked]="editingUser.classIds.includes(cls.id)" (change)="toggleEditUserClass(cls.id)" />
+                    <span>{{ cls.name }}{{ cls.code ? ' (' + cls.code + ')' : '' }}</span>
+                  </label>
+                }
+                @if (!classes.length) {
+                  <p class="muted">No classes available in the system</p>
+                }
+              </div>
+            }
           </div>
           <div class="modal-footer">
             <button class="secondary-btn" (click)="showEditUserModal = false">Cancel</button>
