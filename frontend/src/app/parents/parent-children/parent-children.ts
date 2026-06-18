@@ -48,7 +48,7 @@ interface DetailedChild {
   standalone: true,
   imports: [CommonModule, ParentSidebarComponent, TopbarComponent],
   templateUrl: './parent-children.html',
-  styleUrls: ['./parent-children.css']
+  styleUrls: ['./parent-children.scss']
 })
 export class ParentChildren implements OnInit {
   private parentService = inject(ParentService);
@@ -140,4 +140,5 @@ export class ParentChildren implements OnInit {
     alert(`Messaging teacher (${teacherId || 'Mr. Khalid'}) is coming soon!`);
   }
 }
+
 

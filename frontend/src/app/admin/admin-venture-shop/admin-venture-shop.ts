@@ -19,7 +19,7 @@ import { Notifications } from '../../shared/components/notifications/notificatio
   selector: 'app-admin-venture-shop',
   imports: [CommonModule, RouterModule, FormsModule, Notifications, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './admin-venture-shop.html',
-  styleUrl: './admin-venture-shop.css',
+  styleUrl: './admin-venture-shop.scss',
 })
 export class AdminVentureShop {
   private http = inject(HttpClient);
@@ -238,3 +238,4 @@ export class AdminVentureShop {
     }
   }
 }
+

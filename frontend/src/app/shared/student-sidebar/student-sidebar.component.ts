@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../services/auth/auth';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -7,7 +8,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './student-sidebar.component.html',
-  styleUrls: ['./student-sidebar.component.css']
+  styleUrls: ['./student-sidebar.component.scss']
 })
 export class StudentSidebarComponent {
   navItems = [
@@ -19,6 +20,17 @@ export class StudentSidebarComponent {
     { label: 'Messages',         icon: 'messages',    route: '/student-messages',         active: true  },
     { label: 'Notifications',    icon: 'notif',       route: '/student-notifications',    active: true  },
   ];
-  onSignOut(): void { console.log('Sign out'); }
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  async onSignOut(): Promise<void> {
+    try {
+      this.authService.logout();
+      await this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  }
 }
+
 

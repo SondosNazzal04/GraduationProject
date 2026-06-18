@@ -47,7 +47,7 @@ interface Contact {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent, ParentSidebarComponent],
   templateUrl: './direct-messages.html',
-  styleUrl: './direct-messages.css',
+  styleUrl: './direct-messages.scss',
   })
 export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;

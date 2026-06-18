@@ -11,7 +11,7 @@ import { TopbarComponent } from '../../shared/topbar/topbar.component';
   standalone: true,
   imports: [CommonModule, FormsModule, TitleCasePipe, ParentSidebarComponent, TopbarComponent],
   templateUrl: './parent-attendance.html',
-  styleUrls: ['./parent-attendance.css']
+  styleUrls: ['./parent-attendance.scss']
 })
 export class ParentAttendance implements OnInit {
   private ps = inject(ParentService);
@@ -92,4 +92,5 @@ export class ParentAttendance implements OnInit {
     return s === 'present' ? '#dcfce7' : s === 'late' ? '#fef3c7' : '#fee2e2';
   }
 }
+
 

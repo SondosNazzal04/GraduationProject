@@ -8,7 +8,7 @@
 //   selector: 'app-login',
 //   imports: [FormsModule],
 //   templateUrl: './login.html',
-//   styleUrl: './login.css',
+//   styleUrl: './login.scss',
 // })
 
 // export class Login {
@@ -64,7 +64,7 @@ import { Router, RouterModule } from '@angular/router';
   standalone: true,
   imports: [FormsModule, RouterModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrl: './login.scss',
 })
 export class Login {
   email = '';

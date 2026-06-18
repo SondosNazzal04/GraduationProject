@@ -12,7 +12,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, RouterLink, SidebarComponent, TopbarComponent],
   templateUrl: './submissions.html',
-  styleUrls: ['./submissions.css'],
+  styleUrls: ['./submissions.scss'],
 })
 export class SubmissionsComponent implements OnInit {
   private route   = inject(ActivatedRoute);
@@ -62,3 +62,4 @@ export class SubmissionsComponent implements OnInit {
     });
   }
 }
+

@@ -11,7 +11,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacherclasses.html',
-  styleUrls: ['./teacherclasses.css']
+  styleUrls: ['./teacherclasses.scss']
 })
 export class Teacherclasses implements OnInit {
   classes: ClassRoom[] = [];
@@ -55,4 +55,5 @@ export class Teacherclasses implements OnInit {
     });
   }
 }
+
 

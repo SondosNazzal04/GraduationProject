@@ -12,7 +12,7 @@ import { onAuthStateChanged } from 'firebase/auth';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './student-topbar.component.html',
-  styleUrls: ['./student-topbar.component.css']
+  styleUrls: ['./student-topbar.component.scss']
 })
 export class StudentTopbarComponent implements OnInit, OnDestroy {
   private notifService = inject(NotificationService);
@@ -60,4 +60,5 @@ export class StudentTopbarComponent implements OnInit, OnDestroy {
     return '_';
   }
 }
+
 

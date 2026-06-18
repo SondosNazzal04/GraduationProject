@@ -17,7 +17,7 @@ import { getApiBaseUrl } from '../../../firebase.runtime-config';
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './take-activity.html',
-  styleUrls: ['./take-activity.css'],
+  styleUrls: ['./take-activity.scss'],
 })
 export class TakeActivityComponent implements OnInit, OnDestroy {
   private route   = inject(ActivatedRoute);

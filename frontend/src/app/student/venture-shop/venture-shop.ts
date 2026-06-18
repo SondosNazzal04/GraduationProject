@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './venture-shop.html',
-  styleUrl: './venture-shop.css',
+  styleUrl: './venture-shop.scss',
 })
 export class VentureShop implements OnInit {
   private http = inject(HttpClient);
@@ -143,3 +143,4 @@ export class VentureShop implements OnInit {
     })();
   }
 }
+

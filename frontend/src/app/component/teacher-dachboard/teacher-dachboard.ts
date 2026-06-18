@@ -6,8 +6,9 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
   standalone: true,
   imports: [SidebarComponent],
   templateUrl: './teacher-dachboard.html',
-  styleUrl: './teacher-dachboard.css',
+  styleUrl: './teacher-dachboard.scss',
 })
 export class TeacherDachboard {
 
 }
+

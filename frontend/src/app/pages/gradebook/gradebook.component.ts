@@ -13,7 +13,7 @@ import { AuthService } from '../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, FormsModule, SidebarComponent, TopbarComponent, TitleCasePipe],
   templateUrl: './gradebook.component.html',
-  styleUrls: ['./gradebook.component.css']
+  styleUrls: ['./gradebook.component.scss']
 })
 export class GradebookComponent implements OnInit {
   classes: ClassRoom[] = [];
@@ -134,4 +134,5 @@ export class GradebookComponent implements OnInit {
     });
   }
 }
+
 

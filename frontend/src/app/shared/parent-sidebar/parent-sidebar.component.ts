@@ -14,7 +14,7 @@ interface NavItem {
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './parent-sidebar.component.html',
-  styleUrls: ['./parent-sidebar.component.css']
+  styleUrls: ['./parent-sidebar.component.scss']
 })
 export class ParentSidebarComponent {
   collapsed = signal(false);
@@ -42,4 +42,5 @@ export class ParentSidebarComponent {
     }
   }
 }
+
 

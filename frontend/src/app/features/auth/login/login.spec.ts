@@ -31,7 +31,7 @@ import { AuthService } from '../../../../app/shared/services/auth/auth.spec';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.scss']
 })
 export class LoginComponent {
   email = '';
@@ -57,3 +57,4 @@ export class LoginComponent {
     }
   }
 }
+

@@ -22,7 +22,7 @@ export interface StudentClass {
   standalone: true,
   imports: [CommonModule, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './student-classes.html',
-  styleUrls: ['./student-classes.css']
+  styleUrls: ['./student-classes.scss']
 })
 export class StudentClassesComponent implements OnInit {
   classes: StudentClass[] = [];
@@ -57,3 +57,4 @@ export class StudentClassesComponent implements OnInit {
     this.router.navigate(['/studentactivities'], { queryParams: { classId: cls.id } });
   }
 }
+

@@ -12,7 +12,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, FormsModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacherattendance.html',
-  styleUrls: ['./teacherattendance.css']
+  styleUrls: ['./teacherattendance.scss']
 })
 export class Teacherattendance implements OnInit {
   classes: ClassRoom[] = [];
@@ -113,3 +113,4 @@ export class Teacherattendance implements OnInit {
     });
   }
 }
+

@@ -10,7 +10,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   standalone: true,
   imports: [CommonModule, SidebarComponent, TopbarComponent],
   templateUrl: './teacher-dachboard.html',
-  styleUrl: './teacher-dachboard.css',
+  styleUrl: './teacher-dachboard.scss',
 })
 export class TeacherDachboard implements OnInit {
   private service = inject(ActivityService);
@@ -106,3 +106,4 @@ export class TeacherDachboard implements OnInit {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   }
 }
+

@@ -13,7 +13,7 @@ import { onAuthStateChanged } from 'firebase/auth';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './notifications.html',
-  styleUrls: ['./notifications.css']
+  styleUrls: ['./notifications.scss']
 })
 export class Notifications implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
@@ -108,3 +108,4 @@ export class Notifications implements OnInit, OnDestroy {
     }
   }
 }
+

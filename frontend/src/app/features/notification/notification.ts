@@ -31,7 +31,7 @@ import { Notification as AppNotification } from '../../models/notification.model
     ParentSidebarComponent
   ],
   templateUrl: './notification.html',
-  styleUrl: './notification.css',
+  styleUrl: './notification.scss',
 })
 export class Notification implements OnInit, OnDestroy {
   private authService = inject(AuthService);
@@ -252,3 +252,4 @@ export class Notification implements OnInit, OnDestroy {
     return this.notifications.length;
   }
 }
+

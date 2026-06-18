@@ -8,7 +8,7 @@ import { AuthService } from '../../../../shared/services/auth/auth';
   selector: 'app-change-password',
   imports: [CommonModule, FormsModule],
   templateUrl: './change-password.html',
-  styleUrl: './change-password.css',
+  styleUrl: './change-password.scss',
 })
 export class ChangePassword {
   newPassword = '';
@@ -48,3 +48,4 @@ export class ChangePassword {
   }
 
 }
+

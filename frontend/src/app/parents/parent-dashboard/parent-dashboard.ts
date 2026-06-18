@@ -28,7 +28,7 @@ interface ParentProfile {
     TopbarComponent
   ],
   templateUrl: './parent-dashboard.html',
-  styleUrls: ['./parent-dashboard.css'],
+  styleUrls: ['./parent-dashboard.scss'],
 })
 export class ParentDashboard implements OnInit {
   private http = inject(HttpClient);
@@ -153,3 +153,4 @@ export class ParentDashboard implements OnInit {
 
   barHeight(pct: number): number { return (pct / this.maxTrend) * 80; }
 }
+

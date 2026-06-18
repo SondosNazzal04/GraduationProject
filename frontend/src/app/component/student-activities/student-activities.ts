@@ -14,7 +14,7 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
   standalone: true,
   imports: [CommonModule, RouterLink, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './student-activities.html',
-  styleUrls: ['./student-activities.css'],
+  styleUrls: ['./student-activities.scss'],
 })
 export class StudentActivitiesComponent implements OnInit {
   service = inject(ActivityService);

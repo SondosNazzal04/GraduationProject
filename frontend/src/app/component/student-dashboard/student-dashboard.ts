@@ -42,7 +42,7 @@ interface AttendanceRecord {
   standalone: true,
   imports: [CommonModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent],
   templateUrl: './student-dashboard.html',
-  styleUrl: './student-dashboard.css',
+  styleUrl: './student-dashboard.scss',
 })
 export class StudentDashboard implements OnInit {
   private http = inject(HttpClient);
@@ -154,3 +154,4 @@ export class StudentDashboard implements OnInit {
     return d === 'easy' ? 'chip--green' : d === 'medium' ? 'chip--amber' : 'chip--red';
   }
 }
+

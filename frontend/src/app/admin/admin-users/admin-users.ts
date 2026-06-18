@@ -32,7 +32,7 @@
 //   standalone: true,
 //   imports: [CommonModule, FormsModule, RouterModule],
 //   templateUrl: './admin-users.html',
-//   styleUrl: './admin-users.css',
+//   styleUrl: './admin-users.scss',
 // })
 // export class AdminUsersComponent implements OnInit {
 //   private http = inject(HttpClient);
@@ -316,7 +316,7 @@ interface SchoolClass {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './admin-users.html',
-  styleUrl: './admin-users.css',
+  styleUrl: './admin-users.scss',
 })
 export class AdminUsersComponent implements OnInit {
   private http = inject(HttpClient);

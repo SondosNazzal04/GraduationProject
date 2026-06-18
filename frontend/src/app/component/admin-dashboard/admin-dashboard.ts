@@ -11,7 +11,7 @@ import { getApiBaseUrl } from '../../firebase.runtime-config';
   standalone: true,
   imports: [CommonModule, AdminSidebarComponent, AdminTopbarComponent],
   templateUrl: './admin-dashboard.html',
-  styleUrl: './admin-dashboard.css',
+  styleUrl: './admin-dashboard.scss',
 })
 export class AdminDashboardComponent implements OnInit {
   private http = inject(HttpClient);
@@ -61,3 +61,4 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 }
+
