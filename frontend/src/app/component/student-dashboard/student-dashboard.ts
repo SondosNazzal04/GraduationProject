@@ -89,7 +89,7 @@ export class StudentDashboard implements OnInit {
 
     // Load mock data for the dashboard widgets that don't have real data yet
     this.ps.getActivities().subscribe(a => this.activities.set(a.slice(0, 4)));
-    this.ps.getAchievements().subscribe(a => this.achievements.set(a.filter(x => x.earned).slice(0, 4)));
+    this.ps.getAchievements().subscribe(a => this.achievements.set(a.slice(0, 4)));
   }
 
   private async loadData(): Promise<void> {

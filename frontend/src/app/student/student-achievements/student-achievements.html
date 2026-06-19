@@ -1,0 +1,67 @@
+<div class="layout">
+  <app-student-sidebar></app-student-sidebar>
+  
+  <main class="main-content">
+    <app-student-topbar></app-student-topbar>
+    
+    <div class="content-body">
+      <header class="page-header">
+        <h1>My Achievements</h1>
+        <p>Badges, streaks, and awards you have earned so far!</p>
+      </header>
+
+      <div *ngIf="loading" class="loading-state">
+        Loading...
+      </div>
+
+      <div *ngIf="!loading && achievements.length === 0" class="empty-state">
+        <div class="empty-icon">😢</div>
+        <h2>No achievements yet!</h2>
+        <p>Keep working hard and you'll earn some soon.</p>
+      </div>
+
+      <ng-container *ngIf="!loading && achievements.length > 0">
+        
+        <!-- Badges Section -->
+        <section class="ach-section" *ngIf="badges.length > 0">
+          <h2><span class="emoji">🏅</span> Badges</h2>
+          <div class="ach-grid">
+            <div class="ach-card badge-card" *ngFor="let ach of badges">
+              <div class="ach-icon">{{ ach.icon }}</div>
+              <h3>{{ ach.title }}</h3>
+              <p>{{ ach.description }}</p>
+              <div class="ach-date">Earned on {{ ach.earnedDate | date:'mediumDate' }}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Streaks Section -->
+        <section class="ach-section" *ngIf="streaks.length > 0">
+          <h2><span class="emoji">🔥</span> Streaks</h2>
+          <div class="ach-grid">
+            <div class="ach-card streak-card" *ngFor="let ach of streaks">
+              <div class="ach-icon">{{ ach.icon }}</div>
+              <h3>{{ ach.title }}</h3>
+              <p>{{ ach.description }}</p>
+              <div class="ach-date">Earned on {{ ach.earnedDate | date:'mediumDate' }}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Others Section -->
+        <section class="ach-section" *ngIf="others.length > 0">
+          <h2><span class="emoji">🏆</span> Awards & Challenges</h2>
+          <div class="ach-grid">
+            <div class="ach-card award-card" *ngFor="let ach of others">
+              <div class="ach-icon">{{ ach.icon }}</div>
+              <h3>{{ ach.title }}</h3>
+              <p>{{ ach.description }}</p>
+              <div class="ach-date">Earned on {{ ach.earnedDate | date:'mediumDate' }}</div>
+            </div>
+          </div>
+        </section>
+
+      </ng-container>
+    </div>
+  </main>
+</div>

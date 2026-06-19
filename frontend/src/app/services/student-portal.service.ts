@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { getApiBaseUrl } from '../firebase.runtime-config';
@@ -213,7 +214,7 @@ export class StudentPortalService {
   getAssignments():  Observable<Assignment[]>  { return of(this.assignments);  }
   getAttendance():   Observable<AttendanceRecord[]> { return of(this.attendance); }
   getGrades():       Observable<GradeEntry[]>  { return this.http.get<GradeEntry[]>(`${this.apiBaseUrl}/api/student/me/grades`); }
-  getAchievements(): Observable<Achievement[]> { return of(this.achievements); }
+  getAchievements(): Observable<Achievement[]> { return this.http.get<{items: Achievement[]}>(`${this.apiBaseUrl}/api/student/achievements`).pipe(map(res => res.items)); }
   getVPHistory():    Observable<VPEntry[]>     { return of(this.vpHistory);    }
   getShopItems():    Observable<ShopItem[]>    { return of(this.shopItems);    }
   getChallenges():   Observable<Challenge[]>   { return of(this.challenges);   }

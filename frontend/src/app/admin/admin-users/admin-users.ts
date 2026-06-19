@@ -492,6 +492,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async createClass(): Promise<void> {
+    this.clearMessages();
     if (!this.createClassForm.name.trim()) { this.error = 'Class name is required.'; return; }
     try {
       await firstValueFrom(this.http.post(`${this.baseUrl}/admin/classes`, {
@@ -499,14 +500,14 @@ export class AdminUsersComponent implements OnInit {
         code: this.createClassForm.code.trim(),
         gradeLevel: this.createClassForm.gradeLevel.trim(),
         description: this.createClassForm.description.trim(),
-        teacherUid: this.createClassForm.teacherUid.trim() || null,
+        teacherUid: this.createClassForm.teacherUid ? this.createClassForm.teacherUid.trim() : null,
         studentUids: this.createClassForm.studentUids,
       }));
-      this.message = 'Class created successfully.';
+      this.showSuccess('Class created successfully.');
       this.createClassForm = { name: '', code: '', gradeLevel: '', description: '', teacherUid: '', studentUids: [] };
       await this.loadData();
-    } catch (err) {
-      this.error = 'Failed to create class.';
+    } catch (err: any) {
+      this.error = err.error?.error || 'Failed to create class.';
       console.error(err);
     }
   }
@@ -661,8 +662,8 @@ export class AdminUsersComponent implements OnInit {
       this.showEditClassModal = false;
       this.editingClass = null;
       await this.loadData();
-    } catch (err) {
-      this.error = 'Failed to update class.';
+    } catch (err: any) {
+      this.error = err.error?.error || 'Failed to update class.';
       console.error(err);
     } finally {
       this.submitting = false;

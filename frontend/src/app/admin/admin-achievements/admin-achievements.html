@@ -1,0 +1,130 @@
+<div class="layout">
+  <app-admin-sidebar></app-admin-sidebar>
+  
+  <main class="main-content">
+    <app-admin-topbar></app-admin-topbar>
+    
+    <div class="content-body">
+      <header class="page-header">
+        <h1>Achievements Library</h1>
+        <p>Create badges and award them to students to encourage engagement.</p>
+      </header>
+
+      <div class="alerts">
+        <div class="alert alert-success" *ngIf="message">{{ message }}</div>
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+      </div>
+
+      <div class="page-grid">
+        <!-- Create Form -->
+        <div class="card create-card">
+          <h2>Create Achievement</h2>
+          <form (submit)="createAchievement(); $event.preventDefault()">
+            
+            <div class="form-group">
+              <label>Icon (Emoji)</label>
+              <input type="text" [(ngModel)]="createForm.icon" name="icon" class="form-control" maxlength="5" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" [(ngModel)]="createForm.title" name="title" class="form-control" placeholder="e.g. Math Master" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Description</label>
+              <textarea [(ngModel)]="createForm.description" name="description" class="form-control" placeholder="What is this for?" required rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Type</label>
+              <select [(ngModel)]="createForm.type" name="type" class="form-control">
+                <option value="badge">Badge</option>
+                <option value="streak">Streak</option>
+                <option value="challenge">Challenge</option>
+                <option value="award">Award</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="submitting">
+              {{ submitting ? 'Creating...' : 'Create Achievement' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Library List -->
+        <div class="card list-card">
+          <h2>Available Achievements</h2>
+          
+          <div *ngIf="loading" class="loading-state">
+            Loading...
+          </div>
+          
+          <div *ngIf="!loading && achievements.length === 0" class="empty-state">
+            No achievements in the library yet.
+          </div>
+
+          <div class="achievement-grid" *ngIf="!loading && achievements.length > 0">
+            <div class="achievement-item" *ngFor="let ach of achievements">
+              <div class="ach-header">
+                <div class="ach-icon">{{ ach.icon }}</div>
+                <div class="ach-actions">
+                  <button class="btn-icon btn-delete" (click)="deleteAchievement(ach.id)" title="Delete">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
+              </div>
+              <h3 class="ach-title">{{ ach.title }}</h3>
+              <p class="ach-desc">{{ ach.description }}</p>
+              <div class="ach-type">
+                <span class="badge" [ngClass]="ach.type">{{ ach.type }}</span>
+              </div>
+              <div class="ach-footer">
+                <button class="btn btn-outline" (click)="openAwardModal(ach)">Award to Student</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Award Modal -->
+<div class="modal-overlay" *ngIf="showAwardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Award Achievement</h2>
+      <button class="btn-close" (click)="closeAwardModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="selected-badge">
+        <div class="ach-icon-large">{{ selectedAchievement?.icon }}</div>
+        <div>
+          <h3>{{ selectedAchievement?.title }}</h3>
+          <p>{{ selectedAchievement?.description }}</p>
+        </div>
+      </div>
+
+      <form (submit)="awardAchievement(); $event.preventDefault()">
+        <div class="form-group">
+          <label>Select Student</label>
+          <select [(ngModel)]="awardForm.studentUid" name="studentUid" class="form-control" required>
+            <option value="">-- Choose a Student --</option>
+            <option *ngFor="let student of students" [value]="student.uid">
+              {{ getStudentLabel(student) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeAwardModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting || !awardForm.studentUid">
+            {{ submitting ? 'Awarding...' : 'Award Badge' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

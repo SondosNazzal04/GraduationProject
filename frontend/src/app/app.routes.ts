@@ -14,6 +14,7 @@ import { StudentActivitiesComponent } from './component/student-activities/stude
 import { VentureShop } from './student/venture-shop/venture-shop';
 import { AdminVentureShop } from './admin/admin-venture-shop/admin-venture-shop';
 import { AdminUsersComponent } from './admin/admin-users/admin-users';
+import { AdminAchievementsComponent } from './admin/admin-achievements/admin-achievements';
 import { MyClassesComponent } from './pages/my-classes/my-classes.component';
 import { AttendanceComponent } from './pages/attendance/attendance.component';
 import { GradebookComponent } from './pages/gradebook/gradebook.component';
@@ -27,6 +28,7 @@ import { ChangePassword } from './features/auth/login/change-password/change-pas
 import { StudentDashboard } from './component/student-dashboard/student-dashboard';
 import { StudentClassesComponent } from './component/student-classes/student-classes';
 import { StudentGradesComponent } from './student/student-grades/student-grades';
+import { StudentAchievementsComponent } from './student/student-achievements/student-achievements';
 import { AdminDashboardComponent } from './component/admin-dashboard/admin-dashboard';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
@@ -85,6 +87,12 @@ export const routes: Routes = [
   {
     path: 'student-notifications',
     component: Notification,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['student'] },
+  },
+  {
+    path: 'student-achievements',
+    component: StudentAchievementsComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['student'] },
   },
@@ -186,6 +194,12 @@ export const routes: Routes = [
   {
     path: 'admin-venture-shop',
     component: AdminVentureShop,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] },
+  },
+  {
+    path: 'admin-achievements',
+    component: AdminAchievementsComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
   },

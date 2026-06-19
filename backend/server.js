@@ -542,6 +542,12 @@ app.post('/api/admin/classes', authenticate, requireRole('admin'), async (req, r
 		if (!payload.name) {
 			return res.status(400).json({ error: 'name is required.' });
 		}
+		if (payload.code) {
+			const existing = await db.collection('classes').where('code', '==', payload.code).limit(1).get();
+			if (!existing.empty) {
+				return res.status(400).json({ error: 'A class with this code already exists.' });
+			}
+		}
 
 		const docRef = db.collection('classes').doc();
 		await docRef.set({
@@ -706,6 +712,13 @@ app.put('/api/admin/classes/:id', authenticate, requireRole('admin'), async (req
 		}
 		const prevClass = classSnap.data();
 		const payload = sanitizeClassPayload(req.body || {});
+
+		if (payload.code && payload.code !== prevClass.code) {
+			const existing = await db.collection('classes').where('code', '==', payload.code).limit(1).get();
+			if (!existing.empty) {
+				return res.status(400).json({ error: 'A class with this code already exists.' });
+			}
+		}
 
 		await classRef.set({
 			...payload,
@@ -1392,29 +1405,7 @@ app.get('/api/parent/children/:childId/achievements', authenticate, requireRole(
 		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
 		if (items.length === 0) {
-			const seedAchievements = [
-				{ id: 'ach1', childId, title: 'Math Master', description: 'Score 90%+ in 5 consecutive math tests', type: 'badge', earnedDate: '2025-05-20', icon: '📐', progress: 5, maxProgress: 5 },
-				{ id: 'ach2', childId, title: 'Perfect Week', description: '100% attendance for an entire week', type: 'streak', earnedDate: '2025-06-02', icon: '⭐', progress: 5, maxProgress: 5 },
-				{ id: 'ach3', childId, title: 'Reading Star', description: 'Complete 20 reading assignments', type: 'challenge', earnedDate: '2025-05-15', icon: '📚', progress: 18, maxProgress: 20 },
-				{ id: 'ach4', childId, title: 'Team Player', description: 'Complete 10 group projects', type: 'award', earnedDate: '2025-04-10', icon: '🤝', progress: 10, maxProgress: 10 },
-			];
-
-			for (const ach of seedAchievements) {
-				const docRef = db.collection('achievements').doc();
-				const record = {
-					studentUid: childId,
-					title: ach.title,
-					description: ach.description,
-					type: ach.type,
-					earnedDate: ach.earnedDate,
-					icon: ach.icon,
-					progress: ach.progress,
-					maxProgress: ach.maxProgress,
-					createdAt: admin.firestore.FieldValue.serverTimestamp()
-				};
-				await docRef.set(record);
-				items.push({ id: docRef.id, childId, ...ach });
-			}
+			return res.json([]);
 		}
 
 		return res.json(items);
@@ -1614,14 +1605,14 @@ app.post('/api/admin/create-user', authenticate, requireRole('admin'), async (re
 		if (normalizedRole !== 'admin' && normalizeClassIds(classIds).length) {
 			await syncClassMembership(userRecord.uid, normalizedRole, [], classIds);
 		}
-		const emailStatus = await sendEmail(userRecord.email, tempPassword);
+		sendEmail(userRecord.email, tempPassword).catch(console.error);
 
 		return res.status(201).json({
 			message: 'User created successfully!',
 			uid: userRecord.uid,
 			role: normalizedRole,
 			temporaryPassword: tempPassword,
-			emailStatus,
+			emailStatus: 'pending',
 		});
 	} catch (error) {
 		console.error('Error creating user:', error);
@@ -1974,6 +1965,110 @@ app.post('/api/shop/redeem', authenticate, requireRole('student'), async (req, r
 		}
 
 		return res.status(500).json({ error: error.message || 'Failed to redeem item' });
+	}
+});
+
+// ==========================================
+// ACHIEVEMENTS SYSTEM
+// ==========================================
+
+app.get('/api/admin/achievements/library', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		const snap = await db.collection('achievementLibrary').orderBy('createdAt', 'desc').get();
+		const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error fetching achievement library:', error);
+		return res.status(500).json({ error: 'Failed to fetch achievement library.' });
+	}
+});
+
+app.post('/api/admin/achievements/library', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		const payload = req.body;
+		if (!payload.title || !payload.description || !payload.icon || !payload.type) {
+			return res.status(400).json({ error: 'Title, description, icon, and type are required.' });
+		}
+		const docRef = db.collection('achievementLibrary').doc();
+		const record = {
+			title: payload.title,
+			description: payload.description,
+			icon: payload.icon,
+			type: payload.type,
+			maxProgress: payload.maxProgress || 1,
+			createdAt: admin.firestore.FieldValue.serverTimestamp()
+		};
+		await docRef.set(record);
+		return res.status(201).json({ message: 'Achievement created successfully!', item: { id: docRef.id, ...record } });
+	} catch (error) {
+		console.error('Error creating achievement:', error);
+		return res.status(500).json({ error: 'Failed to create achievement.' });
+	}
+});
+
+app.delete('/api/admin/achievements/library/:id', authenticate, requireRole('admin'), async (req, res) => {
+	try {
+		await db.collection('achievementLibrary').doc(req.params.id).delete();
+		return res.json({ message: 'Achievement deleted successfully.' });
+	} catch (error) {
+		console.error('Error deleting achievement:', error);
+		return res.status(500).json({ error: 'Failed to delete achievement.' });
+	}
+});
+
+app.post('/api/teacher/achievements/award', authenticate, requireRole('admin', 'teacher'), async (req, res) => {
+	try {
+		const payload = req.body;
+		if (!payload.studentUid || !payload.achievementId) {
+			return res.status(400).json({ error: 'studentUid and achievementId are required.' });
+		}
+		
+		const libSnap = await db.collection('achievementLibrary').doc(payload.achievementId).get();
+		if (!libSnap.exists) {
+			return res.status(404).json({ error: 'Achievement not found in library.' });
+		}
+		const libData = libSnap.data();
+
+		const docRef = db.collection('achievements').doc();
+		const record = {
+			studentUid: payload.studentUid,
+			achievementId: payload.achievementId,
+			title: libData.title,
+			description: libData.description,
+			type: libData.type,
+			icon: libData.icon,
+			progress: libData.maxProgress || 1,
+			maxProgress: libData.maxProgress || 1,
+			earnedDate: new Date().toISOString().split('T')[0],
+			awardedByUid: req.user.uid,
+			createdAt: admin.firestore.FieldValue.serverTimestamp()
+		};
+		await docRef.set(record);
+		
+		await db.collection(`users/${payload.studentUid}/notifications`).add({
+			userId: payload.studentUid,
+			title: 'Achievement Unlocked!',
+			message: `You earned the '${libData.title}' badge!`,
+			isRead: false,
+			type: 'reward',
+			timestamp: admin.firestore.FieldValue.serverTimestamp()
+		});
+
+		return res.status(201).json({ message: 'Achievement awarded successfully!', item: { id: docRef.id, ...record } });
+	} catch (error) {
+		console.error('Error awarding achievement:', error);
+		return res.status(500).json({ error: 'Failed to award achievement.' });
+	}
+});
+
+app.get('/api/student/achievements', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const snap = await db.collection('achievements').where('studentUid', '==', req.user.uid).orderBy('createdAt', 'desc').get();
+		const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error fetching student achievements:', error);
+		return res.status(500).json({ error: 'Failed to fetch achievements.' });
 	}
 });
 
