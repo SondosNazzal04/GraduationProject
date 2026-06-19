@@ -83,7 +83,7 @@ export const routes: Routes = [
     data: { roles: ['student'] },
   },
   {
-    path: '',
+    path: 'student-notifications',
     component: Notification,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['student'] },
