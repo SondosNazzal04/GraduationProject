@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +31,8 @@ export class GradebookComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,12 +44,14 @@ export class GradebookComponent implements OnInit {
       }
       this.loadSubjects();
       this.summaries = this.teacherService.getGradeSummaryByClass(this.selectedClassId);
+      this.cdr.detectChanges();
     });
     this.teacherService.getGrades().subscribe(() => {
       this.summaries = this.teacherService.getGradeSummaryByClass(this.selectedClassId);
       if (this.selectedStudent) {
         this.selectedStudent = this.summaries.find(s => s.studentId === this.selectedStudent!.studentId) ?? null;
       }
+      this.cdr.detectChanges();
     });
   }
 
@@ -92,7 +95,11 @@ export class GradebookComponent implements OnInit {
     } as GradeRecord);
     this.showForm = false;
     this.savedSuccessfully = true;
-    setTimeout(() => this.savedSuccessfully = false, 2500);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.savedSuccessfully = false;
+      this.cdr.detectChanges();
+    }, 2500);
   }
 
   deleteGrade(id: string): void {

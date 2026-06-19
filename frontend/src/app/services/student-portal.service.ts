@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { getApiBaseUrl } from '../firebase.runtime-config';
 
 // ── Interfaces ────────────────────────────────────────────────
 
@@ -72,6 +75,8 @@ export interface Message {
 
 @Injectable({ providedIn: 'root' })
 export class StudentPortalService {
+  private http = inject(HttpClient);
+  private apiBaseUrl = getApiBaseUrl();
 
   profile = signal<StudentProfile>({
     id:'s1', name:'Sara Ahmad', initials:'SA', gradeLevel:'7th Grade', className:'7-A',
@@ -207,7 +212,7 @@ export class StudentPortalService {
   getActivities():   Observable<Activity[]>   { return of(this.activities);   }
   getAssignments():  Observable<Assignment[]>  { return of(this.assignments);  }
   getAttendance():   Observable<AttendanceRecord[]> { return of(this.attendance); }
-  getGrades():       Observable<GradeEntry[]>  { return of(this.grades);       }
+  getGrades():       Observable<GradeEntry[]>  { return this.http.get<GradeEntry[]>(`${this.apiBaseUrl}/api/student/me/grades`); }
   getAchievements(): Observable<Achievement[]> { return of(this.achievements); }
   getVPHistory():    Observable<VPEntry[]>     { return of(this.vpHistory);    }
   getShopItems():    Observable<ShopItem[]>    { return of(this.shopItems);    }

@@ -108,6 +108,12 @@ export class TeacherService {
       console.error('Failed to load teacher students', err);
       this.hasLoaded = false;
     });
+
+    // Load grades
+    firstValueFrom(this.http.get<any>(`${this.apiBaseUrl}/api/teacher/grades`)).then(res => {
+      const dbGrades = res.items || [];
+      this.gradesSubject.next(dbGrades);
+    }).catch(err => console.error('Failed to load teacher grades', err));
   }
 
   getStudentsByClass(classId: string): Student[] {
@@ -127,18 +133,32 @@ export class TeacherService {
 
   /** Add or update a grade record */
   saveGrade(grade: GradeRecord): void {
-    const current = this.gradesSubject.value;
-    const idx = current.findIndex(g => g.id === grade.id);
-    if (idx >= 0) {
-      const updated = [...current]; updated[idx] = grade;
-      this.gradesSubject.next(updated);
-    } else {
-      this.gradesSubject.next([...current, { ...grade, id: 'g' + Date.now() }]);
-    }
+    this.http.post<any>(`${this.apiBaseUrl}/api/teacher/grades`, grade).subscribe({
+      next: (res) => {
+        const savedGrade = res.item;
+        const current = this.gradesSubject.value;
+        const idx = current.findIndex(g => g.id === savedGrade.id || g.id === grade.id);
+        if (idx >= 0) {
+          const updated = [...current];
+          updated[idx] = savedGrade;
+          this.gradesSubject.next(updated);
+        } else {
+          this.gradesSubject.next([...current, savedGrade]);
+        }
+      },
+      error: (err) => console.error('Failed to save grade', err)
+    });
   }
 
   deleteGrade(id: string): void {
-    this.gradesSubject.next(this.gradesSubject.value.filter(g => g.id !== id));
+    if (id && !id.startsWith('g')) {
+      this.http.delete(`${this.apiBaseUrl}/api/teacher/grades/${id}`).subscribe({
+        next: () => this.gradesSubject.next(this.gradesSubject.value.filter(g => g.id !== id)),
+        error: (err) => console.error('Failed to delete grade', err)
+      });
+    } else {
+      this.gradesSubject.next(this.gradesSubject.value.filter(g => g.id !== id));
+    }
   }
 
   /** Build per-student grade summary for a class */

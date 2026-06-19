@@ -15,6 +15,7 @@ export class StudentSidebarComponent {
     { label: 'Dashboard',        icon: 'dashboard',   route: '/student-dashboard',        active: true  },
     { label: 'My Quests',        icon: 'assignments', route: '/studentactivities',        active: true  },
     { label: 'Achievements',     icon: 'achieve',     route: '/student-achievements',     active: true  },
+    { label: 'Grades',           icon: 'grades',      route: '/student-grades',           active: true  },
     { label: 'Venture Shop',     icon: 'shop',        route: '/venture-shop',             active: true  },
     { label: 'My Classes',       icon: 'classes',     route: '/student-classes',          active: true  },
     { label: 'Messages',         icon: 'messages',    route: '/student-messages',         active: true  },

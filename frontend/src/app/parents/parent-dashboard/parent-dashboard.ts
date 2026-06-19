@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -33,6 +33,7 @@ export class ParentDashboard implements OnInit {
   private http = inject(HttpClient);
   private parentService = inject(ParentService);
   private baseUrl = `${getApiBaseUrl()}/api`;
+  private cdr = inject(ChangeDetectorRef);
 
   profile: ParentProfile | null = null;
   loading = true;
@@ -117,6 +118,7 @@ export class ParentDashboard implements OnInit {
       console.error(err);
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 

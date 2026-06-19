@@ -1,0 +1,19 @@
+.grade-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.grade-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .grade-kpi {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

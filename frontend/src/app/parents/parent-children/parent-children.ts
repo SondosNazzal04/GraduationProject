@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ParentService, ParentChild } from '../../services/parent.service';
 import { AuthService } from '../../shared/services/auth/auth';
@@ -53,6 +53,7 @@ interface DetailedChild {
 export class ParentChildren implements OnInit {
   private parentService = inject(ParentService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   parentName = signal('Parent');
   children = signal<DetailedChild[]>([]);
@@ -122,17 +123,20 @@ export class ParentChildren implements OnInit {
           });
           this.children.set(mapped);
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error(err);
           this.error = 'Failed to load children details.';
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     } catch (err) {
       console.error(err);
       this.error = 'Failed to load parent data.';
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 
