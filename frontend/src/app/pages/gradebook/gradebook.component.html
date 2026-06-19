@@ -5,10 +5,10 @@
     <div class="p-body">
 
       <!-- Header -->
-      <div class="page-header">
+      <div class="p-heading">
         <div>
-          <h1 class="page-header__title">Gradebook</h1>
-          <p class="page-header__sub">Record and view student grades</p>
+          <h1 class="p-heading__title">Gradebook</h1>
+          <p class="p-heading__sub">Record and view student grades</p>
         </div>
       </div>
 
@@ -139,48 +139,51 @@
           </div>
 
           <!-- Grades table -->
-          <div class="grades-table-wrap">
-            <table class="grades-table">
-              <thead>
-                <tr>
-                  <th>Activity</th>
-                  <th>Subject</th>
-                  <th>Type</th>
-                  <th>Score</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let g of selectedStudent.grades">
-                  <td class="td-title">{{ g.activityTitle }}</td>
-                  <td>{{ g.subject }}</td>
-                  <td>
-                    <span class="type-badge type-badge--{{g.activityType}}">{{ g.activityType }}</span>
-                  </td>
-                  <td>
-                    <span class="score-pill" [style.color]="getScoreColor(g.score)" [style.background]="getScoreColor(g.score) + '18'">
-                      {{ g.score }}/{{ g.maxScore }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="status-label" [style.color]="getScoreColor(g.score)">{{ getScoreLabel(g.score) }}</span>
-                  </td>
-                  <td class="td-date">{{ g.date }}</td>
-                  <td>
-                    <button class="delete-btn" (click)="deleteGrade(g.id)" title="Delete">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-                <tr *ngIf="selectedStudent.grades.length === 0">
-                  <td colspan="7" class="td-empty">No grades recorded yet. Click "Add Grade" to get started.</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="p-card">
+            <div class="p-card__header">Grades</div>
+            <div class="grades-table-wrap">
+              <table class="p-table">
+                <thead>
+                  <tr>
+                    <th>Activity</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let g of selectedStudent.grades">
+                    <td class="td-title">{{ g.activityTitle }}</td>
+                    <td>{{ g.subject }}</td>
+                    <td>
+                      <span class="type-badge type-badge--{{g.activityType}}">{{ g.activityType }}</span>
+                    </td>
+                    <td>
+                      <span class="score-pill" [style.color]="getScoreColor(g.score)" [style.background]="getScoreColor(g.score) + '18'">
+                        {{ g.score }}/{{ g.maxScore }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-label" [style.color]="getScoreColor(g.score)">{{ getScoreLabel(g.score) }}</span>
+                    </td>
+                    <td class="td-date">{{ g.date }}</td>
+                    <td>
+                      <button class="delete-btn" (click)="deleteGrade(g.id)" title="Delete">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="selectedStudent.grades.length === 0">
+                    <td colspan="7" class="td-empty">No grades recorded yet. Click "Add Grade" to get started.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>
