@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -48,6 +48,7 @@ export class StudentDashboard implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   public ps = inject(StudentPortalService);
+  private cdr = inject(ChangeDetectorRef);
   private baseUrl = `${getApiBaseUrl()}/api`;
 
   realProfile: StudentProfile | null = null;
@@ -126,6 +127,7 @@ export class StudentDashboard implements OnInit {
       console.error(err);
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 

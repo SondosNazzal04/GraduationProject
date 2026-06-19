@@ -21,9 +21,9 @@ export class StudentTopbarComponent implements OnInit, OnDestroy {
   private authUnsubscribe?: () => void;
 
   @Input() pageTitle = '';
-  @Input() studentName = 'Sara Ahmad';
-  @Input() level = 12;
-  @Input() venturePoints = 2500;
+  @Input() studentName = '';
+  @Input() level = 0;
+  @Input() venturePoints = 0;
   
   notifCount = 0;
   searchQuery = '';

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../services/teacher.service';
@@ -6,6 +6,8 @@ import { ClassRoom, AttendanceRecord, AttendanceStatus } from '../../../models/t
 import { SidebarComponent } from '../../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/topbar/topbar.component';
 import { AuthService } from '../../../shared/services/auth/auth';
+import { Subject, combineLatest, takeUntil } from 'rxjs';
+
 
 @Component({
   selector: 'app-teacherattendance',
@@ -14,7 +16,7 @@ import { AuthService } from '../../../shared/services/auth/auth';
   templateUrl: './teacherattendance.html',
   styleUrls: ['./teacherattendance.scss']
 })
-export class Teacherattendance implements OnInit {
+export class Teacherattendance implements OnInit, OnDestroy {
   classes: ClassRoom[] = [];
   selectedClassId = 'c1';
   today = new Date().toISOString().split('T')[0];
@@ -22,24 +24,39 @@ export class Teacherattendance implements OnInit {
   records: AttendanceRecord[] = [];
   savedSuccessfully = false;
   teacherName = 'Mr. Smith';
+  
+  private allAttendance: AttendanceRecord[] = [];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private teacherService: TeacherService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadProfile();
-    this.teacherService.getClasses().subscribe(c => {
-      this.classes = c;
-      if (c.length && (this.selectedClassId === 'c1' || !c.some(item => item.id === this.selectedClassId))) {
-        this.selectedClassId = c[0].id;
-        this.onClassChange();
+    
+    combineLatest([
+      this.teacherService.getClasses(),
+      this.teacherService.getStudents(),
+      this.teacherService.getAttendance()
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([classes, students, allAttendance]) => {
+      this.classes = classes;
+      this.allAttendance = allAttendance;
+      
+      if (classes.length && (this.selectedClassId === 'c1' || !classes.some(item => item.id === this.selectedClassId))) {
+        this.selectedClassId = classes[0].id;
       }
+      
+      this.initRecords();
+      this.cdr.detectChanges(); // Force change detection to update the view immediately
     });
-    this.teacherService.getAttendance().subscribe(all => {
-      this.initRecords(all);
-    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get selectedClass(): ClassRoom | undefined {
@@ -47,16 +64,16 @@ export class Teacherattendance implements OnInit {
   }
 
   onClassChange(): void {
-    this.teacherService.getAttendance().subscribe(all => this.initRecords(all));
+    this.initRecords();
   }
 
   onDateChange(): void {
-    this.teacherService.getAttendance().subscribe(all => this.initRecords(all));
+    this.initRecords();
   }
 
-  private initRecords(all: AttendanceRecord[]): void {
+  private initRecords(): void {
     const students = this.teacherService.getStudentsByClass(this.selectedClassId);
-    const existing = all.filter(r => r.classId === this.selectedClassId && r.date === this.selectedDate);
+    const existing = this.allAttendance.filter(r => r.classId === this.selectedClassId && r.date === this.selectedDate);
     this.records = students.map(s => {
       const ex = existing.find(r => r.studentId === s.id);
       return ex ?? {

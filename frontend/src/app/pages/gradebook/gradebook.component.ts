@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,8 @@ import { ClassRoom, GradeRecord, StudentGradeSummary, ActivityType } from '../..
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { TopbarComponent } from '../../shared/topbar/topbar.component';
 import { AuthService } from '../../shared/services/auth/auth';
+import { Subject, combineLatest, takeUntil } from 'rxjs';
+
 
 @Component({
   selector: 'app-gradebook',
@@ -15,7 +17,7 @@ import { AuthService } from '../../shared/services/auth/auth';
   templateUrl: './gradebook.component.html',
   styleUrls: ['./gradebook.component.scss']
 })
-export class GradebookComponent implements OnInit {
+export class GradebookComponent implements OnInit, OnDestroy {
   classes: ClassRoom[] = [];
   selectedClassId = 'c1';
   summaries: StudentGradeSummary[] = [];
@@ -28,6 +30,8 @@ export class GradebookComponent implements OnInit {
   activityTypes: ActivityType[] = ['exam', 'assignment', 'quiz'];
   subjects: string[] = [];
   teacherName = 'Mr. Smith';
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private teacherService: TeacherService,
@@ -37,22 +41,30 @@ export class GradebookComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
-    this.teacherService.getClasses().subscribe(c => {
-      this.classes = c;
-      if (c.length && (this.selectedClassId === 'c1' || !c.some(item => item.id === this.selectedClassId))) {
-        this.selectedClassId = c[0].id;
+    
+    combineLatest([
+      this.teacherService.getClasses(),
+      this.teacherService.getStudents(),
+      this.teacherService.getGrades()
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([classes, students, grades]) => {
+      this.classes = classes;
+      if (classes.length && (this.selectedClassId === 'c1' || !classes.some(item => item.id === this.selectedClassId))) {
+        this.selectedClassId = classes[0].id;
       }
       this.loadSubjects();
       this.summaries = this.teacherService.getGradeSummaryByClass(this.selectedClassId);
-      this.cdr.detectChanges();
-    });
-    this.teacherService.getGrades().subscribe(() => {
-      this.summaries = this.teacherService.getGradeSummaryByClass(this.selectedClassId);
+      
       if (this.selectedStudent) {
         this.selectedStudent = this.summaries.find(s => s.studentId === this.selectedStudent!.studentId) ?? null;
       }
+      
       this.cdr.detectChanges();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onClassChange(): void {

@@ -4,6 +4,21 @@
     <app-topbar pageTitle="Dashboard" [userName]="parentName"></app-topbar>
     <div class="p-body">
 
+      <!-- Loading / Error states -->
+      <div *ngIf="loading" style="text-align:center; padding: 40px; color: #888; font-size: 16px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-bottom: 12px;">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+          <path d="M12 2a10 10 0 0 1 10 10"/>
+        </svg>
+        <br>
+        Loading dashboard...
+      </div>
+      <div *ngIf="error" style="text-align:center; padding: 40px; color: #ef4444;">
+        {{ error }}
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <ng-container *ngIf="!loading && !error">
       <!-- Welcome -->
       <div class="welcome-bar">
         <div>
@@ -83,7 +98,9 @@
           </div>
         </div>
 
-      </div>
+        </div>
+
+      </ng-container>
     </div>
   </div>
 </div>

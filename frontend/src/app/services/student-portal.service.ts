@@ -79,10 +79,10 @@ export class StudentPortalService {
   private apiBaseUrl = getApiBaseUrl();
 
   profile = signal<StudentProfile>({
-    id:'s1', name:'Sara Ahmad', initials:'SA', gradeLevel:'7th Grade', className:'7-A',
-    email:'sara.ahmad@eduventure.edu', level:12,
-    gpa:3.9, attendancePct:97, venturePoints:2500, streak:8,
-    rank:3, completedActivities:42, badgesEarned:9
+    id:'', name:'', initials:'', gradeLevel:'', className:'',
+    email:'', level:0,
+    gpa:0, attendancePct:0, venturePoints:0, streak:0,
+    rank:0, completedActivities:0, badgesEarned:0
   });
 
   private activities: Activity[] = [

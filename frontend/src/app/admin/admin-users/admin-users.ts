@@ -276,7 +276,7 @@
 
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -322,6 +322,7 @@ export class AdminUsersComponent implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private baseUrl = `${getApiBaseUrl()}/api`;
 
   users: AdminUser[] = [];
@@ -409,6 +410,7 @@ export class AdminUsersComponent implements OnInit {
       console.error(err);
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 

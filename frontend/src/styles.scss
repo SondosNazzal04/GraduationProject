@@ -213,3 +213,11 @@ button { font-family: inherit; }
   .p-layout__main { margin-left: 0; }
   .p-body { padding: 16px; }
 }
+
+/* ── Animations ───────────────────────────── */
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
