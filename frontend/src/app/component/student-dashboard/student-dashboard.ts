@@ -18,6 +18,7 @@ interface StudentProfile {
   classIds: string[];
   firstName?: string;
   lastName?: string;
+  loginStreak?: number;
 }
 
 interface SchoolClass {
@@ -74,7 +75,7 @@ export class StudentDashboard implements OnInit {
         initials: `${fName.charAt(0)}${lName.charAt(0)}`.toUpperCase(),
         venturePoints: this.realProfile.pointsBalance,
         attendancePct: this.getAttendanceRate() > 0 ? this.getAttendanceRate() : '_',
-        streak: '_',
+        streak: this.realProfile.loginStreak ?? 0,
         completedActivities: '_',
         badgesEarned: '_',
         gpa: '_',

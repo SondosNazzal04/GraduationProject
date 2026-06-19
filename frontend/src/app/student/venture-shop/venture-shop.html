@@ -1,7 +1,7 @@
 <div class="p-layout">
   <app-student-sidebar></app-student-sidebar>
   <div class="p-layout__main">
-    <app-student-topbar pageTitle="Venture Shop" [studentName]="ps.profile().name" [venturePoints]="studentPoints" [level]="ps.profile().level"></app-student-topbar>
+    <app-student-topbar pageTitle="Venture Shop" [studentName]="ps.profile().name" [venturePoints]="studentPoints"></app-student-topbar>
     <div class="p-body">
       @if (toast) {
         <div class="toast" [class.toast--success]="toast.type === 'success'" [class.toast--error]="toast.type === 'error'" style="position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 20px; border-radius: 8px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;">

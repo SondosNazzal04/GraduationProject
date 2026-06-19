@@ -68,6 +68,7 @@ function buildUserResponse(userRecord, profileRecord) {
 		dateOfBirth: userRecord.dateOfBirth ?? profileRecord?.dateOfBirth ?? '',
 		childrenUids: Array.isArray(profileRecord?.childrenUids) ? profileRecord.childrenUids : Array.isArray(userRecord.childrenUids) ? userRecord.childrenUids : [],
 		parentUid: userRecord.parentUid ?? profileRecord?.parentUid ?? null,
+		loginStreak: profileRecord?.loginStreak ?? 0,
 		createdAt: userRecord.createdAt ?? null,
 		updatedAt: userRecord.updatedAt ?? null,
 		profile: profileRecord ?? null,
@@ -826,7 +827,41 @@ app.get('/api/student/me', authenticate, requireRole('student'), async (req, res
 			return res.status(404).json({ error: 'Student record not found' });
 		}
 
-		const profileRecord = await getProfileRecord('student', req.user.uid);
+		let profileRecord = await getProfileRecord('student', req.user.uid);
+
+		const today = new Date();
+		const todayStr = today.toISOString().split('T')[0];
+		let streak = profileRecord?.loginStreak || 0;
+		let lastLoginDate = profileRecord?.lastLoginDate || null;
+		let needsUpdate = false;
+
+		if (lastLoginDate !== todayStr) {
+			if (lastLoginDate) {
+				const yesterday = new Date(today);
+				yesterday.setDate(yesterday.getDate() - 1);
+				const yesterdayStr = yesterday.toISOString().split('T')[0];
+				if (lastLoginDate === yesterdayStr) {
+					streak += 1;
+				} else {
+					streak = 1;
+				}
+			} else {
+				streak = 1;
+			}
+			lastLoginDate = todayStr;
+			needsUpdate = true;
+		}
+
+		if (needsUpdate) {
+			await db.collection('studentProfiles').doc(req.user.uid).set({
+				lastLoginDate,
+				loginStreak: streak
+			}, { merge: true });
+			if (!profileRecord) profileRecord = {};
+			profileRecord.lastLoginDate = lastLoginDate;
+			profileRecord.loginStreak = streak;
+		}
+
 		return res.json(buildUserResponse(userRecord, profileRecord));
 	} catch (error) {
 		console.error('Error loading student profile:', error);

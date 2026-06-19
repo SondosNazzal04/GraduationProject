@@ -17,7 +17,7 @@
     } @else if (role === 'parent') {
       <app-topbar pageTitle="Notifications" [userName]="parentName" [showSearch]="false"></app-topbar>
     } @else {
-      <app-student-topbar pageTitle="Notifications" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints" [level]="ps.profile().level"></app-student-topbar>
+      <app-student-topbar pageTitle="Notifications" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints"></app-student-topbar>
     }
 
     <div class="p-body">

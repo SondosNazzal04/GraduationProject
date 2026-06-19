@@ -22,7 +22,6 @@ export class StudentTopbarComponent implements OnInit, OnDestroy {
 
   @Input() pageTitle = '';
   @Input() studentName = '';
-  @Input() level = 0;
   @Input() venturePoints = 0;
   
   notifCount = 0;
