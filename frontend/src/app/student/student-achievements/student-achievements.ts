@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { StudentPortalService, Achievement } from '../../services/student-portal.service';
 import { StudentSidebarComponent } from '../../shared/student-sidebar/student-sidebar.component';
@@ -13,33 +14,49 @@ import { StudentTopbarComponent } from '../../shared/student-topbar/student-topb
 })
 export class StudentAchievementsComponent implements OnInit {
   private portalService = inject(StudentPortalService);
+  private cdr = inject(ChangeDetectorRef);
 
   achievements: Achievement[] = [];
+  availableAchievements: Achievement[] = [];
   loading = false;
+  activeTab: 'earned' | 'available' = 'available';
 
   ngOnInit(): void {
     this.loading = true;
-    this.portalService.getAchievements().subscribe({
-      next: (data) => {
-        this.achievements = data;
+    forkJoin({
+      earned: this.portalService.getAchievements(),
+      library: this.portalService.getAchievementLibrary()
+    }).subscribe({
+      next: ({ earned, library }) => {
+        this.achievements = earned;
+        
+        // Find which achievements in library are NOT earned yet
+        const earnedIds = new Set(earned.map(a => (a as any).achievementId || a.id));
+        this.availableAchievements = library.filter(libItem => !earnedIds.has(libItem.id));
+        
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load achievements', err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   get badges() {
-    return this.achievements.filter(a => a.type === 'badge');
+    const list = this.activeTab === 'earned' ? this.achievements : this.availableAchievements;
+    return list.filter(a => a.type === 'badge');
   }
 
   get streaks() {
-    return this.achievements.filter(a => a.type === 'streak');
+    const list = this.activeTab === 'earned' ? this.achievements : this.availableAchievements;
+    return list.filter(a => a.type === 'streak');
   }
 
   get others() {
-    return this.achievements.filter(a => a.type !== 'badge' && a.type !== 'streak');
+    const list = this.activeTab === 'earned' ? this.achievements : this.availableAchievements;
+    return list.filter(a => a.type !== 'badge' && a.type !== 'streak');
   }
 }

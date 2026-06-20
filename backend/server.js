@@ -1402,11 +1402,16 @@ app.get('/api/parent/children/:childId/achievements', authenticate, requireRole(
 		}
 
 		const snap = await db.collection('achievements').where('studentUid', '==', childId).get();
-		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-		if (items.length === 0) {
-			return res.json([]);
-		}
+		
+		const items = await Promise.all(snap.docs.map(async (docSnap) => {
+			const data = docSnap.data();
+			const libDoc = await db.collection('achievementLibrary').doc(data.achievementId).get();
+			return {
+				id: docSnap.id,
+				...data,
+				...(libDoc.exists ? libDoc.data() : {})
+			};
+		}));
 
 		return res.json(items);
 	} catch (error) {
@@ -2063,12 +2068,42 @@ app.post('/api/teacher/achievements/award', authenticate, requireRole('admin', '
 
 app.get('/api/student/achievements', authenticate, requireRole('student'), async (req, res) => {
 	try {
-		const snap = await db.collection('achievements').where('studentUid', '==', req.user.uid).orderBy('createdAt', 'desc').get();
-		const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		const snap = await db.collection('achievements').where('studentUid', '==', req.user.uid).get();
+		let items = await Promise.all(snap.docs.map(async (docSnap) => {
+			const data = docSnap.data();
+			const libDoc = await db.collection('achievementLibrary').doc(data.achievementId).get();
+			return {
+				id: docSnap.id,
+				...data,
+				...(libDoc.exists ? libDoc.data() : {})
+			};
+		}));
+
+		// Sort items by createdAt descending in-memory to avoid Firestore composite index requirement
+		items.sort((a, b) => {
+			const timeA = a.createdAt ? (a.createdAt._seconds ? a.createdAt._seconds * 1000 : new Date(a.createdAt).getTime()) : 0;
+			const timeB = b.createdAt ? (b.createdAt._seconds ? b.createdAt._seconds * 1000 : new Date(b.createdAt).getTime()) : 0;
+			return timeB - timeA;
+		});
+
 		return res.json({ items });
 	} catch (error) {
 		console.error('Error fetching student achievements:', error);
 		return res.status(500).json({ error: 'Failed to fetch achievements.' });
+	}
+});
+
+app.get('/api/student/achievements/library', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const snap = await db.collection('achievementLibrary').get();
+		const items = snap.docs.map(docSnap => ({
+			id: docSnap.id,
+			...docSnap.data()
+		}));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error fetching achievement library:', error);
+		return res.status(500).json({ error: 'Failed to fetch achievement library.' });
 	}
 });
 
