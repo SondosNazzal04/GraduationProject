@@ -39,7 +39,7 @@
       <div class="kpi-grid">
         <div class="scard scard--blue">
           <div class="scard__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <div class="scard__val" [style.color]="prof.gpa === '_' ? 'inherit' : gc($any(prof.gpa)*25)">{{ prof.gpa }}</div>
+          <div class="scard__val" [style.color]="prof.gpa === 0 ? 'inherit' : gc($any(prof.gpa))">{{ prof.gpa }}%</div>
           <div class="scard__lbl">Current GPA</div>
         </div>
         <div class="scard scard--green">

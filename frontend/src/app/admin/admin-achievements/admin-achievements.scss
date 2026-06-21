@@ -222,6 +222,8 @@
 }
 
 .modal {
+  display: block;
+  position: relative;
   background: white;
   border-radius: 16px;
   width: 100%;

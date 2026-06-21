@@ -55,6 +55,9 @@ export class StudentDashboard implements OnInit {
   realProfile: StudentProfile | null = null;
   classes: SchoolClass[] = [];
   attendance: AttendanceRecord[] = [];
+  calculatedGpa: number | string = 0;
+  calculatedActivities: number | string = 0;
+  calculatedBadges: number | string = 0;
   loading = true;
   error = '';
 
@@ -74,11 +77,11 @@ export class StudentDashboard implements OnInit {
         name: `${fName} ${lName}`,
         initials: `${fName.charAt(0)}${lName.charAt(0)}`.toUpperCase(),
         venturePoints: this.realProfile.pointsBalance,
-        attendancePct: this.getAttendanceRate() > 0 ? this.getAttendanceRate() : '_',
+        attendancePct: this.attendance.length > 0 ? this.getAttendanceRate() : 0,
         streak: this.realProfile.loginStreak ?? 0,
-        completedActivities: '_',
-        badgesEarned: '_',
-        gpa: '_',
+        completedActivities: this.calculatedActivities,
+        badgesEarned: this.calculatedBadges,
+        gpa: this.calculatedGpa,
       };
     }
     return mock;
@@ -89,7 +92,7 @@ export class StudentDashboard implements OnInit {
 
     // Load mock data for the dashboard widgets that don't have real data yet
     this.ps.getActivities().subscribe(a => this.activities.set(a.slice(0, 4)));
-    this.ps.getAchievements().subscribe(a => this.achievements.set(a.slice(0, 4)));
+    // We already load achievements below but kept this for the mock signal initialization
   }
 
   private async loadData(): Promise<void> {
@@ -107,6 +110,57 @@ export class StudentDashboard implements OnInit {
         this.http.get(`${this.baseUrl}/student/me/classes`)
       );
       this.classes = Array.isArray(classesData.items) ? classesData.items : [];
+
+      // Fetch grades to calculate GPA out of 100
+      try {
+        const gradesData = await firstValueFrom<any>(
+          this.http.get(`${this.baseUrl}/student/me/grades`)
+        );
+        const grades = Array.isArray(gradesData) ? gradesData : (gradesData.items || []);
+        if (grades.length > 0) {
+          const sum = grades.reduce((acc: number, curr: any) => acc + (curr.percentage || 0), 0);
+          this.calculatedGpa = Math.round(sum / grades.length);
+        } else {
+          this.calculatedGpa = 0;
+        }
+      } catch (err) {
+        console.error('Failed to fetch grades for GPA calculation', err);
+      }
+
+      // Fetch attendance
+      try {
+        const attendanceData = await firstValueFrom<any>(
+          this.http.get(`${this.baseUrl}/student/me/attendance`)
+        );
+        this.attendance = Array.isArray(attendanceData.items) ? attendanceData.items : [];
+      } catch (err) {
+        console.error('Failed to fetch attendance', err);
+      }
+
+      // Fetch submissions (activities done)
+      try {
+        const submissionsData = await firstValueFrom<any>(
+          this.http.get(`${this.baseUrl}/student/me/submissions`)
+        );
+        const subs = Array.isArray(submissionsData.items) ? submissionsData.items : [];
+        this.calculatedActivities = subs.length;
+      } catch (err) {
+        console.error('Failed to fetch submissions', err);
+      }
+
+      // Fetch achievements (badges earned)
+      try {
+        const achievementsData = await firstValueFrom<any>(
+          this.http.get(`${this.baseUrl}/student/achievements`)
+        );
+        const achs = Array.isArray(achievementsData.items) ? achievementsData.items : [];
+        this.calculatedBadges = achs.length;
+        if (achs.length > 0) {
+           this.achievements.set(achs.slice(0, 4));
+        }
+      } catch (err) {
+        console.error('Failed to fetch achievements', err);
+      }
 
       // Fetch real activities/assignments
       const activitiesData = await firstValueFrom<any>(
