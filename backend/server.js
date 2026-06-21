@@ -678,7 +678,15 @@ app.delete('/api/admin/users/:uid', authenticate, requireRole('admin'), async (r
 		const classIds = normalizeClassIds(userRecord.classIds);
 		const profileCollection = role === 'student' ? 'studentProfiles' : role === 'teacher' ? 'teacherProfiles' : role === 'parent' ? 'parentProfiles' : 'adminProfiles';
 
-		await admin.auth().deleteUser(uid);
+		try {
+			await admin.auth().deleteUser(uid);
+		} catch (authError) {
+			if (authError.code === 'auth/user-not-found') {
+				console.warn(`User ${uid} not found in Firebase Auth, deleting from Firestore anyway.`);
+			} else {
+				throw authError;
+			}
+		}
 		await syncClassMembership(uid, role, classIds, []);
 
 		if (role === 'parent') {
@@ -1050,16 +1058,16 @@ app.post('/api/teacher/grades', authenticate, requireRole('teacher'), async (req
 		if (!payload.studentId || payload.score === undefined) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		
+
 		const gradeRef = payload.id && !payload.id.startsWith('g') ? db.collection('grades').doc(payload.id) : db.collection('grades').doc();
-		
+
 		const pct = Math.round((Number(payload.score) / Number(payload.maxScore || 100)) * 100);
 		const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
 		const statusVal = pct >= 90 ? 'excellent' : pct >= 60 ? 'pass' : 'fail';
-		
+
 		const teacherUser = await getUserRecord(req.user.uid);
 		const teacherName = teacherUser ? `${teacherUser.firstName} ${teacherUser.lastName}`.trim() : 'Teacher';
-		
+
 		const gradeData = {
 			studentUid: payload.studentId,
 			subject: payload.subject || 'General',
@@ -1076,9 +1084,9 @@ app.post('/api/teacher/grades', authenticate, requireRole('teacher'), async (req
 			classId: payload.classId || '',
 			createdAt: admin.firestore.FieldValue.serverTimestamp()
 		};
-		
+
 		await gradeRef.set(gradeData, { merge: true });
-		
+
 		// Create notification for the student
 		await db.collection(`users/${payload.studentId}/notifications`).add({
 			userId: payload.studentId,
@@ -1104,7 +1112,7 @@ app.post('/api/teacher/grades', authenticate, requireRole('teacher'), async (req
 				});
 			}
 		}
-		
+
 		return res.json({ message: 'Grade saved successfully', item: { id: gradeRef.id, studentId: payload.studentId, studentName: payload.studentName, initials: payload.initials, ...gradeData } });
 	} catch (error) {
 		console.error('Error saving grade:', error);
@@ -1402,7 +1410,7 @@ app.get('/api/parent/children/:childId/achievements', authenticate, requireRole(
 		}
 
 		const snap = await db.collection('achievements').where('studentUid', '==', childId).get();
-		
+
 		const items = await Promise.all(snap.docs.map(async (docSnap) => {
 			const data = docSnap.data();
 			const libDoc = await db.collection('achievementLibrary').doc(data.achievementId).get();
@@ -2027,7 +2035,7 @@ app.post('/api/teacher/achievements/award', authenticate, requireRole('admin', '
 		if (!payload.studentUid || !payload.achievementId) {
 			return res.status(400).json({ error: 'studentUid and achievementId are required.' });
 		}
-		
+
 		const libSnap = await db.collection('achievementLibrary').doc(payload.achievementId).get();
 		if (!libSnap.exists) {
 			return res.status(404).json({ error: 'Achievement not found in library.' });
@@ -2049,7 +2057,7 @@ app.post('/api/teacher/achievements/award', authenticate, requireRole('admin', '
 			createdAt: admin.firestore.FieldValue.serverTimestamp()
 		};
 		await docRef.set(record);
-		
+
 		await db.collection(`users/${payload.studentUid}/notifications`).add({
 			userId: payload.studentUid,
 			title: 'Achievement Unlocked!',

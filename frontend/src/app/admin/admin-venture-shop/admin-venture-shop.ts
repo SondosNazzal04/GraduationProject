@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +37,35 @@ export class AdminVentureShop {
 
   newItem: Partial<ShopItem> = {};
   editItem: Partial<ShopItem> = {};
+
+  availableEmojis = [
+    '🎁', '✏️', '💻', '🍕', '📚', '🏆', '🎨', '🎵', '🎮', '🧸',
+    '👟', '🎫', '🍿', '🍪', '🥤', '🍩', '🍫', '⚽', '🏀', '🚗',
+    '🛹', '⏰', '🔑', '🎖️', '⭐', '🎈', '🎉', '🔥', '💡', '✨',
+    '🍎', '🧩', '🚀', '🎸', '📝', '📎', '🎒', '🖌️', '🍦', '🍩'
+  ];
+
+  showEmojiPickerNew = false;
+  showEmojiPickerEdit = false;
+
+  selectEmojiNew(em: string): void {
+    this.newItem.emoji = em;
+    this.showEmojiPickerNew = false;
+  }
+
+  selectEmojiEdit(em: string): void {
+    this.editItem.emoji = em;
+    this.showEmojiPickerEdit = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.emoji-picker-container')) {
+      this.showEmojiPickerNew = false;
+      this.showEmojiPickerEdit = false;
+    }
+  }
 
   toast: { message: string; type: 'success' | 'error' } | null = null;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -97,6 +126,7 @@ export class AdminVentureShop {
   closeAddModal(): void {
     this.showAddModal = false;
     this.newItem = {};
+    this.showEmojiPickerNew = false;
   }
 
   confirmAdd(): void {
@@ -145,6 +175,7 @@ export class AdminVentureShop {
     this.showEditModal = false;
     this.itemToEdit = null;
     this.editItem = {};
+    this.showEmojiPickerEdit = false;
   }
 
   confirmEdit(): void {

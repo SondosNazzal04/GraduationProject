@@ -133,9 +133,51 @@
 
 .panel-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 18px;
   margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
+.form-grid__left {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid__right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .checkbox-list {
+    flex: 1;
+    min-height: 220px;
+    max-height: 300px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  padding-top: 18px;
+
+  .primary-btn {
+    width: auto;
+    min-width: 180px;
+    margin-top: 0;
+  }
+}
+
+.class-textarea {
+  min-height: 80px;
 }
 
 .panel {

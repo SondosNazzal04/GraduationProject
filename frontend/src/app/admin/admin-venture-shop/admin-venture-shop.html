@@ -82,7 +82,16 @@
       <input class="form-input" type="number" [(ngModel)]="newItem.price" placeholder="1000" />
 
       <label class="form-label">Emoji</label>
-      <input class="form-input" [(ngModel)]="newItem.emoji" placeholder="🎁" />
+      <div class="emoji-picker-container">
+        <input class="form-input" [(ngModel)]="newItem.emoji" placeholder="🎁" readonly (click)="showEmojiPickerNew = !showEmojiPickerNew" style="cursor: pointer;" />
+        @if (showEmojiPickerNew) {
+          <div class="emoji-picker-dropdown">
+            @for (em of availableEmojis; track em) {
+              <span class="emoji-option" (click)="selectEmojiNew(em)">{{ em }}</span>
+            }
+          </div>
+        }
+      </div>
 
       <label class="form-label">Image URL (optional)</label>
       <input class="form-input" [(ngModel)]="newItem.image" placeholder="https://..." />
@@ -117,7 +126,16 @@
       <input class="form-input" type="number" [(ngModel)]="editItem.price" placeholder="1000" />
 
       <label class="form-label">Emoji</label>
-      <input class="form-input" [(ngModel)]="editItem.emoji" placeholder="🎁" />
+      <div class="emoji-picker-container">
+        <input class="form-input" [(ngModel)]="editItem.emoji" placeholder="🎁" readonly (click)="showEmojiPickerEdit = !showEmojiPickerEdit" style="cursor: pointer;" />
+        @if (showEmojiPickerEdit) {
+          <div class="emoji-picker-dropdown">
+            @for (em of availableEmojis; track em) {
+              <span class="emoji-option" (click)="selectEmojiEdit(em)">{{ em }}</span>
+            }
+          </div>
+        }
+      </div>
 
       <label class="form-label">Image URL (optional)</label>
       <input class="form-input" [(ngModel)]="editItem.image" placeholder="https://..." />
