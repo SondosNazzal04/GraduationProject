@@ -966,8 +966,19 @@ app.get('/api/student/me/grades', authenticate, requireRole('student'), async (r
 			});
 		}));
 
-		// Build final array in memory
+		// Deduplicate submissions by activityId, keeping the one with the highest score
+		const bestSubmissions = new Map();
 		for (const sub of submissions) {
+			const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
+			const existing = bestSubmissions.get(sub.activityId);
+			
+			if (!existing || pct > existing.pct) {
+				bestSubmissions.set(sub.activityId, { sub, pct });
+			}
+		}
+
+		// Build final array in memory
+		for (const { sub, pct } of bestSubmissions.values()) {
 			const act = activitiesMap.get(sub.activityId);
 			if (act) {
 				let subject = 'Activity';
@@ -986,7 +997,6 @@ app.get('/api/student/me/grades', authenticate, requireRole('student'), async (r
 					}
 				}
 
-				const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
 				const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
 				const statusVal = pct >= 90 ? 'excellent' : pct >= 60 ? 'pass' : 'fail';
 
@@ -2192,6 +2202,15 @@ app.post('/api/teacher/achievements/award', authenticate, requireRole('admin', '
 		const payload = req.body;
 		if (!payload.studentUid || !payload.achievementId) {
 			return res.status(400).json({ error: 'studentUid and achievementId are required.' });
+		}
+
+		const existingSnap = await db.collection('achievements')
+			.where('studentUid', '==', payload.studentUid)
+			.where('achievementId', '==', payload.achievementId)
+			.get();
+
+		if (!existingSnap.empty) {
+			return res.status(400).json({ error: 'This student has already received this achievement.' });
 		}
 
 		const libSnap = await db.collection('achievementLibrary').doc(payload.achievementId).get();
