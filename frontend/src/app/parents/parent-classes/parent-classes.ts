@@ -5,6 +5,8 @@ import { ParentService, ClassInfo, ParentChild } from '../../services/parent.ser
 import { AuthService } from '../../shared/services/auth/auth';
 import { ParentSidebarComponent } from '../../shared/parent-sidebar/parent-sidebar.component';
 import { TopbarComponent } from '../../shared/topbar/topbar.component';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-parent-classes',
@@ -43,8 +45,24 @@ export class ParentClasses implements OnInit {
       console.error('Error fetching parent profile:', err);
     }
 
-    this.ps.getChildren().subscribe(c => this.children.set(c));
-    this.ps.getClasses().subscribe(c => this.allClasses.set(c));
+    this.ps.getChildren().subscribe(children => {
+      this.children.set(children);
+      
+      if (!children || children.length === 0) {
+        return;
+      }
+
+      const classRequests = children.map(c => this.ps.getClasses(c.id).pipe(catchError(() => of([]))));
+      forkJoin(classRequests).subscribe({
+        next: (classesArray) => {
+          const all = classesArray.flat();
+          this.allClasses.set(all);
+        },
+        error: (err) => {
+          console.error('Failed to load child classes', err);
+        }
+      });
+    });
   }
 
   onViewDetails(cls: ClassInfo) {

@@ -812,12 +812,10 @@ app.delete('/api/admin/classes/:id', authenticate, requireRole('admin'), async (
 app.get('/api/admin/students', authenticate, requireRole('admin'), async (req, res) => {
 	try {
 		const snap = await db.collection('users').where('role', '==', 'student').get();
-		const items = [];
-
-		for (const docSnap of snap.docs) {
+		const items = await Promise.all(snap.docs.map(async (docSnap) => {
 			const profileRecord = await getProfileRecord('student', docSnap.id);
-			items.push(buildUserResponse({ id: docSnap.id, ...docSnap.data() }, profileRecord));
-		}
+			return buildUserResponse({ id: docSnap.id, ...docSnap.data() }, profileRecord);
+		}));
 
 		return res.json({ items });
 	} catch (error) {
@@ -1083,16 +1081,16 @@ app.get('/api/teacher/me/students', authenticate, requireRole('teacher'), async 
 			}
 		}
 
-		const items = [];
-		for (const studentUid of studentUidsSet) {
+		const items = await Promise.all([...studentUidsSet].map(async (studentUid) => {
 			const studentUser = await getUserRecord(studentUid);
 			if (studentUser) {
 				const studentProfile = await getProfileRecord('student', studentUid);
-				items.push(buildUserResponse(studentUser, studentProfile));
+				return buildUserResponse(studentUser, studentProfile);
 			}
-		}
+			return null;
+		}));
 
-		return res.json({ items });
+		return res.json({ items: items.filter(Boolean) });
 	} catch (error) {
 		console.error('Error listing teacher students:', error);
 		return res.status(500).json({ error: 'Failed to list teacher students' });
@@ -1119,16 +1117,16 @@ app.get('/api/teacher/classes/:classId/students', authenticate, requireRole('tea
 			return res.json({ items: [] });
 		}
 
-		const items = [];
-		for (const studentUid of studentUids) {
+		const items = await Promise.all(studentUids.map(async (studentUid) => {
 			const studentUser = await getUserRecord(studentUid);
 			if (studentUser) {
 				const studentProfile = await getProfileRecord('student', studentUid);
-				items.push(buildUserResponse(studentUser, studentProfile));
+				return buildUserResponse(studentUser, studentProfile);
 			}
-		}
+			return null;
+		}));
 
-		return res.json({ items });
+		return res.json({ items: items.filter(Boolean) });
 	} catch (error) {
 		console.error('Error listing class students:', error);
 		return res.status(500).json({ error: 'Failed to list class students' });
@@ -1138,8 +1136,7 @@ app.get('/api/teacher/classes/:classId/students', authenticate, requireRole('tea
 app.get('/api/teacher/grades', authenticate, requireRole('teacher'), async (req, res) => {
 	try {
 		const snap = await db.collection('grades').where('teacherUid', '==', req.user.uid).get();
-		const items = [];
-		for (const doc of snap.docs) {
+		const items = await Promise.all(snap.docs.map(async (doc) => {
 			const data = doc.data();
 			let studentName = '';
 			let initials = '';
@@ -1148,7 +1145,7 @@ app.get('/api/teacher/grades', authenticate, requireRole('teacher'), async (req,
 				studentName = `${studentUser.firstName} ${studentUser.lastName}`.trim();
 				initials = ((studentUser.firstName?.[0] || '') + (studentUser.lastName?.[0] || '')).toUpperCase();
 			}
-			items.push({
+			return {
 				id: doc.id,
 				studentId: data.studentUid,
 				studentName,
@@ -1160,8 +1157,8 @@ app.get('/api/teacher/grades', authenticate, requireRole('teacher'), async (req,
 				maxScore: data.maxScore,
 				date: data.date,
 				classId: data.classId
-			});
-		}
+			};
+		}));
 		return res.json({ items });
 	} catch (error) {
 		console.error('Error loading teacher grades:', error);
@@ -1352,16 +1349,16 @@ app.get('/api/parent/me/children', authenticate, requireRole('parent'), async (r
 			}
 		}
 
-		const items = [];
-		for (const studentUid of childrenUids) {
+		const items = await Promise.all(childrenUids.map(async (studentUid) => {
 			const studentUser = await getUserRecord(studentUid);
 			if (studentUser) {
 				const studentProfile = await getProfileRecord('student', studentUid);
-				items.push(buildUserResponse(studentUser, studentProfile));
+				return buildUserResponse(studentUser, studentProfile);
 			}
-		}
+			return null;
+		}));
 
-		return res.json({ items });
+		return res.json({ items: items.filter(Boolean) });
 	} catch (error) {
 		console.error('Error loading parent children:', error);
 		return res.status(500).json({ error: 'Failed to load children details' });
@@ -1585,9 +1582,7 @@ app.get('/api/parent/children/:childId/classes', authenticate, requireRole('pare
 		}
 
 		const snap = await db.collection('classes').where('studentUids', 'array-contains', childId).get();
-		const items = [];
-
-		for (const doc of snap.docs) {
+		const items = await Promise.all(snap.docs.map(async (doc) => {
 			const classData = doc.data();
 			let teacherName = 'Teacher';
 			if (classData.teacherUid) {
@@ -1597,7 +1592,7 @@ app.get('/api/parent/children/:childId/classes', authenticate, requireRole('pare
 				}
 			}
 
-			items.push({
+			return {
 				id: doc.id,
 				name: classData.name || 'Class',
 				subject: classData.name || 'Subject',
@@ -1605,8 +1600,8 @@ app.get('/api/parent/children/:childId/classes', authenticate, requireRole('pare
 				schedule: classData.code || 'Sun - Thu, 8:00 AM',
 				room: '101',
 				childId
-			});
-		}
+			};
+		}));
 
 		if (items.length === 0) {
 			const seedClasses = [
