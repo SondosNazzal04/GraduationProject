@@ -5,6 +5,7 @@ import { ParentService, AttendanceRecord, ParentChild } from '../../services/par
 import { AuthService } from '../../shared/services/auth/auth';
 import { ParentSidebarComponent } from '../../shared/parent-sidebar/parent-sidebar.component';
 import { TopbarComponent } from '../../shared/topbar/topbar.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-parent-attendance',
@@ -23,7 +24,21 @@ export class ParentAttendance implements OnInit {
   
   selectedChild = signal('all');
   selectedMonth = signal('all');
-  months = ['all', 'January', 'February', 'March', 'April', 'May', 'June'];
+  months = [
+    'all',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
 
   filtered = computed(() => {
     let r = this.allRecords();
@@ -60,8 +75,19 @@ export class ParentAttendance implements OnInit {
       console.error('Error fetching parent profile:', err);
     }
 
-    this.ps.getChildren().subscribe(c => this.children.set(c));
-    this.ps.getAttendance().subscribe(a => this.allRecords.set(a));
+    this.ps.getChildren().subscribe(c => {
+      this.children.set(c);
+      if (c && c.length > 0) {
+        const requests = c.map(child => this.ps.getAttendance(child.id));
+        forkJoin(requests).subscribe({
+          next: (results) => {
+            const combined = results.reduce((acc, curr) => acc.concat(curr), []);
+            this.allRecords.set(combined);
+          },
+          error: (err) => console.error('Error loading child attendance:', err)
+        });
+      }
+    });
   }
 
   get presentCount(): number {

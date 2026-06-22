@@ -333,6 +333,11 @@ export class AdminUsersComponent implements OnInit {
   error = '';
   private messageTimer: ReturnType<typeof setTimeout> | null = null;
 
+  classRosterSearchQuery = '';
+  editClassRosterSearchQuery = '';
+  parentChildrenSearchQuery = '';
+  editParentChildrenSearchQuery = '';
+
   createUserForm = {
     email: '',
     role: 'student' as UserRole,
@@ -689,6 +694,46 @@ export class AdminUsersComponent implements OnInit {
 
   get studentsOnly(): AdminUser[] {
     return this.users.filter(u => u.role === 'student');
+  }
+
+  get filteredStudentsForCreateClass(): AdminUser[] {
+    const q = this.classRosterSearchQuery.trim().toLowerCase();
+    if (!q) return this.studentsOnly;
+    return this.studentsOnly.filter(s => {
+      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const email = (s.email || '').toLowerCase();
+      return fullName.includes(q) || email.includes(q);
+    });
+  }
+
+  get filteredStudentsForEditClass(): AdminUser[] {
+    const q = this.editClassRosterSearchQuery.trim().toLowerCase();
+    if (!q) return this.studentsOnly;
+    return this.studentsOnly.filter(s => {
+      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const email = (s.email || '').toLowerCase();
+      return fullName.includes(q) || email.includes(q);
+    });
+  }
+
+  get filteredStudentsForParentCreate(): AdminUser[] {
+    const q = this.parentChildrenSearchQuery.trim().toLowerCase();
+    if (!q) return this.studentsOnly;
+    return this.studentsOnly.filter(s => {
+      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const email = (s.email || '').toLowerCase();
+      return fullName.includes(q) || email.includes(q);
+    });
+  }
+
+  get filteredStudentsForParentEdit(): AdminUser[] {
+    const q = this.editParentChildrenSearchQuery.trim().toLowerCase();
+    if (!q) return this.studentsOnly;
+    return this.studentsOnly.filter(s => {
+      const fullName = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+      const email = (s.email || '').toLowerCase();
+      return fullName.includes(q) || email.includes(q);
+    });
   }
 
   get teachersOnly(): AdminUser[] {

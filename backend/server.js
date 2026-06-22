@@ -1389,7 +1389,17 @@ app.get('/api/parent/children/:childId/attendance', authenticate, requireRole('p
 		}
 
 		const snap = await db.collection('attendance').where('studentUid', '==', childId).get();
-		let items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		const studentUser = await getUserRecord(childId);
+		const studentName = studentUser ? `${studentUser.firstName} ${studentUser.lastName}`.trim() : 'Child';
+		let items = snap.docs.map(doc => {
+			const data = doc.data();
+			return {
+				id: doc.id,
+				childId: childId,
+				childName: studentName,
+				...data
+			};
+		});
 
 		if (items.length === 0) {
 			const studentUser = await getUserRecord(childId);

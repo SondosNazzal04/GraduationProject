@@ -51,7 +51,7 @@ export class CreateActivityComponent implements OnInit {
     // ★ ابني الفورم أول شي ★
     this.form = this.fb.group({
       title:       ['', Validators.required],
-      description: ['No description provided', Validators.required],
+      description: ['', Validators.required],
       type:        ['quiz', Validators.required],
       classId:     [''],
       dueDate:     [''],

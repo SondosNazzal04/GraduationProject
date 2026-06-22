@@ -256,15 +256,16 @@
 
                 @if (createUserForm.role === 'parent') {
                   <label class="field-label">Link Children (Students)</label>
+                  <input class="field-input search-input-roster" style="margin-bottom: 8px; font-size: 13px; padding: 6px 10px;" [(ngModel)]="parentChildrenSearchQuery" placeholder="🔍 Search students..." />
                   <div class="checkbox-list">
-                    @for (student of studentsOnly; track student.uid) {
+                    @for (student of filteredStudentsForParentCreate; track student.uid) {
                       <label class="checkbox-item">
                         <input type="checkbox" [checked]="createUserForm.childrenUids.includes(student.uid)" (change)="toggleCreateUserChild(student.uid)" />
                         <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
                       </label>
                     }
-                    @if (!studentsOnly.length) {
-                      <p class="muted">No students available in the system</p>
+                    @if (!filteredStudentsForParentCreate.length) {
+                      <p class="muted">No matching students found</p>
                     }
                   </div>
                 }
@@ -395,15 +396,16 @@
 
             <div class="form-grid__right">
               <label class="field-label">Class Roster (Students)</label>
+              <input class="field-input search-input-roster" style="margin-bottom: 8px; font-size: 13px; padding: 6px 10px;" [(ngModel)]="classRosterSearchQuery" placeholder="🔍 Search students by name or email..." />
               <div class="checkbox-list roster-checkbox-list">
-                @for (student of studentsOnly; track student.uid) {
+                @for (student of filteredStudentsForCreateClass; track student.uid) {
                   <label class="checkbox-item">
                     <input type="checkbox" [checked]="createClassForm.studentUids.includes(student.uid)" (change)="toggleCreateClassStudent(student.uid)" />
                     <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
                   </label>
                 }
-                @if (!studentsOnly.length) {
-                  <p class="muted">No students available in the system</p>
+                @if (!filteredStudentsForCreateClass.length) {
+                  <p class="muted">No matching students found</p>
                 }
               </div>
             </div>
@@ -473,15 +475,16 @@
 
             @if (editingUser.role === 'parent') {
               <label class="field-label" style="margin-top: 16px;">Linked Children (Students)</label>
+              <input class="field-input search-input-roster" style="margin-bottom: 8px; font-size: 13px; padding: 6px 10px;" [(ngModel)]="editParentChildrenSearchQuery" placeholder="🔍 Search students..." />
               <div class="checkbox-list">
-                @for (student of studentsOnly; track student.uid) {
+                @for (student of filteredStudentsForParentEdit; track student.uid) {
                   <label class="checkbox-item">
                     <input type="checkbox" [checked]="editingUser.childrenUids.includes(student.uid)" (change)="toggleEditUserChild(student.uid)" />
                     <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
                   </label>
                 }
-                @if (!studentsOnly.length) {
-                  <p class="muted">No students available in the system</p>
+                @if (!filteredStudentsForParentEdit.length) {
+                  <p class="muted">No matching students found</p>
                 }
               </div>
             }
@@ -541,15 +544,16 @@
             </select>
 
             <label class="field-label" style="margin-top: 16px;">Class Roster (Students)</label>
+            <input class="field-input search-input-roster" style="margin-bottom: 8px; font-size: 13px; padding: 6px 10px;" [(ngModel)]="editClassRosterSearchQuery" placeholder="🔍 Search students by name or email..." />
             <div class="checkbox-list">
-              @for (student of studentsOnly; track student.uid) {
+              @for (student of filteredStudentsForEditClass; track student.uid) {
                 <label class="checkbox-item">
                   <input type="checkbox" [checked]="editingClass.studentUids.includes(student.uid)" (change)="toggleEditClassStudent(student.uid)" />
                   <span>{{ student.firstName ? student.firstName + ' ' + student.lastName : student.email || student.uid }}</span>
                 </label>
               }
-              @if (!studentsOnly.length) {
-                <p class="muted">No students available in the system</p>
+              @if (!filteredStudentsForEditClass.length) {
+                <p class="muted">No matching students found</p>
               }
             </div>
           </div>
