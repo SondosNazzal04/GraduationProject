@@ -902,10 +902,13 @@ app.get('/api/student/me/classes', authenticate, requireRole('student'), async (
 
 app.get('/api/student/me/grades', authenticate, requireRole('student'), async (req, res) => {
 	try {
-		const gradesSnap = await db.collection('grades').where('studentUid', '==', req.user.uid).get();
-		const directGrades = gradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		// Fetch both direct grades and submissions concurrently
+		const [gradesSnap, submissionsSnap] = await Promise.all([
+			db.collection('grades').where('studentUid', '==', req.user.uid).get(),
+			db.collection('activitySubmissions').where('studentUid', '==', req.user.uid).get()
+		]);
 
-		const submissionsSnap = await db.collection('activitySubmissions').where('studentUid', '==', req.user.uid).get();
+		let directGrades = gradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 		let submissions = submissionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
 		const items = [];
@@ -920,21 +923,64 @@ app.get('/api/student/me/grades', authenticate, requireRole('student'), async (r
 			});
 		}
 
+		const activityIds = [...new Set(submissions.map(s => s.activityId))];
+		const classIds = new Set();
+		const teacherUids = new Set();
+
+		const activitiesMap = new Map();
+		const classesMap = new Map();
+		const usersMap = new Map();
+
+		const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+
+		// Bulk fetch activities concurrently
+		await Promise.all(chunkArray(activityIds, 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('activities').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				const act = doc.data();
+				activitiesMap.set(doc.id, act);
+				if (act.classId) classIds.add(act.classId);
+			});
+		}));
+
+		// Bulk fetch classes concurrently
+		const classIdArray = [...classIds];
+		await Promise.all(chunkArray(classIdArray, 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('classes').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				const cls = doc.data();
+				classesMap.set(doc.id, cls);
+				if (cls.teacherUid) teacherUids.add(cls.teacherUid);
+			});
+		}));
+
+		// Bulk fetch teachers concurrently
+		const teacherUidArray = [...teacherUids];
+		await Promise.all(chunkArray(teacherUidArray, 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				usersMap.set(doc.id, doc.data());
+			});
+		}));
+
+		// Build final array in memory
 		for (const sub of submissions) {
-			const actSnap = await db.collection('activities').doc(sub.activityId).get();
-			if (actSnap.exists) {
-				const act = actSnap.data();
+			const act = activitiesMap.get(sub.activityId);
+			if (act) {
 				let subject = 'Activity';
 				let teacherName = 'Teacher';
+
 				if (act.classId) {
-					const classSnap = await db.collection('classes').doc(act.classId).get();
-					if (classSnap.exists) {
-						const classData = classSnap.data();
+					const classData = classesMap.get(act.classId);
+					if (classData) {
 						subject = classData.name || 'Activity';
 						if (classData.teacherUid) {
-							const teacherUser = await getUserRecord(classData.teacherUid);
+							const teacherUser = usersMap.get(classData.teacherUid);
 							if (teacherUser) {
-								teacherName = `${teacherUser.firstName} ${teacherUser.lastName}`.trim();
+								teacherName = `${teacherUser.firstName || ''} ${teacherUser.lastName || ''}`.trim();
 							}
 						}
 					}

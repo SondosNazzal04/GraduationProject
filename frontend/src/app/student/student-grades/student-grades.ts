@@ -19,6 +19,7 @@ export class StudentGradesComponent implements OnInit {
 
   studentName = signal('Student');
   allGrades = signal<GradeEntry[]>([]);
+  loading = signal(true);
 
   async ngOnInit() {
     try {
@@ -36,7 +37,16 @@ export class StudentGradesComponent implements OnInit {
       console.error('Error fetching student profile:', err);
     }
 
-    this.portalService.getGrades().subscribe(g => this.allGrades.set(g));
+    this.portalService.getGrades().subscribe({
+      next: (g) => {
+        this.allGrades.set(g);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load grades', err);
+        this.loading.set(false);
+      }
+    });
   }
 
   get avgGpa(): number {

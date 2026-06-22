@@ -99,23 +99,36 @@ export class StudentDashboard implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      // Fetch student profile
-      const profileData = await firstValueFrom<any>(
-        this.http.get(`${this.baseUrl}/student/me`)
-      );
-      this.realProfile = profileData;
+      // Execute all independent API calls concurrently
+      const [
+        profileRes,
+        classesRes,
+        gradesRes,
+        attendanceRes,
+        submissionsRes,
+        achievementsRes
+      ] = await Promise.allSettled([
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/classes`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/grades`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/attendance`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/me/submissions`)),
+        firstValueFrom<any>(this.http.get(`${this.baseUrl}/student/achievements`))
+      ]);
 
-      // Fetch enrolled classes
-      const classesData = await firstValueFrom<any>(
-        this.http.get(`${this.baseUrl}/student/me/classes`)
-      );
-      this.classes = Array.isArray(classesData.items) ? classesData.items : [];
+      // Handle Profile
+      if (profileRes.status === 'fulfilled') {
+        this.realProfile = profileRes.value;
+      }
 
-      // Fetch grades to calculate GPA out of 100
-      try {
-        const gradesData = await firstValueFrom<any>(
-          this.http.get(`${this.baseUrl}/student/me/grades`)
-        );
+      // Handle Classes
+      if (classesRes.status === 'fulfilled') {
+        this.classes = Array.isArray(classesRes.value.items) ? classesRes.value.items : [];
+      }
+
+      // Handle Grades
+      if (gradesRes.status === 'fulfilled') {
+        const gradesData = gradesRes.value;
         const grades = Array.isArray(gradesData) ? gradesData : (gradesData.items || []);
         if (grades.length > 0) {
           const sum = grades.reduce((acc: number, curr: any) => acc + (curr.percentage || 0), 0);
@@ -123,43 +136,35 @@ export class StudentDashboard implements OnInit {
         } else {
           this.calculatedGpa = 0;
         }
-      } catch (err) {
-        console.error('Failed to fetch grades for GPA calculation', err);
+      } else {
+        console.error('Failed to fetch grades for GPA calculation', gradesRes.reason);
       }
 
-      // Fetch attendance
-      try {
-        const attendanceData = await firstValueFrom<any>(
-          this.http.get(`${this.baseUrl}/student/me/attendance`)
-        );
+      // Handle Attendance
+      if (attendanceRes.status === 'fulfilled') {
+        const attendanceData = attendanceRes.value;
         this.attendance = Array.isArray(attendanceData.items) ? attendanceData.items : [];
-      } catch (err) {
-        console.error('Failed to fetch attendance', err);
+      } else {
+        console.error('Failed to fetch attendance', attendanceRes.reason);
       }
 
-      // Fetch submissions (activities done)
-      try {
-        const submissionsData = await firstValueFrom<any>(
-          this.http.get(`${this.baseUrl}/student/me/submissions`)
-        );
+      // Handle Submissions
+      if (submissionsRes.status === 'fulfilled') {
+        const submissionsData = submissionsRes.value;
         const subs = Array.isArray(submissionsData.items) ? submissionsData.items : [];
         this.calculatedActivities = subs.length;
-      } catch (err) {
-        console.error('Failed to fetch submissions', err);
+      } else {
+        console.error('Failed to fetch submissions', submissionsRes.reason);
       }
 
-      // Fetch achievements (badges earned)
-      try {
-        const achievementsData = await firstValueFrom<any>(
-          this.http.get(`${this.baseUrl}/student/achievements`)
-        );
-        const achs = Array.isArray(achievementsData.items) ? achievementsData.items : [];
-        this.calculatedBadges = achs.length;
-        if (achs.length > 0) {
-           this.achievements.set(achs.slice(0, 4));
-        }
-      } catch (err) {
-        console.error('Failed to fetch achievements', err);
+      // Handle Achievements
+      if (achievementsRes.status === 'fulfilled') {
+        const achievementsData = achievementsRes.value;
+        const achItems = Array.isArray(achievementsData.items) ? achievementsData.items : [];
+        this.calculatedBadges = achItems.length;
+        this.achievements.set(achItems.slice(0, 4));
+      } else {
+        console.error('Failed to fetch achievements', achievementsRes.reason);
       }
 
       // Fetch real activities/assignments
