@@ -114,6 +114,12 @@ export class TeacherService {
       const dbGrades = res.items || [];
       this.gradesSubject.next(dbGrades);
     }).catch(err => console.error('Failed to load teacher grades', err));
+
+    // Load attendance
+    firstValueFrom(this.http.get<any>(`${this.apiBaseUrl}/api/teacher/attendance`)).then(res => {
+      const dbAttendance = res.items || [];
+      this.attendanceSubject.next(dbAttendance);
+    }).catch(err => console.error('Failed to load teacher attendance', err));
   }
 
   getStudentsByClass(classId: string): Student[] {
@@ -124,11 +130,17 @@ export class TeacherService {
 
   /** Save attendance (replaces existing for that class+date) */
   saveAttendance(records: AttendanceRecord[]): void {
-    const current = this.attendanceSubject.value;
-    const classId = records[0]?.classId;
-    const date    = records[0]?.date;
-    const filtered = current.filter(r => !(r.classId === classId && r.date === date));
-    this.attendanceSubject.next([...filtered, ...records]);
+    this.http.post<any>(`${this.apiBaseUrl}/api/teacher/attendance`, records).subscribe({
+      next: (res) => {
+        const savedRecords = res.items || records;
+        const current = this.attendanceSubject.value;
+        const classId = records[0]?.classId;
+        const date    = records[0]?.date;
+        const filtered = current.filter(r => !(r.classId === classId && r.date === date));
+        this.attendanceSubject.next([...filtered, ...savedRecords]);
+      },
+      error: (err) => console.error('Failed to save attendance', err)
+    });
   }
 
   /** Add or update a grade record */

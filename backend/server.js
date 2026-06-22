@@ -905,6 +905,9 @@ app.get('/api/student/me/grades', authenticate, requireRole('student'), async (r
 		const gradesSnap = await db.collection('grades').where('studentUid', '==', req.user.uid).get();
 		const directGrades = gradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+		const submissionsSnap = await db.collection('activitySubmissions').where('studentUid', '==', req.user.uid).get();
+		let submissions = submissionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
 		const items = [];
 		for (const g of directGrades) {
 			items.push({
@@ -916,10 +919,68 @@ app.get('/api/student/me/grades', authenticate, requireRole('student'), async (r
 				status: g.status || 'pass'
 			});
 		}
+
+		for (const sub of submissions) {
+			const actSnap = await db.collection('activities').doc(sub.activityId).get();
+			if (actSnap.exists) {
+				const act = actSnap.data();
+				let subject = 'Activity';
+				let teacherName = 'Teacher';
+				if (act.classId) {
+					const classSnap = await db.collection('classes').doc(act.classId).get();
+					if (classSnap.exists) {
+						const classData = classSnap.data();
+						subject = classData.name || 'Activity';
+						if (classData.teacherUid) {
+							const teacherUser = await getUserRecord(classData.teacherUid);
+							if (teacherUser) {
+								teacherName = `${teacherUser.firstName} ${teacherUser.lastName}`.trim();
+							}
+						}
+					}
+				}
+
+				const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
+				const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
+				const statusVal = pct >= 90 ? 'excellent' : pct >= 60 ? 'pass' : 'fail';
+
+				items.push({
+					id: sub.id,
+					subject: `${subject} (${act.title})`,
+					teacher: teacherName,
+					grade: gradeLetter,
+					percentage: pct,
+					status: statusVal
+				});
+			}
+		}
+
 		return res.json(items);
 	} catch (error) {
 		console.error('Error fetching student grades:', error);
 		return res.status(500).json({ error: 'Failed to fetch grades' });
+	}
+});
+
+app.get('/api/student/me/attendance', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const snap = await db.collection('attendance').where('studentUid', '==', req.user.uid).get();
+		const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error fetching student attendance:', error);
+		return res.status(500).json({ error: 'Failed to fetch attendance' });
+	}
+});
+
+app.get('/api/student/me/submissions', authenticate, requireRole('student'), async (req, res) => {
+	try {
+		const snap = await db.collection('activitySubmissions').where('studentUid', '==', req.user.uid).get();
+		const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error fetching student submissions:', error);
+		return res.status(500).json({ error: 'Failed to fetch submissions' });
 	}
 });
 
@@ -1117,6 +1178,57 @@ app.post('/api/teacher/grades', authenticate, requireRole('teacher'), async (req
 	} catch (error) {
 		console.error('Error saving grade:', error);
 		return res.status(500).json({ error: 'Failed to save grade' });
+	}
+});
+
+app.get('/api/teacher/attendance', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const snap = await db.collection('attendance').where('teacherUid', '==', req.user.uid).get();
+		const items = snap.docs.map(doc => ({ id: doc.id, studentId: doc.data().studentUid, ...doc.data() }));
+		return res.json({ items });
+	} catch (error) {
+		console.error('Error loading teacher attendance:', error);
+		return res.status(500).json({ error: 'Failed to load attendance' });
+	}
+});
+
+app.post('/api/teacher/attendance', authenticate, requireRole('teacher'), async (req, res) => {
+	try {
+		const records = req.body;
+		if (!Array.isArray(records)) {
+			return res.status(400).json({ error: 'Expected an array of attendance records' });
+		}
+
+		const batch = db.batch();
+		const savedItems = [];
+
+		for (const record of records) {
+			if (!record.studentId || !record.classId || !record.date) continue;
+			
+			// Use composite key to prevent duplicates and allow easy updates
+			const docId = `${record.classId}_${record.studentId}_${record.date}`;
+			const docRef = db.collection('attendance').doc(docId);
+			
+			const data = {
+				studentUid: record.studentId,
+				studentId: record.studentId,
+				classId: record.classId,
+				date: record.date,
+				status: record.status || 'present',
+				notes: record.notes || '',
+				teacherUid: req.user.uid,
+				updatedAt: admin.firestore.FieldValue.serverTimestamp()
+			};
+			
+			batch.set(docRef, data, { merge: true });
+			savedItems.push({ id: docId, ...record, ...data });
+		}
+
+		await batch.commit();
+		return res.json({ message: 'Attendance saved successfully', items: savedItems });
+	} catch (error) {
+		console.error('Error saving attendance:', error);
+		return res.status(500).json({ error: 'Failed to save attendance' });
 	}
 });
 
