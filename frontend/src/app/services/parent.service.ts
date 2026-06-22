@@ -14,12 +14,12 @@ export interface ParentChild {
 
 export interface AttendanceRecord {
   id: string; childId: string; childName: string;
-  date: string; status: 'present'|'absent'|'late'; notes: string;
+  date: string; status: 'present' | 'absent' | 'late'; notes: string;
 }
 
 export interface GradeRecord {
   id: string; childId: string; subject: string; teacher: string;
-  grade: string; percentage: number; status: 'pass'|'fail'|'excellent';
+  grade: string; percentage: number; status: 'pass' | 'fail' | 'excellent';
 }
 
 export interface ClassInfo {
@@ -29,7 +29,7 @@ export interface ClassInfo {
 
 export interface Achievement {
   id: string; childId: string; title: string; description: string;
-  type: 'badge'|'award'|'challenge'|'streak';
+  type: 'badge' | 'award' | 'challenge' | 'streak';
   earnedDate: string; icon: string; progress: number; maxProgress: number;
 }
 
@@ -46,12 +46,12 @@ export interface LearningProgress {
 
 export interface VenturePointEntry {
   id: string; childId: string; date: string;
-  activity: string; points: number; type: 'earned'|'spent';
+  activity: string; points: number; type: 'earned' | 'spent';
 }
 
 export interface RewardEntry {
   id: string; childId: string; rewardName: string;
-  cost: number; redeemedDate: string; status: 'active'|'used'|'expired';
+  cost: number; redeemedDate: string; status: 'active' | 'used' | 'expired';
 }
 
 export interface SchoolEvent {
@@ -66,10 +66,10 @@ export class ParentService {
   selectedChildId = signal('');
 
   private events: SchoolEvent[] = [
-    {id:'e1',title:'Parent-Teacher Meeting',  date:'2025-06-15',type:'meeting'},
-    {id:'e2',title:'Science Fair',            date:'2025-06-20',type:'event'},
-    {id:'e3',title:'End of Year Ceremony',    date:'2025-06-28',type:'ceremony'},
-    {id:'e4',title:'Mid-Year Exams Begin',    date:'2025-07-01',type:'exam'},
+    { id: 'e1', title: 'Parent-Teacher Meeting', date: '2025-06-15', type: 'meeting' },
+    { id: 'e2', title: 'Science Fair', date: '2025-06-20', type: 'event' },
+    { id: 'e3', title: 'End of Year Ceremony', date: '2025-06-28', type: 'ceremony' },
+    { id: 'e4', title: 'Mid-Year Exams Begin', date: '2025-07-01', type: 'exam' },
   ];
 
   // Helper to extract initials
@@ -87,10 +87,10 @@ export class ParentService {
           const id = item.uid || `c${index + 1}`;
           const firstName = item.firstName || 'Child';
           const lastName = item.lastName || '';
-          
-          // Generate dynamic but stable mock data structure for grades/gpa
+
+          // Calculate derived stats or use default values if missing
           const gpa = id.charCodeAt(0) % 2 === 0 ? 98 : 88;
-          const streak = (id.charCodeAt(id.length - 1) % 5) + 3;
+          const streak = item.loginStreak || 0;
           const attendancePct = 90 + (id.charCodeAt(0) % 10);
           const badgesEarned = 5 + (id.charCodeAt(id.length - 1) % 8);
 
@@ -167,8 +167,8 @@ export class ParentService {
           }
         });
         return teachers.length ? teachers : [
-          {id:'t1', name:'Khalid',  initials:'MK', subject:'Mathematics',  email:'khalid@eduventure.edu',  phone:'+962-77-1234567'},
-          {id:'t2', name:'Ms. Sara',    initials:'MS', subject:'Homeroom',      email:'sara@eduventure.edu',    phone:'+962-77-2345678'},
+          { id: 't1', name: 'Khalid', initials: 'MK', subject: 'Mathematics', email: 'khalid@eduventure.edu', phone: '+962-77-1234567' },
+          { id: 't2', name: 'Ms. Sara', initials: 'MS', subject: 'Homeroom', email: 'sara@eduventure.edu', phone: '+962-77-2345678' },
         ];
       })
     );

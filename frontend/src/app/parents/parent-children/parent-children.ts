@@ -1,4 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ParentService, ParentChild } from '../../services/parent.service';
 import { AuthService } from '../../shared/services/auth/auth';
@@ -54,6 +56,7 @@ export class ParentChildren implements OnInit {
   private parentService = inject(ParentService);
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   parentName = signal('Parent');
   children = signal<DetailedChild[]>([]);
@@ -79,59 +82,107 @@ export class ParentChildren implements OnInit {
         }
       }
 
-      this.parentService.getChildren().subscribe({
-        next: (cList) => {
-          const mapped = cList.map(c => {
-            const idCode = c.id.charCodeAt(c.id.length - 1) || 0;
-            return {
-              id: c.id,
-              firstName: c.firstName,
-              lastName: c.lastName,
-              initials: c.initials,
-              gradeLevel: c.gradeLevel,
-              className: c.className,
-              venturePoints: c.venturePoints,
-              currentStreak: c.streak,
-              attendance: {
-                percentage: c.attendancePct,
-                presentDays: Math.round(c.attendancePct * 0.4),
-                absentDays: Math.max(0, 40 - Math.round(c.attendancePct * 0.4))
-              },
-              grades: {
-                overallAverage: Math.round(c.gpa),
-                latestExamScore: idCode % 2 === 0 ? 95 : 88,
-                latestAssignmentScore: idCode % 2 === 0 ? 100 : 92
-              },
-              classInfo: {
-                className: c.className,
-                numberOfSubjects: 4,
-                homeroomTeacher: c.teacherName
-              },
-              learningSummary: {
-                assignmentsCompleted: 15 + (idCode % 5),
-                assignmentsPending: 2 + (idCode % 3),
-                achievementsEarned: c.badgesEarned,
-                monthlyVenturePoints: Math.round(c.venturePoints * 0.6)
-              },
-              achievements: {
-                totalBadges: c.badgesEarned,
-                totalAchievements: c.badgesEarned + 2
-              },
-              teacherId: c.teacherId,
-              teacherName: c.teacherName
-            };
+      try {
+        const cList = await firstValueFrom(this.parentService.getChildren());
+
+        const mapped: DetailedChild[] = await Promise.all(cList.map(async (c) => {
+          // Fetch real data for each child
+          const [attendanceRecords, gradeRecords, classRecords, achievementRecords, learningProgress, venturePointsRecords] = await Promise.all([
+            firstValueFrom(this.parentService.getAttendance(c.id)),
+            firstValueFrom(this.parentService.getGrades(c.id)),
+            firstValueFrom(this.parentService.getClasses(c.id)),
+            firstValueFrom(this.parentService.getAchievements(c.id)),
+            firstValueFrom(this.parentService.getLearningProgress(c.id)),
+            firstValueFrom(this.parentService.getVenturePoints(c.id))
+          ]);
+
+          // Calculate real attendance stats
+          const totalDays = attendanceRecords.length;
+          const presentDays = attendanceRecords.filter(a => a.status === 'present').length;
+          const lateDays = attendanceRecords.filter(a => a.status === 'late').length;
+          const absentDays = attendanceRecords.filter(a => a.status === 'absent').length;
+          const attendancePercentage = totalDays > 0 ? Math.round(((presentDays + lateDays) / totalDays) * 100) : 100;
+
+          // Calculate real GPA
+          let overallAverage = 0;
+          if (gradeRecords.length > 0) {
+            const sum = gradeRecords.reduce((acc, g) => acc + (g.percentage || 0), 0);
+            overallAverage = Math.round(sum / gradeRecords.length);
+          }
+
+          // Real latest exam and assignment
+          let latestExamScore = overallAverage;
+          let latestAssignmentScore = overallAverage;
+          if (gradeRecords.length > 0) {
+            latestExamScore = gradeRecords[0]?.percentage || overallAverage;
+            latestAssignmentScore = gradeRecords[1]?.percentage || overallAverage;
+          }
+
+          // Real class info
+          const numberOfSubjects = classRecords.length;
+          const homeroomTeacher = classRecords.length > 0 && classRecords[0].teacher ? classRecords[0].teacher : 'Teacher';
+          const actualClassName = classRecords.length > 0 && classRecords[0].name ? classRecords[0].name : c.className;
+
+          // Achievements and learning summary
+          const badgesEarned = achievementRecords.length;
+          let assignmentsCompleted = 0;
+          let assignmentsTotal = 0;
+          learningProgress.forEach(lp => {
+             assignmentsCompleted += lp.assignmentsCompleted || 0;
+             assignmentsTotal += lp.assignmentsTotal || 0;
           });
-          this.children.set(mapped);
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-          this.error = 'Failed to load children details.';
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      });
+
+          // monthly venture points
+          const monthlyVenturePoints = venturePointsRecords.reduce((acc, vp) => acc + (vp.type === 'earned' ? vp.points : 0), 0);
+
+          return {
+            id: c.id,
+            firstName: c.firstName,
+            lastName: c.lastName,
+            initials: c.initials,
+            gradeLevel: c.gradeLevel,
+            className: actualClassName,
+            venturePoints: c.venturePoints,
+            currentStreak: c.streak,
+            attendance: {
+              percentage: attendancePercentage,
+              presentDays: presentDays + lateDays,
+              absentDays: absentDays
+            },
+            grades: {
+              overallAverage: overallAverage,
+              latestExamScore,
+              latestAssignmentScore
+            },
+            classInfo: {
+              className: actualClassName,
+              numberOfSubjects,
+              homeroomTeacher
+            },
+            learningSummary: {
+              assignmentsCompleted,
+              assignmentsPending: Math.max(0, assignmentsTotal - assignmentsCompleted),
+              achievementsEarned: badgesEarned,
+              monthlyVenturePoints
+            },
+            achievements: {
+              totalBadges: badgesEarned,
+              totalAchievements: badgesEarned
+            },
+            teacherId: classRecords[0]?.id || c.teacherId,
+            teacherName: homeroomTeacher !== 'Teacher' ? homeroomTeacher : c.teacherName
+          };
+        }));
+
+        this.children.set(mapped);
+        this.loading = false;
+        this.cdr.detectChanges();
+      } catch (err) {
+        console.error(err);
+        this.error = 'Failed to load children details.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     } catch (err) {
       console.error(err);
       this.error = 'Failed to load parent data.';
@@ -140,8 +191,8 @@ export class ParentChildren implements OnInit {
     }
   }
 
-  onContactTeacher(teacherId: string | undefined): void {
-    alert(`Messaging teacher (${teacherId || 'Khalid'}) is coming soon!`);
+  onContactTeacher(): void {
+    this.router.navigate(['/parent-messages']);
   }
 }
 
