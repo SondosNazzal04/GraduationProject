@@ -98,7 +98,7 @@ export class ParentChildren implements OnInit {
                 absentDays: Math.max(0, 40 - Math.round(c.attendancePct * 0.4))
               },
               grades: {
-                overallAverage: Math.round(c.gpa * 20 + 20),
+                overallAverage: Math.round(c.gpa),
                 latestExamScore: idCode % 2 === 0 ? 95 : 88,
                 latestAssignmentScore: idCode % 2 === 0 ? 100 : 92
               },

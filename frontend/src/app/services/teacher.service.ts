@@ -99,7 +99,7 @@ export class TeacherService {
           classId: (s.classIds && s.classIds[0]) || '',
           className: '',
           venturePoints: s.pointsBalance || 0,
-          gpa: s.profile?.gpa || 3.5,
+          gpa: s.profile?.gpa || 85,
           email: s.email
         };
       });

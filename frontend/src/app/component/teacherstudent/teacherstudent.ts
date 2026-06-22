@@ -44,8 +44,8 @@ export class Teacherstudent implements OnInit {
   }
 
   getGpaColor(gpa: number): string {
-    if (gpa >= 3.7) return '#22c55e';
-    if (gpa >= 3.0) return '#f59e0b';
+    if (gpa >= 90) return '#22c55e';
+    if (gpa >= 75) return '#f59e0b';
     return '#ef4444';
   }
 
