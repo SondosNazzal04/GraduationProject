@@ -107,7 +107,7 @@ export class ParentService {
             gpa,
             badgesEarned,
             teacherId: 't1',
-            teacherName: 'Mr. Khalid'
+            teacherName: 'Khalid'
           };
         });
 
@@ -167,7 +167,7 @@ export class ParentService {
           }
         });
         return teachers.length ? teachers : [
-          {id:'t1', name:'Mr. Khalid',  initials:'MK', subject:'Mathematics',  email:'khalid@eduventure.edu',  phone:'+962-77-1234567'},
+          {id:'t1', name:'Khalid',  initials:'MK', subject:'Mathematics',  email:'khalid@eduventure.edu',  phone:'+962-77-1234567'},
           {id:'t2', name:'Ms. Sara',    initials:'MS', subject:'Homeroom',      email:'sara@eduventure.edu',    phone:'+962-77-2345678'},
         ];
       })

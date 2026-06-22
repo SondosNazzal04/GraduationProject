@@ -48,7 +48,7 @@ interface Contact {
   imports: [CommonModule, FormsModule, RouterModule, StudentSidebarComponent, StudentTopbarComponent, SidebarComponent, TopbarComponent, AdminSidebarComponent, AdminTopbarComponent, ParentSidebarComponent],
   templateUrl: './direct-messages.html',
   styleUrl: './direct-messages.scss',
-  })
+})
 export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesEnd') messagesEnd!: ElementRef;
 
@@ -84,7 +84,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c => c.name.toLowerCase().includes(q));
     }
-    
+
     // Deduplicate contacts with the same email or name, keeping the one with the most recent lastMessageTime
     const uniqueMap = new Map<string, Contact>();
     list.forEach(c => {
@@ -100,7 +100,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
         }
       }
     });
-    
+
     return Array.from(uniqueMap.values());
   }
 
@@ -144,7 +144,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     await this.loadContacts();
 
     this.listenToContactChats();
-    
+
     this.routeSub = this.route.queryParams.subscribe(async (params) => {
       const contactId = params['contactId'];
       if (contactId && this.contacts.length > 0) {
@@ -338,7 +338,7 @@ export class DirectMessages implements OnInit, OnDestroy, AfterViewChecked {
     yesterday.setDate(today.getDate() - 1);
     const isYesterday = date.toDateString() === yesterday.toDateString();
     if (isYesterday) return 'Yesterday';
-    
+
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 

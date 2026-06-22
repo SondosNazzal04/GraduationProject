@@ -183,14 +183,14 @@ export class StudentPortalService {
     { id: 'n2', title: 'Achievement Unlocked!', body: "You earned the 'Perfect Week' badge!", type: 'reward', date: '2025-06-08', read: false },
     { id: 'n3', title: 'Assignment Due Soon', body: 'Science Lab Report is due in 2 days.', type: 'academic', date: '2025-06-08', read: true },
     { id: 'n4', title: 'New Challenge Available', body: 'Join the Math Sprint challenge and win 200 VP!', type: 'reward', date: '2025-06-07', read: true },
-    { id: 'n5', title: 'Message from Teacher', body: 'Mr. Khalid sent you a message about your progress.', type: 'message', date: '2025-06-06', read: true },
+    { id: 'n5', title: 'Message from Teacher', body: 'Khalid sent you a message about your progress.', type: 'message', date: '2025-06-06', read: true },
     { id: 'n6', title: 'System Maintenance', body: 'EduVenture will be down for 30 min on Sunday.', type: 'system', date: '2025-06-05', read: true },
   ];
 
   private msgs: Message[] = [
     {
-      id: 'm1', from: 'Mr. Khalid', initials: 'MK', role: 'Math Teacher', preview: 'Your progress this term is great!', timeAgo: '10 min', unread: true,
-      messages: [{ sender: 'Mr. Khalid', text: 'Hi Sara! I wanted to say that your performance in math this term is outstanding.', time: '10:30 AM', mine: false }, { sender: 'You', text: 'Thank you so much, Mr. Khalid! I have been working really hard.', time: '10:32 AM', mine: true }]
+      id: 'm1', from: 'Khalid', initials: 'MK', role: 'Math Teacher', preview: 'Your progress this term is great!', timeAgo: '10 min', unread: true,
+      messages: [{ sender: 'Khalid', text: 'Hi Sara! I wanted to say that your performance in math this term is outstanding.', time: '10:30 AM', mine: false }, { sender: 'You', text: 'Thank you so much, Khalid! I have been working really hard.', time: '10:32 AM', mine: true }]
     },
     {
       id: 'm2', from: 'Ms. Sara', initials: 'MS', role: 'Homeroom Teacher', preview: "Don't forget tomorrow's assignment.", timeAgo: '2 hrs', unread: true,

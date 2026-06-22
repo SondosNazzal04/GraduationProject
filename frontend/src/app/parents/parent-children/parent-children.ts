@@ -141,7 +141,7 @@ export class ParentChildren implements OnInit {
   }
 
   onContactTeacher(teacherId: string | undefined): void {
-    alert(`Messaging teacher (${teacherId || 'Mr. Khalid'}) is coming soon!`);
+    alert(`Messaging teacher (${teacherId || 'Khalid'}) is coming soon!`);
   }
 }
 

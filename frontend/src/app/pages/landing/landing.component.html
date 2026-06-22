@@ -14,16 +14,193 @@
         <div class="col-lg-6 text-white text-center text-lg-start">
           <h1 class="display-4 fw-bold mb-4 hero-title">Master New Skills<br>Through Adventure</h1>
           <p class="lead mb-4 opacity-75">At EduVenture, earn badges, and turn your<br>goals into quests.</p>
-          <a routerLink="/login" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm me-3">Go to Dashboard</a>
+          <a routerLink="/login" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm me-3">Go to
+            Dashboard</a>
           <p class="mt-4 small opacity-75">Don't have an account? Contact your administrator.</p>
         </div>
         <div class="col-lg-6 mt-5 mt-lg-0 position-relative">
           <div class="hero-image-placeholder shadow-lg rounded-4 overflow-hidden bg-white">
-             <!-- Placeholder for the dashboard mockup image -->
-             <img src="https://placehold.co/800x500/f8f9fa/0b66c2?text=EduVenture+Dashboard+Mockup" class="img-fluid" alt="Dashboard Mockup">
+            <!-- Interactive Admin Dashboard Mockup -->
+            <div class="dashboard-mockup d-flex">
+              <!-- Mockup Sidebar -->
+              <div class="mock-sidebar border-end bg-white d-flex flex-column justify-content-between p-2"
+                style="width: 135px; flex-shrink: 0;">
+                <div>
+                  <!-- Logo / Brand -->
+                  <div class="mock-brand d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <i class="bi bi-grid-1x2-fill text-primary" style="font-size: 13px;"></i>
+                    <div class="text-start">
+                      <div class="fw-bold text-dark lh-1 brand-name" style="font-size: 11px;">EduVenture</div>
+                      <small class="text-muted" style="font-size: 8px;">Admin portal</small>
+                    </div>
+                  </div>
+                  <!-- Menu Items -->
+                  <div class="mock-menu d-flex flex-column gap-1">
+                    <div class="mock-menu-item active d-flex align-items-center gap-2 px-2 py-1.5 rounded">
+                      <i class="bi bi-grid-fill"></i>
+                      <span class="menu-text">Dashboard</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-people-fill"></i>
+                      <span class="menu-text">Users</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-journal-text"></i>
+                      <span class="menu-text">Classes</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-star-fill"></i>
+                      <span class="menu-text">Achievements</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-shop"></i>
+                      <span class="menu-text">VentureShop</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-chat-left-text-fill"></i>
+                      <span class="menu-text">Messages</span>
+                    </div>
+                    <div class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted">
+                      <i class="bi bi-bell-fill"></i>
+                      <span class="menu-text">Notifications</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Bottom Sign out -->
+                <div
+                  class="mock-menu-item d-flex align-items-center gap-2 px-2 py-1.5 rounded text-muted border-top pt-2">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span class="menu-text">Sign Out</span>
+                </div>
+              </div>
+
+              <!-- Mockup Main workspace -->
+              <div class="mock-main flex-grow-1 p-3 text-start">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <small class="text-muted fw-bold tracking-wider"
+                      style="font-size: 8px; letter-spacing: 0.5px;">OVERVIEW</small>
+                    <h6 class="fw-bold text-dark mb-0 heading-title" style="font-size: 14px;">Admin Dashboard</h6>
+                    <small class="text-muted sub-title" style="font-size: 10px;">Real-time insights across your
+                      platform</small>
+                  </div>
+                  <div class="mock-bell-icon text-muted">
+                    <i class="bi bi-bell fs-6"></i>
+                  </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-2 mb-3">
+                  <!-- Total Registered Users -->
+                  <div class="col">
+                    <div class="mock-stat-card card-blue p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-people-fill"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">11</h4>
+                      <small class="mock-stat-label">Total Registered Users</small>
+                    </div>
+                  </div>
+                  <!-- Active Students -->
+                  <div class="col">
+                    <div class="mock-stat-card card-green p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-mortarboard-fill"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">8</h4>
+                      <small class="mock-stat-label">Active Students</small>
+                    </div>
+                  </div>
+                  <!-- Active Teachers -->
+                  <div class="col">
+                    <div class="mock-stat-card card-yellow p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-person-workspace"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">1</h4>
+                      <small class="mock-stat-label">Active Teachers</small>
+                    </div>
+                  </div>
+                  <!-- Total Classes -->
+                  <div class="col">
+                    <div class="mock-stat-card card-purple p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">5</h4>
+                      <small class="mock-stat-label">Total Classes</small>
+                    </div>
+                  </div>
+                  <!-- Parent Accounts -->
+                  <div class="col">
+                    <div class="mock-stat-card card-pink p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-people-fill"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">1</h4>
+                      <small class="mock-stat-label">Parent Accounts</small>
+                    </div>
+                  </div>
+                  <!-- VentureShop Items -->
+                  <div class="col">
+                    <div class="mock-stat-card card-peach p-2 rounded-3 text-start border-0">
+                      <div
+                        class="mock-stat-icon-wrapper rounded-3 d-flex align-items-center justify-content-center mb-2">
+                        <i class="bi bi-shop"></i>
+                      </div>
+                      <h4 class="fw-bold mb-0 text-dark val-text">3</h4>
+                      <small class="mock-stat-label">VentureShop Items</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bottom Cards Section -->
+                <div class="row g-2">
+                  <!-- Manage Users & Classes -->
+                  <div class="col-md-6 text-start">
+                    <div
+                      class="mock-manage-card p-2 bg-white border rounded-3 d-flex align-items-center gap-2 shadow-sm h-100">
+                      <div
+                        class="mock-manage-icon rounded-circle d-flex align-items-center justify-content-center mock-icon-blue"
+                        style="width: 32px; height: 32px; flex-shrink: 0;">
+                        <i class="bi bi-person-plus-fill mock-text-blue" style="font-size: 14px;"></i>
+                      </div>
+                      <div class="text-start">
+                        <span class="fw-bold text-dark manage-card-title"
+                          style="font-size: 11px; display: block;">Manage Users & Classes</span>
+                        <span class="text-muted" style="font-size: 8px;">Configure roles, classes, & students</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Manage VentureShop -->
+                  <div class="col-md-6 text-start">
+                    <div
+                      class="mock-manage-card p-2 bg-white border rounded-3 d-flex align-items-center gap-2 shadow-sm h-100">
+                      <div
+                        class="mock-manage-icon rounded-circle d-flex align-items-center justify-content-center bg-purple bg-opacity-10"
+                        style="width: 32px; height: 32px; flex-shrink: 0; background-color: rgba(111, 66, 193, 0.1);">
+                        <i class="bi bi-cart-plus-fill purple-text" style="font-size: 14px;"></i>
+                      </div>
+                      <div class="text-start">
+                        <span class="fw-bold text-dark manage-card-title"
+                          style="font-size: 11px; display: block;">Manage VentureShop</span>
+                        <span class="text-muted" style="font-size: 8px;">Configure rewards and shop catalogs</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- Decorative element -->
-          <div class="floating-badge shadow-sm rounded-circle d-flex align-items-center justify-content-center bg-white">
+          <div
+            class="floating-badge shadow-sm rounded-circle d-flex align-items-center justify-content-center bg-white">
             <i class="bi bi-bar-chart-fill text-danger"></i>
           </div>
         </div>
@@ -32,9 +209,15 @@
     <!-- Curved bottom -->
     <div class="hero-curve">
       <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
-          <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
-          <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+        <path
+          d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+          opacity=".25" class="shape-fill"></path>
+        <path
+          d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z"
+          opacity=".5" class="shape-fill"></path>
+        <path
+          d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"
+          class="shape-fill"></path>
       </svg>
     </div>
   </section>
@@ -43,8 +226,9 @@
   <section class="stats-section py-5 bg-white text-center">
     <div class="container pt-4">
       <h2 class="fw-bold mb-3">Gamify Your School's Curriculum.</h2>
-      <p class="text-muted mx-auto" style="max-width: 600px;">The all-in-one platform where Teachers track progress, Parents stay connected, and Students turn learning into an adventure.</p>
-      
+      <p class="text-muted mx-auto" style="max-width: 600px;">The all-in-one platform where Teachers track progress,
+        Parents stay connected, and Students turn learning into an adventure.</p>
+
       <div class="row mt-5">
         <div class="col-6 col-md-3 mb-4">
           <h2 class="display-4 fw-bold text-primary mb-0">15K<span class="text-info">+</span></h2>
@@ -71,7 +255,7 @@
     <div class="container text-center">
       <h2 class="fw-bold text-primary mb-3">Frequently Asked Questions</h2>
       <p class="text-muted mb-5">Everything you need to know about starting your adventure with EduVenture.</p>
-      
+
       <div class="row justify-content-center">
         <div class="col-md-8 text-start">
           <div class="faq-item d-flex mb-4" *ngFor="let faq of faqs">
@@ -93,19 +277,76 @@
     <div class="container text-center pt-5">
       <h2 class="fw-bold mb-3">Our <span class="text-info">Features</span></h2>
       <p class="text-muted mb-5">This very extraordinary feature, can make learning activities more efficient</p>
-      
+
       <!-- Feature 1 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-md-6 order-2 order-md-1 position-relative">
-           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Analytics+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Analytics">
-           <div class="decoration-circle bg-primary opacity-25 position-absolute" style="width: 100px; height: 100px; border-radius: 50%; bottom: -20px; right: 10%; z-index: -1;"></div>
+          <!-- Analytics Mockup -->
+          <div class="feature-mockup mockup-analytics p-4 rounded-4 shadow-sm text-start bg-white border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-dark fs-6"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Class Analytics</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-1 px-2 small">Grade 5-A</span>
+            </div>
+            
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="p-3 bg-light rounded-3 text-center border border-light-subtle">
+                  <div class="small text-muted mb-1" style="font-size: 10px;">Average Attendance</div>
+                  <div class="fs-4 fw-bold text-dark">94.8%</div>
+                  <div class="text-success small" style="font-size: 9px;"><i class="bi bi-arrow-up-short"></i>+1.2% this week</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-3 bg-light rounded-3 text-center border border-light-subtle">
+                  <div class="small text-muted mb-1" style="font-size: 10px;">Active Quests</div>
+                  <div class="fs-4 fw-bold text-dark">12 / 15</div>
+                  <div class="text-primary small" style="font-size: 9px;"><i class="bi bi-check2-circle"></i>80% Completion</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="subject-progress">
+              <div class="mb-2">
+                <div class="d-flex justify-content-between small mb-1" style="font-size: 11px;">
+                  <span class="text-muted fw-semibold">Mathematics</span>
+                  <span class="text-dark fw-bold">88%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: 88%" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+              <div class="mb-2">
+                <div class="d-flex justify-content-between small mb-1" style="font-size: 11px;">
+                  <span class="text-muted fw-semibold">English Language</span>
+                  <span class="text-dark fw-bold">92%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-between small mb-1" style="font-size: 11px;">
+                  <span class="text-muted fw-semibold">Science & Tech</span>
+                  <span class="text-dark fw-bold">85%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="decoration-circle bg-primary opacity-25 position-absolute"
+            style="width: 100px; height: 100px; border-radius: 50%; bottom: -20px; right: 10%; z-index: -1;"></div>
         </div>
         <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
           <h3 class="fw-bold mb-4">Powerful <span class="text-info">Analytics</span> for Teachers</h3>
           <ul class="list-unstyled text-muted feature-list">
-            <li class="mb-3 d-flex"><i class="bi bi-grid-fill text-primary me-3 mt-1 fs-5"></i> Track student attendance and activity in real-time.</li>
-            <li class="mb-3 d-flex"><i class="bi bi-file-earmark-text-fill text-warning me-3 mt-1 fs-5"></i> Monitor class performance with automated grade reports.</li>
-            <li class="mb-3 d-flex"><i class="bi bi-people-fill text-secondary me-3 mt-1 fs-5"></i> Identify at-risk students before they fall behind.</li>
+            <li class="mb-3 d-flex"><i class="bi bi-grid-fill text-primary me-3 mt-1 fs-5"></i> Track student attendance
+              and activity in real-time.</li>
+            <li class="mb-3 d-flex"><i class="bi bi-file-earmark-text-fill text-warning me-3 mt-1 fs-5"></i> Monitor
+              class performance with automated grade reports.</li>
+            <li class="mb-3 d-flex"><i class="bi bi-people-fill text-secondary me-3 mt-1 fs-5"></i> Identify at-risk
+              students before they fall behind.</li>
           </ul>
         </div>
       </div>
@@ -114,21 +355,100 @@
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-md-6 text-start pe-md-5 mb-4 mb-md-0">
           <h3 class="fw-bold mb-4">Turn Grades into <br><span class="text-info">Rewards</span></h3>
-          <p class="text-muted">Students earn VenturePoints for every assignment completed and day attended. These points can be redeemed in the VentureShop for real-world rewards set by the school administration.</p>
+          <p class="text-muted">Students earn VenturePoints for every assignment completed and day attended. These
+            points can be redeemed in the VentureShop for real-world rewards set by the school administration.</p>
         </div>
         <div class="col-md-6 position-relative">
-           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Rewards+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Rewards">
+          <!-- Rewards Mockup -->
+          <div class="feature-mockup mockup-rewards p-4 rounded-4 shadow-sm text-start bg-white border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-dark fs-6"><i class="bi bi-cart-fill text-warning me-2"></i>VentureShop Store</span>
+              <div class="d-flex align-items-center gap-1 bg-purple-subtle py-1 px-2 rounded-pill border border-purple-subtle">
+                <i class="bi bi-cup-straw purple-text small" style="color: #6f42c1;"></i>
+                <span class="fw-bold purple-text small" style="color: #6f42c1; font-size: 11px;">1,240 VP</span>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="card h-100 border border-light-subtle shadow-xs item-card">
+                  <div class="card-body p-3 text-center">
+                    <div class="item-icon-wrap bg-primary-subtle text-primary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <i class="bi bi-ticket-perforated fs-5"></i>
+                    </div>
+                    <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 12px;">Cafeteria Lunch Pass</h6>
+                    <p class="card-text text-muted mb-2" style="font-size: 10px;">Claim a free lunch from cafeteria.</p>
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                      <span class="fw-bold text-dark" style="font-size: 11px;">500 VP</span>
+                      <button class="btn btn-primary btn-sm py-0 px-2 fw-bold" style="font-size: 9px;" disabled>Redeem</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card h-100 border border-light-subtle shadow-xs item-card">
+                  <div class="card-body p-3 text-center">
+                    <div class="item-icon-wrap bg-success-subtle text-success rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <i class="bi bi-file-earmark-plus fs-5"></i>
+                    </div>
+                    <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 12px;">Extra Credit (+5)</h6>
+                    <p class="card-text text-muted mb-2" style="font-size: 10px;">Bonus points on assignments.</p>
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                      <span class="fw-bold text-dark" style="font-size: 11px;">300 VP</span>
+                      <button class="btn btn-success btn-sm py-0 px-2 fw-bold text-white" style="font-size: 9px;" disabled>Redeem</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Feature 3 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-md-6 order-2 order-md-1 position-relative">
-           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Quests+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Quests">
+          <!-- Quests Mockup -->
+          <div class="feature-mockup mockup-quests p-4 rounded-4 shadow-sm text-start bg-white border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-dark fs-6"><i class="bi bi-controller text-info me-2"></i>Quest Challenge</span>
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill py-1 px-2 small" style="font-size: 10px;">+150 VP</span>
+            </div>
+
+            <div class="quest-card p-3 bg-light rounded-3 border border-light-subtle mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-uppercase text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.5px;">Algebra Quest • Task 3 of 5</span>
+                <span class="text-primary fw-bold" style="font-size: 10px;"><i class="bi bi-hourglass-split me-1"></i>3h left</span>
+              </div>
+              <h6 class="fw-bold text-dark mb-3" style="font-size: 13px;">Solve for x: 3x + 5 = 20</h6>
+              
+              <div class="d-grid gap-2">
+                <div class="option-row d-flex align-items-center p-2 rounded-2 bg-white border border-light-subtle" style="font-size: 11px;">
+                  <span class="badge bg-light text-secondary me-2">A</span>
+                  <span class="text-dark">x = 3</span>
+                </div>
+                <div class="option-row d-flex align-items-center p-2 rounded-2 bg-success-subtle border border-success" style="font-size: 11px;">
+                  <span class="badge bg-success text-white me-2">B</span>
+                  <span class="text-success-emphasis fw-bold flex-grow-1">x = 5</span>
+                  <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                </div>
+                <div class="option-row d-flex align-items-center p-2 rounded-2 bg-white border border-light-subtle" style="font-size: 11px;">
+                  <span class="badge bg-light text-secondary me-2">C</span>
+                  <span class="text-dark">x = 6</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center bg-success-subtle p-2 rounded-3 text-success border border-success-subtle" style="font-size: 10px;">
+              <span class="fw-bold"><i class="bi bi-award-fill me-1"></i>Quest Answer Correct!</span>
+              <span class="fw-bold">+100 XP Claimed!</span>
+            </div>
+          </div>
         </div>
         <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
           <h3 class="fw-bold mb-4">Interactive Quests <br>& Challenges</h3>
-          <p class="text-muted">Forget boring paper tests. Students complete Quests (assignments) with instant feedback. Every correct answer earns them XP and VenturePoints.</p>
+          <p class="text-muted">Forget boring paper tests. Students complete Quests (assignments) with instant feedback.
+            Every correct answer earns them XP and VenturePoints.</p>
         </div>
       </div>
 
@@ -136,21 +456,109 @@
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-md-6 text-start pe-md-5 mb-4 mb-md-0">
           <h3 class="fw-bold mb-4">Smart Gradebook & <br>Analytics</h3>
-          <p class="text-muted">Teachers can track attendance and grades in real-time. See at a glance which students are 'Leveling Up' and who needs extra support.</p>
+          <p class="text-muted">Teachers can track attendance and grades in real-time. See at a glance which students
+            are 'Leveling Up' and who needs extra support.</p>
         </div>
         <div class="col-md-6 position-relative">
-           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Gradebook+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Gradebook">
+          <!-- Gradebook Mockup -->
+          <div class="feature-mockup mockup-gradebook p-4 rounded-4 shadow-sm text-start bg-white border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-dark fs-6"><i class="bi bi-journal-bookmark-fill text-success me-2"></i>Class Gradebook</span>
+              <span class="text-muted small" style="font-size: 10px;">Updated today</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-hover border border-light-subtle rounded-3 overflow-hidden style-table" style="font-size: 11px; margin-bottom: 0;">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" class="py-2">Student</th>
+                    <th scope="col" class="py-2">Math</th>
+                    <th scope="col" class="py-2">Science</th>
+                    <th scope="col" class="py-2">Attendance</th>
+                    <th scope="col" class="py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-bold py-2"><span class="avatar-dot bg-pink me-1" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #ec4899;"></span>Sarah Ahmad</td>
+                    <td class="py-2">A (95%)</td>
+                    <td class="py-2">A (96%)</td>
+                    <td class="py-2">98%</td>
+                    <td class="py-2"><span class="badge bg-success-subtle text-success rounded-pill px-2" style="font-size: 9px;">Leveling Up</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold py-2"><span class="avatar-dot bg-primary me-1" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #0b66c2;"></span>Ahmad Ali</td>
+                    <td class="py-2">B+ (87%)</td>
+                    <td class="py-2">B- (80%)</td>
+                    <td class="py-2">92%</td>
+                    <td class="py-2"><span class="badge bg-primary-subtle text-primary rounded-pill px-2" style="font-size: 9px;">On Track</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold py-2"><span class="avatar-dot bg-warning me-1" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #f59e0b;"></span>Yasmine Omar</td>
+                    <td class="py-2">A (92%)</td>
+                    <td class="py-2">A- (90%)</td>
+                    <td class="py-2">95%</td>
+                    <td class="py-2"><span class="badge bg-success-subtle text-success rounded-pill px-2" style="font-size: 9px;">Leveling Up</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Feature 5 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-md-6 order-2 order-md-1 position-relative">
-           <img src="https://placehold.co/600x400/f8f9fa/0b66c2?text=Messages+Mockup" class="img-fluid rounded-4 shadow-sm" alt="Messages">
+          <!-- Messages Mockup -->
+          <div class="feature-mockup mockup-messages p-4 rounded-4 shadow-sm text-start bg-white border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold rounded-circle" style="width: 30px; height: 30px; font-size: 11px;">
+                  K
+                </div>
+                <div>
+                  <h6 class="fw-bold text-dark mb-0" style="font-size: 12px;">Khalid (Math Teacher)</h6>
+                  <span class="text-success small d-flex align-items-center gap-1" style="font-size: 9px;">
+                    <span class="active-dot bg-success rounded-circle" style="display: inline-block; width: 6px; height: 6px;"></span>Online
+                  </span>
+                </div>
+              </div>
+              <div class="text-muted" style="font-size: 12px;">
+                <i class="bi bi-telephone-fill me-2"></i>
+                <i class="bi bi-three-dots-vertical"></i>
+              </div>
+            </div>
+
+            <div class="chat-bubbles d-flex flex-column gap-2 mb-3 overflow-y-auto" style="max-height: 160px;">
+              <div class="chat-bubble received p-2 rounded-3 bg-light-subtle text-dark border" style="font-size: 11px; max-width: 80%; background-color: #f8f9fa;">
+                <div class="fw-semibold text-primary mb-1" style="font-size: 9px;">Teacher Khalid</div>
+                Hi! Sarah did a fantastic job on her algebra quest today. She is now the Class Champion!
+                <div class="text-end text-muted mt-1" style="font-size: 8px;">10:30 AM</div>
+              </div>
+              <div class="chat-bubble sent p-2 rounded-3 bg-primary text-white align-self-end" style="font-size: 11px; max-width: 80%;">
+                Thank you, Teacher! She was so excited about earning the VenturePoints.
+                <div class="text-end text-white-50 mt-1" style="font-size: 8px;">10:32 AM</div>
+              </div>
+              <div class="chat-bubble received p-2 rounded-3 bg-light-subtle text-dark border" style="font-size: 11px; max-width: 80%; background-color: #f8f9fa;">
+                <div class="fw-semibold text-primary mb-1" style="font-size: 9px;">Teacher Khalid</div>
+                You're welcome! She is working really hard. Keep it up!
+                <div class="text-end text-muted mt-1" style="font-size: 8px;">10:35 AM</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 border-top pt-2">
+              <input type="text" class="form-control form-control-sm border-0 bg-light" placeholder="Type a message..." style="font-size: 11px;" disabled>
+              <button class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;" disabled>
+                <i class="bi bi-send-fill" style="font-size: 10px;"></i>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="col-md-6 order-1 order-md-2 text-start ps-md-5 mb-4 mb-md-0">
           <h3 class="fw-bold mb-4">Seamless Parent- <br>Teacher Connection</h3>
-          <p class="text-muted">Keep parents involved in the adventure. Secure messaging and activity logs ensure parents always know how their child is progressing.</p>
+          <p class="text-muted">Keep parents involved in the adventure. Secure messaging and activity logs ensure
+            parents always know how their child is progressing.</p>
         </div>
       </div>
     </div>
@@ -160,7 +568,8 @@
   <footer class="footer-section py-5 text-white">
     <div class="container text-center pt-4">
       <div class="mb-4 d-flex justify-content-center align-items-center">
-        <div class="bg-primary rounded p-2 me-3 d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+        <div class="bg-primary rounded p-2 me-3 d-inline-flex align-items-center justify-content-center"
+          style="width: 50px; height: 50px;">
           <i class="bi bi-lightbulb fs-4 text-dark" style="color: #000 !important;"></i>
         </div>
         <div class="text-start">
@@ -168,7 +577,7 @@
           <small class="opacity-75">Gamifying<br>Education</small>
         </div>
       </div>
-      
+
       <div class="mb-4 d-flex flex-column gap-2 opacity-75 text-center align-items-center">
         <div class="d-flex align-items-center"><i class="bi bi-envelope me-2"></i> Email: support@eduventure.edu</div>
         <div class="d-flex align-items-center"><i class="bi bi-telephone me-2"></i> Phone: 0781234567</div>

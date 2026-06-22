@@ -1,93 +1,97 @@
 <div class="p-layout">
   @if (role === 'admin') {
-    <app-admin-sidebar></app-admin-sidebar>
+  <app-admin-sidebar></app-admin-sidebar>
   } @else if (role === 'teacher') {
-    <app-sidebar></app-sidebar>
+  <app-sidebar></app-sidebar>
   } @else if (role === 'parent') {
-    <app-parent-sidebar></app-parent-sidebar>
+  <app-parent-sidebar></app-parent-sidebar>
   } @else {
-    <app-student-sidebar></app-student-sidebar>
+  <app-student-sidebar></app-student-sidebar>
   }
 
   <div class="p-layout__main">
     @if (role === 'admin') {
-      <app-admin-topbar pageTitle="Messages"></app-admin-topbar>
+    <app-admin-topbar pageTitle="Messages"></app-admin-topbar>
     } @else if (role === 'teacher') {
-      <app-topbar pageTitle="Messages" [userName]="teacherName" [showSearch]="false"></app-topbar>
+    <app-topbar pageTitle="Messages" [userName]="teacherName" [showSearch]="false"></app-topbar>
     } @else if (role === 'parent') {
-      <app-topbar pageTitle="Messages" [userName]="parentName" [showSearch]="false"></app-topbar>
+    <app-topbar pageTitle="Messages" [userName]="parentName" [showSearch]="false"></app-topbar>
     } @else {
-      <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name" [venturePoints]="ps.profile().venturePoints"></app-student-topbar>
+    <app-student-topbar pageTitle="Messages" [studentName]="ps.profile().name"
+      [venturePoints]="ps.profile().venturePoints"></app-student-topbar>
     }
 
     <div class="p-body">
       <div class="messaging-layout">
-      <!-- Inbox -->
-      <aside class="inbox-panel">
-        <div class="inbox-header">
-          <h2>Conversations</h2>
-          @if (totalUnread > 0) {
+        <!-- Inbox -->
+        <aside class="inbox-panel">
+          <div class="inbox-header">
+            <h2>Conversations</h2>
+            @if (totalUnread > 0) {
             <span class="unread-chip">{{ totalUnread }} new</span>
-          }
-        </div>
+            }
+          </div>
 
-        <div class="search-wrap">
-          <span class="material-icons search-icon">search</span>
-          <input class="search-input" type="text" placeholder="Search contacts…" [(ngModel)]="searchQuery" />
-        </div>
+          <div class="search-wrap">
+            <span class="material-icons search-icon">search</span>
+            <input class="search-input" type="text" placeholder="Search contacts…" [(ngModel)]="searchQuery" />
+          </div>
 
-        @if (loadingContacts) {
+          @if (loadingContacts) {
           <div class="inbox-loading">
             <span class="material-icons spinning">sync</span>
           </div>
-        }
+          }
 
-        <div class="contact-list">
+          <div class="contact-list">
             @if (contactsError) {
-              <div class="chat-empty" style="padding: 1rem; color: #e74c3c;">
-                <span class="material-icons chat-empty-icon" style="font-size: 24px; margin-bottom: 8px;">error_outline</span>
-                <p style="font-size: 0.9rem; margin: 0;">{{ contactsError }}</p>
-                <p style="font-size: 0.8rem; margin-top: 8px;">Please check your Firestore rules for the 'users' collection.</p>
-              </div>
+            <div class="chat-empty" style="padding: 1rem; color: #e74c3c;">
+              <span class="material-icons chat-empty-icon"
+                style="font-size: 24px; margin-bottom: 8px;">error_outline</span>
+              <p style="font-size: 0.9rem; margin: 0;">{{ contactsError }}</p>
+              <p style="font-size: 0.8rem; margin-top: 8px;">Please check your Firestore rules for the 'users'
+                collection.</p>
+            </div>
             } @else {
-              @for (contact of filteredContacts; track contact.uid) {
-                <button class="contact-item" [class.active]="selectedContact?.uid === contact.uid" (click)="selectContact(contact)">
-                  <div class="contact-avatar" [attr.data-role]="contact.role">{{ contact.avatarInitials }}</div>
-                  <div class="contact-info">
-                    <div class="contact-row">
-                      <span class="contact-name">{{ contact.name }}</span>
-                      <span class="contact-time">{{ formatLastMessageTime(contact.lastMessageTime) }}</span>
-                    </div>
-                    <div class="contact-row">
-                      <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>
-                      @if (contact.unreadCount && contact.unreadCount > 0) {
-                        <span class="contact-badge">{{ contact.unreadCount }}</span>
-                      }
-                    </div>
-                  </div>
-                </button>
-              }
-              @if (!loadingContacts && filteredContacts.length === 0) {
-                <div class="empty-contacts">
-                  <span class="material-icons">search_off</span>
-                  <p>No contacts found</p>
+            @for (contact of filteredContacts; track contact.uid) {
+            <button class="contact-item" [class.active]="selectedContact?.uid === contact.uid"
+              (click)="selectContact(contact)">
+              <div class="contact-avatar" [attr.data-role]="contact.role">{{ contact.avatarInitials }}</div>
+              <div class="contact-info">
+                <div class="contact-row">
+                  <span class="contact-name">{{ contact.name }}</span>
+                  <span class="contact-time">{{ formatLastMessageTime(contact.lastMessageTime) }}</span>
                 </div>
-              }
+                <div class="contact-row">
+                  <span class="contact-preview">{{ contact.lastMessage || 'No messages yet' }}</span>
+                  @if (contact.unreadCount && contact.unreadCount > 0) {
+                  <span class="contact-badge">{{ contact.unreadCount }}</span>
+                  }
+                </div>
+              </div>
+            </button>
             }
-        </div>
-      </aside>
+            @if (!loadingContacts && filteredContacts.length === 0) {
+            <div class="empty-contacts">
+              <span class="material-icons">search_off</span>
+              <p>No contacts found</p>
+            </div>
+            }
+            }
+          </div>
+        </aside>
 
-      <!-- Chat -->
-      <section class="chat-panel">
-        @if (!selectedContact) {
+        <!-- Chat -->
+        <section class="chat-panel">
+          @if (!selectedContact) {
           <div class="chat-empty">
             <span class="material-icons chat-empty-icon">forum</span>
             <h3>Select a conversation</h3>
             <p>Choose a contact from the left to start messaging.</p>
           </div>
-        }
+          }
 
-        @if (selectedContact) {
+          @if (selectedContact) {
           <div class="chat-header">
             <div class="chat-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
             <div class="chat-contact-info">
@@ -98,65 +102,61 @@
 
           <div class="messages-area">
             @if (loadingMessages) {
-              <div class="messages-loading">
-                <span class="material-icons spinning">sync</span>
-                <p>Loading messages…</p>
-              </div>
+            <div class="messages-loading">
+              <span class="material-icons spinning">sync</span>
+              <p>Loading messages…</p>
+            </div>
             }
 
             @if (!loadingMessages) {
-              @for (msg of messages; track msg.id; let i = $index) {
-                @if (shouldShowDateSeparator(i)) {
-                  <div class="date-separator"><span>{{ formatDate(msg.timestamp) }}</span></div>
-                }
-                <div class="message-row" [class.message-row--own]="msg.isOwn">
-                  @if (!msg.isOwn) {
-                    <div class="msg-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
-                  }
-                  <div class="bubble-wrap">
-                    <div class="bubble" [class.bubble--own]="msg.isOwn" [class.bubble--failed]="msg.id?.startsWith('failed-')">
-                      {{ msg.content }}
-                    </div>
-                    <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
-                  </div>
-                </div>
+            @for (msg of messages; track msg.id; let i = $index) {
+            @if (shouldShowDateSeparator(i)) {
+            <div class="date-separator"><span>{{ formatDate(msg.timestamp) }}</span></div>
+            }
+            <div class="message-row" [class.message-row--own]="msg.isOwn">
+              @if (!msg.isOwn) {
+              <div class="msg-avatar" [attr.data-role]="selectedContact.role">{{ selectedContact.avatarInitials }}</div>
               }
+              <div class="bubble-wrap">
+                <div class="bubble" [class.bubble--own]="msg.isOwn"
+                  [class.bubble--failed]="msg.id?.startsWith('failed-')">
+                  {{ msg.content }}
+                </div>
+                <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+              </div>
+            </div>
+            }
 
-              @if (messages.length === 0) {
-                <div class="no-messages">
-                  <span class="material-icons">chat_bubble_outline</span>
-                  <p>No messages yet. Say hello!</p>
-                </div>
-              }
+            @if (messages.length === 0) {
+            <div class="no-messages">
+              <span class="material-icons">chat_bubble_outline</span>
+              <p>No messages yet. Say hello!</p>
+            </div>
+            }
             }
             <div #messagesEnd></div>
           </div>
 
           <div class="input-area" style="flex-direction: column;">
             @if (sendError) {
-              <div style="color: #e74c3c; font-size: 0.8rem; margin-bottom: 8px; padding: 0 16px;">
-                <span class="material-icons" style="font-size: 14px; vertical-align: middle;">error</span> {{ sendError }}
-              </div>
+            <div style="color: #e74c3c; font-size: 0.8rem; margin-bottom: 8px; padding: 0 16px;">
+              <span class="material-icons" style="font-size: 14px; vertical-align: middle;">error</span> {{ sendError }}
+            </div>
             }
             <div style="display: flex; width: 100%;">
-              <textarea
-                class="message-input"
-              placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
-              [(ngModel)]="newMessage"
-              (keydown)="onKeyDown($event)"
-              rows="1"
-            ></textarea>
-            <button class="send-btn" [disabled]="!newMessage.trim() || sending" (click)="sendMessage()">
-              @if (sending) {
+              <textarea class="message-input" placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+                [(ngModel)]="newMessage" (keydown)="onKeyDown($event)" rows="1"></textarea>
+              <button class="send-btn" [disabled]="!newMessage.trim() || sending" (click)="sendMessage()">
+                @if (sending) {
                 <span class="material-icons spinning">sync</span>
-              } @else {
+                } @else {
                 <span class="material-icons">send</span>
-              }
-            </button>
+                }
+              </button>
             </div>
           </div>
-        }
-      </section>
+          }
+        </section>
       </div>
     </div>
   </div>
