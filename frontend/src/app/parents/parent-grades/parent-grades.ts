@@ -1,4 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ParentService, GradeRecord, ParentChild } from '../../services/parent.service';
@@ -21,6 +23,7 @@ export class ParentGrades implements OnInit {
   children = signal<ParentChild[]>([]);
   allGrades = signal<GradeRecord[]>([]);
   selectedChild = signal('all');
+  loading = signal(true);
 
   filtered = computed(() => {
     const g = this.allGrades();
@@ -43,13 +46,32 @@ export class ParentGrades implements OnInit {
       console.error('Error fetching parent profile:', err);
     }
 
-    this.ps.getChildren().subscribe(c => this.children.set(c));
-    this.ps.getGrades().subscribe(g => this.allGrades.set(g));
+    this.ps.getChildren().subscribe(children => {
+      this.children.set(children);
+      
+      if (!children || children.length === 0) {
+        this.loading.set(false);
+        return;
+      }
+
+      const gradeRequests = children.map(c => this.ps.getGrades(c.id).pipe(catchError(() => of([]))));
+      forkJoin(gradeRequests).subscribe({
+        next: (gradesArray) => {
+          const all = gradesArray.flat();
+          this.allGrades.set(all);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load grades', err);
+          this.loading.set(false);
+        }
+      });
+    });
   }
 
   get avgGpa(): number {
-    const ch = this.children();
-    return ch.length ? Math.round((ch.reduce((s, c) => s + c.gpa, 0) / ch.length) * 10) / 10 : 0;
+    const g = this.allGrades();
+    return g.length ? Math.round((g.reduce((s, x) => s + x.percentage, 0) / g.length) * 10) / 10 : 0;
   }
 
   getChildName(childId: string): string {

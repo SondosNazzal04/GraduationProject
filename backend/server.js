@@ -1458,27 +1458,73 @@ app.get('/api/parent/children/:childId/grades', authenticate, requireRole('paren
 			});
 		}
 
+		// Deduplicate submissions by activityId
+		const bestSubmissions = new Map();
 		for (const sub of submissions) {
-			const actSnap = await db.collection('activities').doc(sub.activityId).get();
-			if (actSnap.exists) {
-				const act = actSnap.data();
+			const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
+			const existing = bestSubmissions.get(sub.activityId);
+			if (!existing || pct > existing.pct) {
+				bestSubmissions.set(sub.activityId, { sub, pct });
+			}
+		}
+
+		const activityIds = [...new Set([...bestSubmissions.values()].map(x => x.sub.activityId))];
+		const classIds = new Set();
+		const teacherUids = new Set();
+
+		const activitiesMap = new Map();
+		const classesMap = new Map();
+		const usersMap = new Map();
+
+		const chunkArray = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+
+		await Promise.all(chunkArray(activityIds, 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('activities').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				const act = doc.data();
+				activitiesMap.set(doc.id, act);
+				if (act.classId) classIds.add(act.classId);
+			});
+		}));
+
+		await Promise.all(chunkArray([...classIds], 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('classes').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				const cls = doc.data();
+				classesMap.set(doc.id, cls);
+				if (cls.teacherUid) teacherUids.add(cls.teacherUid);
+			});
+		}));
+
+		await Promise.all(chunkArray([...teacherUids], 30).map(async (chunk) => {
+			if (chunk.length === 0) return;
+			const snap = await db.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', chunk).get();
+			snap.forEach(doc => {
+				usersMap.set(doc.id, doc.data());
+			});
+		}));
+
+		for (const { sub, pct } of bestSubmissions.values()) {
+			const act = activitiesMap.get(sub.activityId);
+			if (act) {
 				let subject = 'Activity';
 				let teacherName = 'Teacher';
+
 				if (act.classId) {
-					const classSnap = await db.collection('classes').doc(act.classId).get();
-					if (classSnap.exists) {
-						const classData = classSnap.data();
+					const classData = classesMap.get(act.classId);
+					if (classData) {
 						subject = classData.name || 'Activity';
 						if (classData.teacherUid) {
-							const teacherUser = await getUserRecord(classData.teacherUid);
+							const teacherUser = usersMap.get(classData.teacherUid);
 							if (teacherUser) {
-								teacherName = `${teacherUser.firstName} ${teacherUser.lastName}`.trim();
+								teacherName = `${teacherUser.firstName || ''} ${teacherUser.lastName || ''}`.trim();
 							}
 						}
 					}
 				}
 
-				const pct = Number(sub.gradePercentage ?? Math.round((sub.gradeScore / (sub.totalQuestions || 1)) * 100));
 				const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
 				const statusVal = pct >= 90 ? 'excellent' : pct >= 60 ? 'pass' : 'fail';
 

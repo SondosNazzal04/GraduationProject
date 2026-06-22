@@ -155,7 +155,7 @@ export class ParentDashboard implements OnInit {
   }
 
   getGpaColor(gpa: number): string {
-    return gpa >= 3.7 ? '#22c55e' : gpa >= 3.0 ? '#f59e0b' : '#ef4444';
+    return gpa >= 90 ? '#22c55e' : gpa >= 75 ? '#f59e0b' : '#ef4444';
   }
 
   barHeight(pct: number): number { return (pct / this.maxTrend) * 80; }

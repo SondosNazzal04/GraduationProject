@@ -89,7 +89,7 @@ export class ParentService {
           const lastName = item.lastName || '';
           
           // Generate dynamic but stable mock data structure for grades/gpa
-          const gpa = id.charCodeAt(0) % 2 === 0 ? 3.9 : 3.6;
+          const gpa = id.charCodeAt(0) % 2 === 0 ? 98 : 88;
           const streak = (id.charCodeAt(id.length - 1) % 5) + 3;
           const attendancePct = 90 + (id.charCodeAt(0) % 10);
           const badgesEarned = 5 + (id.charCodeAt(id.length - 1) % 8);
