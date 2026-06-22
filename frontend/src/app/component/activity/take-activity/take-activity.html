@@ -191,7 +191,7 @@
                 This attempt must be submitted by {{ activity.dueDate }}.
               </div>
               <button type="submit" class="btn-submit-quiz"
-                      [disabled]="form.invalid || timerExpired">
+                      [disabled]="form.invalid || timerExpired || submitted">
                 Finish attempt
               </button>
             </div>

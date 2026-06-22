@@ -173,7 +173,8 @@ export class TakeActivityComponent implements OnInit, OnDestroy {
   }
 
   private async doSubmit(): Promise<void> {
-    if (!this.activity) return;
+    if (!this.activity || this.submitted) return;
+    this.submitted = true;
     this.stopTimer();
 
     const answers = this.activity.questions.map(q => ({
